@@ -1,26 +1,157 @@
 @import "tailwindcss";
 
+@theme {
+  --color-forest: #10595a;
+  --color-sage: #9dd1a6;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --forest-green: #10595a;
+  --sage-green: #9dd1a6;
+  --action-black: #1A1A1A;
+  --neutral-white: #FFFFFF;
+  --page-bg: #f2ebdb;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-jost), sans-serif;
+  font-weight: 300;
+  line-height: 1.8;
+  margin: 0;
+  padding: 0;
+  background-color: var(--page-bg);
+  color: var(--action-black);
+  overflow-x: hidden;
+}
+
+.font-script {
+  font-family: var(--font-qwitcher), cursive;
+  line-height: 0.8;
+}
+
+.font-ui {
+  font-family: var(--font-montserrat), sans-serif;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* 'Carita Triste' Curve: Convex downward (Arch). The green arches down. */
+.header-curved-bg {
+  background-color: var(--forest-green);
+  min-height: 500px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  overflow: hidden;
+  transition: min-height 0.5s ease-in-out;
+}
+
+.header-curved-bg.extended {
+  min-height: 600px;
+}
+
+/* Creates a white 'hill' at bottom to simulate the arch */
+.header-curved-bg::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: -10%;
+  width: 120%;
+  height: 100px;
+  background-color: var(--page-bg);
+  border-top-left-radius: 50% 100%;
+  border-top-right-radius: 50% 100%;
+}
+
+.hero-image-frame {
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+}
+
+.floating-label {
+  background-color: var(--sage-green);
+  padding: 2.5rem;
+  border-radius: 12px;
+  z-index: 20;
+}
+
+.btn-black {
+  background-color: var(--action-black);
+  color: white;
+  padding: 14px 40px;
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-black:hover {
+  background-color: var(--forest-green);
+  transform: translateY(-2px);
+}
+
+.nav-link {
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--sage-green);
+}
+
+.circular-mask {
+  border-radius: 50% !important;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background-color: #f7f7f7;
+}
+
+.highlight-tag {
+  border-radius: 20px !important;
+  background-color: var(--sage-green);
+  padding: 4px 16px;
+  font-size: 0.75rem;
+  color: var(--neutral-white);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
 }
