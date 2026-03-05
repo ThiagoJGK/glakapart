@@ -24,7 +24,7 @@ const AdminApartments: React.FC = () => {
             if (data?.gallery) {
                 setGallery(data.gallery);
             } else {
-                setGallery(apartmentData[selectedApt].images.filter(x => x)); // Fallback
+                setGallery(apartmentData[selectedApt].images.filter((x: string) => x)); // Fallback
             }
             if (data?.tour360Url) {
                 setTourUrl(data.tour360Url);
