@@ -155,3 +155,29 @@ body {
 .animate-fade-in-up {
   animation: fadeInUp 0.5s ease-out forwards;
 }
+
+/* Lightbox global state */
+body.lightbox-open #floating-booking-button,
+body.lightbox-open #chat-widget {
+  display: none !important;
+}
+
+/* Infinite Slider */
+@keyframes slide-infinite {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(calc(-50% - 12px));
+    /* Adjust 12px based on gap if necessary */
+  }
+}
+
+.animate-slide-infinite {
+  animation: slide-infinite 40s linear infinite;
+}
+
+.animate-slide-infinite:hover {
+  animation-play-state: paused;
+}

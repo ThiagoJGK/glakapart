@@ -13,7 +13,7 @@ export const SeasonSummer: React.FC = () => {
                     visible: { opacity: 0, scale: 0.5 },
                     hover: { opacity: 1, scale: 1.1, transition: { duration: 0.5 } }
                 }}
-                className="absolute top-[-10%] right-[-10%] w-48 h-48 origin-center z-0"
+                className="absolute top-[-5%] right-[-5%] md:top-[-10%] md:right-[-10%] w-32 h-32 md:w-48 md:h-48 origin-center z-0"
                 style={{ willChange: 'transform, opacity' }}
             >
                 {/* Core Sun */}

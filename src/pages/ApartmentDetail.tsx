@@ -18,6 +18,7 @@ const ApartmentDetail: React.FC = () => {
     const [unifiedGallery, setUnifiedGallery] = useState<string[]>([]);
     const [tourUrl, setTourUrl] = useState<string>('');
     const [showTour, setShowTour] = useState(false);
+    const [rotatingIndex, setRotatingIndex] = useState(3);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -48,18 +49,30 @@ const ApartmentDetail: React.FC = () => {
 
     // Use unified gallery if available, otherwise fallback to local apt.images
     const displayGallery = unifiedGallery.length > 0 ? unifiedGallery : apt.images.filter((url: string) => url);
-    const displayedCount = 3; // We display 3 in the grid (plus the hero)
-    const hiddenCount = Math.max(0, displayGallery.length - (displayedCount + 1)); // -1 for hero
+
+    useEffect(() => {
+        if (!displayGallery || displayGallery.length <= 3) {
+            setRotatingIndex(0);
+            return;
+        }
+        setRotatingIndex(3); // start at index 3
+        const interval = setInterval(() => {
+            setRotatingIndex(prev => prev >= displayGallery.length - 1 ? 3 : prev + 1);
+        }, 3500);
+        return () => clearInterval(interval);
+    }, [displayGallery]);
 
     const openLightbox = (index: number) => {
         setLightboxIndex(index);
         setLightboxOpen(true);
         document.body.style.overflow = 'hidden';
+        document.body.classList.add('lightbox-open');
     };
 
     const closeLightbox = () => {
         setLightboxOpen(false);
         document.body.style.overflow = '';
+        document.body.classList.remove('lightbox-open');
     };
 
     const prevImage = () => setLightboxIndex(i => (i - 1 + displayGallery.length) % displayGallery.length);
@@ -101,7 +114,7 @@ const ApartmentDetail: React.FC = () => {
                             <Editable
                                 id={`apartment.${aptKey}.name`}
                                 defaultValue={apt.name}
-                                className="font-script text-8xl md:text-9xl mb-4"
+                                className="font-script text-7xl md:text-9xl mb-4"
                                 label="Nombre Apartamento"
                             />
                             {tourUrl && (
@@ -169,49 +182,62 @@ const ApartmentDetail: React.FC = () => {
 
                 </div>
 
-                {/* Artistic Photo Grid (Masonry-like) */}
-                <div className="mb-24">
+                {/* Artistic Photo Slider */}
+                <div className="mb-24 overflow-hidden relative">
                     <ScrollReveal>
                         <h3 className="font-script text-6xl text-center mb-16 text-[#10595a]">Galería Visual</h3>
                     </ScrollReveal>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-auto md:h-[600px]">
-                        <ScrollReveal className="h-64 md:h-auto overflow-hidden rounded-[2.5rem] group relative h-full shadow-2xl skew-y-0 transform transition-all duration-500 hover:-translate-y-2 cursor-pointer" onClick={() => displayGallery.length > 1 && openLightbox(1)}>
-                            {displayGallery[1] && (
-                                <img
-                                    src={displayGallery[1]}
-                                    alt="Foto Galería 1"
-                                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                                />
-                            )}
-                            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500"></div>
-                        </ScrollReveal>
-                        <div className="grid grid-rows-2 gap-6 h-full">
-                            <ScrollReveal delay={200} className="overflow-hidden rounded-[2.5rem] group relative h-full shadow-xl transform transition-all duration-500 hover:-translate-y-1 cursor-pointer" onClick={() => displayGallery.length > 2 && openLightbox(2)}>
-                                {displayGallery[2] && (
+
+                    {displayGallery.length > 0 && (
+                        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px] md:h-[600px]">
+                            {/* Main Rotating Image (Left) */}
+                            <div
+                                className="col-span-1 lg:col-span-8 h-[300px] lg:h-full rounded-[2.5rem] overflow-hidden shadow-2xl relative cursor-pointer group"
+                                onClick={() => openLightbox(rotatingIndex)}
+                            >
+                                {displayGallery.map((img: string, idx: number) => (
                                     <img
-                                        src={displayGallery[2]}
-                                        alt="Foto Galería 2"
-                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                        key={`main-${idx}`}
+                                        src={img}
+                                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${(displayGallery.length <= 3 && idx === 0) || idx === rotatingIndex ? 'opacity-100' : 'opacity-0'
+                                            } group-hover:scale-105 transition-transform`}
+                                        alt="Main Gallery"
                                     />
-                                )}
-                            </ScrollReveal>
-                            <ScrollReveal delay={400} className="overflow-hidden rounded-[2.5rem] group relative h-full shadow-xl transform transition-all duration-500 hover:-translate-y-1 cursor-pointer" onClick={() => displayGallery.length > 3 && openLightbox(3)}>
-                                {displayGallery[3] && (
-                                    <img
-                                        src={displayGallery[3]}
-                                        alt="Foto Galería 3"
-                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                                    />
-                                )}
-                                {/* "+X fotos" overlay */}
-                                {hiddenCount > 0 && (
-                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                                        <span className="text-white text-2xl font-bold tracking-wider">+{hiddenCount} fotos</span>
+                                ))}
+                                <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500"></div>
+                            </div>
+
+                            {/* Secondary Images (Right) */}
+                            {displayGallery.length > 1 && (
+                                <div className="col-span-1 lg:col-span-4 grid grid-rows-2 gap-6 h-full">
+                                    <div
+                                        className="rounded-[2.5rem] overflow-hidden shadow-xl relative cursor-pointer group"
+                                        onClick={() => openLightbox(1)}
+                                    >
+                                        <img src={displayGallery[1]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Secondary 1" />
+                                        <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500"></div>
                                     </div>
-                                )}
-                            </ScrollReveal>
+
+                                    {displayGallery.length > 2 && (
+                                        <div
+                                            className="rounded-[2.5rem] overflow-hidden shadow-xl relative cursor-pointer group"
+                                            onClick={() => openLightbox(2)}
+                                        >
+                                            <img src={displayGallery[2]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Secondary 2" />
+                                            <div className="absolute inset-0 bg-black/10 transition-colors duration-500"></div>
+
+                                            {/* + Fotos Overlay */}
+                                            {displayGallery.length > 3 && (
+                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm group-hover:bg-black/50 transition-colors">
+                                                    <span className="text-white font-ui font-black tracking-widest text-2xl drop-shadow-md">+{displayGallery.length - 3} FOTOS</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    )}
                 </div>
 
             </div>

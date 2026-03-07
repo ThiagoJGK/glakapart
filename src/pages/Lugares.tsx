@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 const Lugares: React.FC = () => {
     return (
-        <main className="relative z-30 pt-64 md:pt-[480px] pb-32 animate-fade-in group/main">
+        <main className="relative z-30 pt-64 md:pt-[480px] pb-32 animate-fade-in group/main overflow-x-clip">
             {/* Fixed Editable Background */}
             <div className="fixed inset-0 -z-20 w-full h-full">
                 <Editable
@@ -19,12 +19,17 @@ const Lugares: React.FC = () => {
             {/* HERO SECTION: Best Tourism Village */}
             <div className="container mx-auto px-6 mb-20 md:mb-32 text-center relative z-10">
                 <div className="relative inline-block mb-12">
-                    <h2 className="font-script text-7xl md:text-9xl text-forest relative z-20 drop-shadow-sm">Destino Urdinarrain</h2>
+                    <Editable
+                        id="lugares.hero.title"
+                        defaultValue="Destino Urdinarrain"
+                        className="font-script text-7xl md:text-9xl text-forest relative z-20 drop-shadow-sm block"
+                        label="Título Principal"
+                    />
                     {/* Badge Overlay */}
-                    <div className="absolute -top-12 -right-8 md:-right-16 w-32 h-32 md:w-40 md:h-40 bg-white rounded-full shadow-xl flex flex-col items-center justify-center p-4 transform rotate-12 animate-float border-4 border-[#e8d5b5]">
-                        <span className="text-[10px] uppercase tracking-widest text-forest font-bold mb-1">UN TURISMO</span>
-                        <span className="font-ui font-bold text-[10px] md:text-xs tracking-[0.3em] uppercase bg-[#10595a] text-white px-4 py-2 rounded-full text-center leading-tight">BEST TOURISM VILLAGE</span>
-                        <span className="text-xl font-bold text-forest mt-1">2024</span>
+                    <div className="absolute -top-6 -right-4 md:-top-12 md:-right-16 w-24 h-24 md:w-40 md:h-40 bg-white rounded-full shadow-xl flex flex-col items-center justify-center p-2 md:p-4 transform rotate-12 animate-float border-2 md:border-4 border-[#e8d5b5]">
+                        <Editable id="lugares.hero.badge.1" defaultValue="UN TURISMO" className="text-[6px] md:text-[10px] uppercase tracking-widest text-forest font-bold mb-0.5 md:mb-1 block" label="Badge L1" />
+                        <Editable id="lugares.hero.badge.2" defaultValue="BEST TOURISM VILLAGE" className="font-ui font-bold text-[6px] md:text-xs tracking-[0.3em] uppercase bg-[#10595a] text-white px-2 py-1 md:px-4 md:py-2 rounded-full text-center leading-tight block" label="Badge L2" />
+                        <Editable id="lugares.hero.badge.3" defaultValue="2024" className="text-sm md:text-xl font-bold text-forest mt-0.5 md:mt-1 block" label="Badge L3" />
                     </div>
                 </div>
 
@@ -64,7 +69,12 @@ const Lugares: React.FC = () => {
                 <section id="naturaleza" className="scroll-mt-32">
                     <div className="flex items-end gap-6 mb-12 border-b border-sage/20 pb-6">
                         <span className="text-6xl md:text-8xl font-script text-sage/40 -mb-6 relative z-0">01</span>
-                        <h3 className="text-3xl md:text-5xl font-ui font-black text-forest relative z-10 leading-tight">NATURALEZA Y PLAYA</h3>
+                        <Editable
+                            id="lugares.section1.title"
+                            defaultValue="NATURALEZA Y PLAYA"
+                            className="text-3xl md:text-5xl font-ui font-black text-forest relative z-10 leading-tight block"
+                            label="Título Sección 1"
+                        />
                     </div>
 
                     <div className="bg-forest rounded-[3rem] p-8 md:p-16 shadow-2xl relative overflow-hidden group">
@@ -126,15 +136,24 @@ const Lugares: React.FC = () => {
                 {/* 2. TURISMO PRODUCTIVO (Sabores) */}
                 <section id="sabores" className="scroll-mt-32">
                     <div className="flex items-end gap-6 mb-12 border-b border-sage/20 pb-6 justify-end text-right">
-                        <h3 className="text-4xl md:text-5xl font-ui font-black text-forest relative z-10">SABORES CON HISTORIA</h3>
+                        <Editable
+                            id="lugares.section2.title"
+                            defaultValue="SABORES CON HISTORIA"
+                            className="text-4xl md:text-5xl font-ui font-black text-forest relative z-10 block"
+                            label="Título Sección 2"
+                        />
                         <span className="text-6xl md:text-8xl font-script text-sage/40 -mb-6 relative z-0">02</span>
                     </div>
 
                     <div className="bg-white rounded-[3rem] p-8 md:p-12 shadow-xl border border-gray-100 flex flex-col md:flex-row gap-12 items-center">
                         <div className="md:w-1/2 space-y-6">
-                            <p className="text-xl text-gray-600 leading-relaxed">
-                                Urdinarrain es famosa por sus productos artesanales premiados. Desde el <strong>Dulce de Leche "La Pequeña"</strong> (Medalla de Oro), pasando por los vinos de <strong>Finca Los Bayos</strong>, hasta los panificados de horno a leña de <strong>Panadería Ceferino</strong>.
-                            </p>
+                            <Editable
+                                id="lugares.sabores.desc"
+                                type="textarea"
+                                defaultValue='Urdinarrain es famosa por sus productos artesanales premiados. Desde el <strong>Dulce de Leche "La Pequeña"</strong> (Medalla de Oro), pasando por los vinos de <strong>Finca Los Bayos</strong>, hasta los panificados de horno a leña de <strong>Panadería Ceferino</strong>.'
+                                className="text-xl text-gray-600 leading-relaxed block"
+                                label="Descripción Sabores"
+                            />
                             <Link href="/gastronomia" className="inline-flex items-center gap-3 bg-forest text-white px-8 py-4 rounded-full font-bold tracking-widest uppercase text-xs hover:bg-sage transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                 <span>Ver Ruta Gastronómica</span>
                                 <span className="text-xl">→</span>
@@ -163,7 +182,12 @@ const Lugares: React.FC = () => {
                 <section id="aventura" className="scroll-mt-32">
                     <div className="flex items-end gap-6 mb-12 border-b border-sage/20 pb-6">
                         <span className="text-6xl md:text-8xl font-script text-sage/40 -mb-6 relative z-0">03</span>
-                        <h3 className="text-4xl md:text-5xl font-ui font-black text-forest relative z-10">AVENTURA Y ACTIVO</h3>
+                        <Editable
+                            id="lugares.section3.title"
+                            defaultValue="AVENTURA Y ACTIVO"
+                            className="text-4xl md:text-5xl font-ui font-black text-forest relative z-10 block"
+                            label="Título Sección 3"
+                        />
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8">
@@ -175,17 +199,32 @@ const Lugares: React.FC = () => {
                                     type="image"
                                     defaultValue="https://images.unsplash.com/photo-1520636254070-07973d09a061?auto=format&fit=crop&q=80&w=800"
                                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                                    label="Imagen Planeador"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                <div className="absolute bottom-6 left-6 text-white">
-                                    <h4 className="font-script text-4xl mb-1">Vuelos en Planeador</h4>
+                                <div className="absolute bottom-6 left-6 text-white w-full pr-6">
+                                    <Editable
+                                        id="lugares.adventure.plane.title"
+                                        defaultValue="Vuelos en Planeador"
+                                        className="font-script text-5xl md:text-6xl mb-1 block"
+                                        label="Título Planeador"
+                                    />
                                 </div>
                             </div>
                             <div className="p-8">
-                                <p className="text-gray-600 leading-relaxed mb-6">
-                                    Vuelos de bautismo los fines de semana en el Club de Planeadores. Una experiencia increíble para ver las lomadas entrerrianas desde el silencio del aire.
-                                </p>
-                                <span className="inline-block px-4 py-2 bg-sage/10 text-forest text-xs font-bold rounded-full tracking-widest">SÁBADOS Y DOMINGOS</span>
+                                <Editable
+                                    id="lugares.adventure.plane.desc"
+                                    type="textarea"
+                                    defaultValue="Vuelos de bautismo los fines de semana en el Club de Planeadores. Una experiencia increíble para ver las lomadas entrerrianas desde el silencio del aire."
+                                    className="text-gray-600 leading-relaxed mb-6 block"
+                                    label="Descripción Planeador"
+                                />
+                                <Editable
+                                    id="lugares.adventure.plane.badge"
+                                    defaultValue="SÁBADOS Y DOMINGOS"
+                                    className="inline-block px-4 py-2 bg-sage/10 text-forest text-xs font-bold rounded-full tracking-widest"
+                                    label="Insignia Planeador"
+                                />
                             </div>
                         </div>
 
@@ -197,17 +236,32 @@ const Lugares: React.FC = () => {
                                     type="image"
                                     defaultValue="https://images.unsplash.com/photo-1541625602330-2277a4c46182?auto=format&fit=crop&q=80&w=800"
                                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                                    label="Imagen Bici"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                <div className="absolute bottom-6 left-6 text-white">
-                                    <h4 className="font-script text-4xl mb-1">Cicloturismo</h4>
+                                <div className="absolute bottom-6 left-6 text-white w-full pr-6">
+                                    <Editable
+                                        id="lugares.adventure.bike.title"
+                                        defaultValue="Cicloturismo"
+                                        className="font-script text-5xl md:text-6xl mb-1 block"
+                                        label="Título Bici"
+                                    />
                                 </div>
                             </div>
                             <div className="p-8">
-                                <p className="text-gray-600 leading-relaxed mb-6">
-                                    Circuitos rurales autoguiados que conectan el casco urbano con aldeas vecinas. Caminos de tierra y ripio ideales para recorrer sobre dos ruedas.
-                                </p>
-                                <span className="inline-block px-4 py-2 bg-sage/10 text-forest text-xs font-bold rounded-full tracking-widest">CIRCUITOS LIBRES</span>
+                                <Editable
+                                    id="lugares.adventure.bike.desc"
+                                    type="textarea"
+                                    defaultValue="Circuitos rurales autoguiados que conectan el casco urbano con aldeas vecinas. Caminos de tierra y ripio ideales para recorrer sobre dos ruedas."
+                                    className="text-gray-600 leading-relaxed mb-6 block"
+                                    label="Descripción Bici"
+                                />
+                                <Editable
+                                    id="lugares.adventure.bike.badge"
+                                    defaultValue="CIRCUITOS LIBRES"
+                                    className="inline-block px-4 py-2 bg-sage/10 text-forest text-xs font-bold rounded-full tracking-widest"
+                                    label="Insignia Bici"
+                                />
                             </div>
                         </div>
                     </div>
@@ -216,7 +270,12 @@ const Lugares: React.FC = () => {
                 {/* 4. TURISMO DE EVENTOS (Nuevo) */}
                 <section id="eventos" className="scroll-mt-32">
                     <div className="flex items-end gap-6 mb-12 border-b border-sage/20 pb-6 justify-end text-right">
-                        <h3 className="text-4xl md:text-5xl font-ui font-black text-forest relative z-10">GRANDES FIESTAS</h3>
+                        <Editable
+                            id="lugares.section4.title"
+                            defaultValue="GRANDES FIESTAS"
+                            className="text-4xl md:text-5xl font-ui font-black text-forest relative z-10 block"
+                            label="Título Sección 4"
+                        />
                         <span className="text-6xl md:text-8xl font-script text-sage/40 -mb-6 relative z-0">04</span>
                     </div>
 
@@ -225,19 +284,47 @@ const Lugares: React.FC = () => {
                         <div className="grid md:grid-cols-2 gap-12 relative z-10">
                             <div className="bg-white/10 rounded-3xl p-8 backdrop-blur-md border border-white/10 hover:bg-white/20 transition-all">
                                 <div className="text-4xl mb-4">🐴</div>
-                                <h4 className="font-bold text-2xl mb-2 font-ui uppercase tracking-widest text-[#e8d5b5]">Fiesta del Caballo</h4>
-                                <span className="text-xs font-bold bg-white text-forest px-3 py-1 rounded mb-4 inline-block">ENERO</span>
-                                <p className="text-white/80 leading-relaxed">
-                                    El evento más grande con desfiles de más de 1.000 caballos, agrupaciones tradicionalistas, jineteadas y folclore. Un homenaje vivo a la tradición gaucha.
-                                </p>
+                                <Editable
+                                    id="lugares.eventos.caballo.title"
+                                    defaultValue="Fiesta del Caballo"
+                                    className="font-bold text-2xl mb-2 font-ui uppercase tracking-widest text-[#e8d5b5] block"
+                                    label="Título Caballo"
+                                />
+                                <Editable
+                                    id="lugares.eventos.caballo.badge"
+                                    defaultValue="ENERO"
+                                    className="text-xs font-bold bg-white text-forest px-3 py-1 rounded mb-4 inline-block"
+                                    label="Insignia Caballo"
+                                />
+                                <Editable
+                                    id="lugares.eventos.caballo.desc"
+                                    type="textarea"
+                                    defaultValue="El evento más grande con desfiles de más de 1.000 caballos, agrupaciones tradicionalistas, jineteadas y folclore. Un homenaje vivo a la tradición gaucha."
+                                    className="text-white/80 leading-relaxed block"
+                                    label="Descripción Caballo"
+                                />
                             </div>
                             <div className="bg-white/10 rounded-3xl p-8 backdrop-blur-md border border-white/10 hover:bg-white/20 transition-all">
                                 <div className="text-4xl mb-4">🍻</div>
-                                <h4 className="font-bold text-2xl mb-2 font-ui uppercase tracking-widest text-[#e8d5b5]">Fiesta de la Cerveza</h4>
-                                <span className="text-xs font-bold bg-white text-forest px-3 py-1 rounded mb-4 inline-block">NOVIEMBRE</span>
-                                <p className="text-white/80 leading-relaxed">
-                                    Tributo a la herencia de los Alemanes del Volga. Música típica, gastronomía europea y el espíritu festivo de la comunidad.
-                                </p>
+                                <Editable
+                                    id="lugares.eventos.cerveza.title"
+                                    defaultValue="Fiesta de la Cerveza"
+                                    className="font-bold text-2xl mb-2 font-ui uppercase tracking-widest text-[#e8d5b5] block"
+                                    label="Título Cerveza"
+                                />
+                                <Editable
+                                    id="lugares.eventos.cerveza.badge"
+                                    defaultValue="NOVIEMBRE"
+                                    className="text-xs font-bold bg-white text-forest px-3 py-1 rounded mb-4 inline-block"
+                                    label="Insignia Cerveza"
+                                />
+                                <Editable
+                                    id="lugares.eventos.cerveza.desc"
+                                    type="textarea"
+                                    defaultValue="Tributo a la herencia de los Alemanes del Volga. Música típica, gastronomía europea y el espíritu festivo de la comunidad."
+                                    className="text-white/80 leading-relaxed block"
+                                    label="Descripción Cerveza"
+                                />
                             </div>
                         </div>
                         <div className="text-center mt-10">
@@ -250,7 +337,12 @@ const Lugares: React.FC = () => {
                 <section id="historia" className="scroll-mt-32">
                     <div className="text-center mb-16">
                         <span className="text-6xl md:text-8xl font-script text-sage/40 block mb-4">05</span>
-                        <h3 className="text-4xl md:text-5xl font-ui font-black text-forest mb-6">IDENTIDAD Y MEMORIA</h3>
+                        <Editable
+                            id="lugares.section5.title"
+                            defaultValue="IDENTIDAD Y MEMORIA"
+                            className="text-4xl md:text-5xl font-ui font-black text-forest mb-6 block"
+                            label="Título Sección 5"
+                        />
                         <div className="w-24 h-1 bg-[#e8d5b5] rounded-full mx-auto"></div>
                     </div>
 
@@ -258,16 +350,34 @@ const Lugares: React.FC = () => {
                     <div className="grid lg:grid-cols-2 gap-16 mb-24">
                         <div className="space-y-8">
                             <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100">
-                                <h4 className="font-script text-4xl text-forest mb-4">La Génesis Ferroviaria</h4>
-                                <p className="text-gray-600 leading-relaxed text-sm">
-                                    Urdinarrain no nació de un acto protocolar, sino del silbato del primer tren el <strong>23 de septiembre de 1890</strong>. La estación fue el corazón pulsante que transformó la estepa ganadera en un polo agroindustrial.
-                                </p>
+                                <Editable
+                                    id="lugares.historia.estacion.title"
+                                    defaultValue="La Génesis Ferroviaria"
+                                    className="font-script text-5xl md:text-6xl text-forest mb-4 block"
+                                    label="Título Estación"
+                                />
+                                <Editable
+                                    id="lugares.historia.estacion.desc"
+                                    type="textarea"
+                                    defaultValue="Urdinarrain no nació de un acto protocolar, sino del silbato del primer tren el <strong>23 de septiembre de 1890</strong>. La estación fue el corazón pulsante que transformó la estepa ganadera en un polo agroindustrial."
+                                    className="text-gray-600 leading-relaxed text-sm block"
+                                    label="Descripción Estación"
+                                />
                             </div>
                             <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100">
-                                <h4 className="font-script text-4xl text-forest mb-4">El General Urdinarrain</h4>
-                                <p className="text-gray-600 leading-relaxed text-sm">
-                                    Manuel Antonio Urdinarrain (1800-1869), figura clave junto a Urquiza. Comandó una división en la Batalla de Caseros y fue constituyente. Su apellido, de origen vasco ("lugar de hierro"), resultó profético para una ciudad nacida del riel.
-                                </p>
+                                <Editable
+                                    id="lugares.historia.general.title"
+                                    defaultValue="El General Urdinarrain"
+                                    className="font-script text-5xl md:text-6xl text-forest mb-4 block"
+                                    label="Título General"
+                                />
+                                <Editable
+                                    id="lugares.historia.general.desc"
+                                    type="textarea"
+                                    defaultValue='Manuel Antonio Urdinarrain (1800-1869), figura clave junto a Urquiza. Comandó una división en la Batalla de Caseros y fue constituyente. Su apellido, de origen vasco ("lugar de hierro"), resultó profético para una ciudad nacida del riel.'
+                                    className="text-gray-600 leading-relaxed text-sm block"
+                                    label="Descripción General"
+                                />
                             </div>
                         </div>
                         {/* Station Image Stack */}
@@ -294,20 +404,30 @@ const Lugares: React.FC = () => {
                         {/* Immigrants */}
                         <div className="bg-[#f4f1ea] rounded-[3rem] p-10 md:p-14 relative overflow-hidden">
                             <div className="relative z-10 max-w-4xl mx-auto text-center">
-                                <h4 className="font-ui text-[10px] md:text-xs font-bold text-white bg-[#10595a] px-4 py-2 rounded-full w-fit tracking-[0.3em] uppercase mb-4">CRISOL DE RAZAS</h4>
-                                <h3 className="font-script text-5xl text-forest mb-8">Un Pueblo de Inmigrantes</h3>
+                                <Editable
+                                    id="lugares.inmigrantes.badge"
+                                    defaultValue="CRISOL DE RAZAS"
+                                    className="font-ui text-[10px] md:text-xs font-bold text-white bg-[#10595a] px-4 py-2 rounded-full w-fit tracking-[0.3em] uppercase mb-4 inline-block"
+                                    label="Insignia Inmigrantes"
+                                />
+                                <Editable
+                                    id="lugares.inmigrantes.title"
+                                    defaultValue="Un Pueblo de Inmigrantes"
+                                    className="font-script text-5xl text-forest mb-8 block"
+                                    label="Título Inmigrantes"
+                                />
                                 <div className="grid md:grid-cols-3 gap-8 text-left">
                                     <div>
-                                        <h5 className="font-bold text-forest mb-2 border-b border-sage/20 pb-2">Alemanes del Volga</h5>
-                                        <p className="text-xs text-gray-600 leading-relaxed">Fundaron aldeas vecinas y trajeron la ética del trabajo agrario, el cooperativismo y su rica gastronomía.</p>
+                                        <Editable id="lugares.inmigrantes.alemanes.title" defaultValue="Alemanes del Volga" className="font-bold text-forest mb-2 border-b border-sage/20 pb-2 block" label="Título Alemanes" />
+                                        <Editable id="lugares.inmigrantes.alemanes.desc" type="textarea" defaultValue="Fundaron aldeas vecinas y trajeron la ética del trabajo agrario, el cooperativismo y su rica gastronomía." className="text-xs text-gray-600 leading-relaxed block" label="Descripción Alemanes" />
                                     </div>
                                     <div>
-                                        <h5 className="font-bold text-forest mb-2 border-b border-sage/20 pb-2">Italianos</h5>
-                                        <p className="text-xs text-gray-600 leading-relaxed">Constructores, comerciantes y farmacéuticos. Aportaron la arquitectura neoclásica y las primeras boticas.</p>
+                                        <Editable id="lugares.inmigrantes.italianos.title" defaultValue="Italianos" className="font-bold text-forest mb-2 border-b border-sage/20 pb-2 block" label="Título Italianos" />
+                                        <Editable id="lugares.inmigrantes.italianos.desc" type="textarea" defaultValue="Constructores, comerciantes y farmacéuticos. Aportaron la arquitectura neoclásica y las primeras boticas." className="text-xs text-gray-600 leading-relaxed block" label="Descripción Italianos" />
                                     </div>
                                     <div>
-                                        <h5 className="font-bold text-forest mb-2 border-b border-sage/20 pb-2">Españoles</h5>
-                                        <p className="text-xs text-gray-600 leading-relaxed">Pilares en el comercio y la administración cívica de las primeras Juntas de Fomento.</p>
+                                        <Editable id="lugares.inmigrantes.espanoles.title" defaultValue="Españoles" className="font-bold text-forest mb-2 border-b border-sage/20 pb-2 block" label="Título Españoles" />
+                                        <Editable id="lugares.inmigrantes.espanoles.desc" type="textarea" defaultValue="Pilares en el comercio y la administración cívica de las primeras Juntas de Fomento." className="text-xs text-gray-600 leading-relaxed block" label="Descripción Españoles" />
                                     </div>
                                 </div>
                             </div>
@@ -315,19 +435,39 @@ const Lugares: React.FC = () => {
 
                         {/* Museums Grid */}
                         <div className="text-center">
-                            <h4 className="font-ui font-bold text-forest mb-8">COMPLEJO CULTURAL "LA ESTACIÓN"</h4>
+                            <Editable
+                                id="lugares.museos.title"
+                                defaultValue='COMPLEJO CULTURAL "LA ESTACIÓN"'
+                                className="font-ui font-bold text-forest mb-8 block"
+                                label="Título Museos"
+                            />
                             <div className="grid md:grid-cols-3 gap-4">
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-sage transition-colors">
                                     <span className="block text-3xl mb-3">🏛️</span>
-                                    <h5 className="font-script text-2xl text-forest">Museo Histórico</h5>
+                                    <Editable
+                                        id="lugares.museos.historico"
+                                        defaultValue="Museo Histórico"
+                                        className="font-script text-5xl md:text-6xl text-forest block"
+                                        label="Museo Histórico"
+                                    />
                                 </div>
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-sage transition-colors">
                                     <span className="block text-3xl mb-3">🚜</span>
-                                    <h5 className="font-script text-2xl text-forest">Museo Agrícola</h5>
+                                    <Editable
+                                        id="lugares.museos.agricola"
+                                        defaultValue="Museo Agrícola"
+                                        className="font-script text-5xl md:text-6xl text-forest block"
+                                        label="Museo Agrícola"
+                                    />
                                 </div>
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-sage transition-colors">
                                     <span className="block text-3xl mb-3">🐎</span>
-                                    <h5 className="font-script text-2xl text-forest">Museo Carruajes</h5>
+                                    <Editable
+                                        id="lugares.museos.carruajes"
+                                        defaultValue="Museo Carruajes"
+                                        className="font-script text-5xl md:text-6xl text-forest block"
+                                        label="Museo Carruajes"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -336,7 +476,7 @@ const Lugares: React.FC = () => {
 
                 {/* Final Call to Action */}
                 <div className="text-center pb-20">
-                    <p className="font-script text-xl md:text-2xl text-stone-500 max-w-2xl mx-auto italic mb-10 px-4">
+                    <p className="font-script text-5xl md:text-6xl text-stone-500 max-w-4xl mx-auto italic mb-10 px-4 leading-normal">
                         "Un modelo de desarrollo que armoniza el respeto por su patrimonio con una vocación productiva moderna."
                     </p>
                 </div>

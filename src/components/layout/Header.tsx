@@ -184,11 +184,11 @@ const Header: React.FC = () => {
         return (
             <div className="overflow-hidden">
                 {onClick ? (
-                    <button onClick={onClick} className={`block text-3xl font-script text-white py-4 w-full text-center transition-transform hover:scale-105 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
+                    <button onClick={onClick} className={`block text-3xl font-script text-[#10595a] py-4 w-full text-center transition-transform hover:scale-105 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
                         {label}
                     </button>
                 ) : (
-                    <Link href={to!} onClick={() => setIsMobileMenuOpen(false)} className={`block text-3xl font-script text-white py-4 w-full text-center transition-transform hover:scale-105 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
+                    <Link href={to!} onClick={() => setIsMobileMenuOpen(false)} className={`block text-3xl font-script text-[#10595a] py-4 w-full text-center transition-transform hover:scale-105 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
                         {label}
                     </Link>
                 )}
@@ -267,7 +267,7 @@ const Header: React.FC = () => {
 
             {/* Navbar Layer (Content) */}
             {/* Navbar Layer (Content) */}
-            <div className="container mx-auto px-6 md:px-10 pt-12 pb-4 md:py-6 flex items-center justify-between relative z-50 pointer-events-none">
+            <div className="container mx-auto px-6 md:px-10 pt-12 pb-4 md:py-6 flex items-center justify-between relative z-[70] pointer-events-none">
 
                 {/* Mobile Gradient Overlay for Status Bar/Menu Integration */}
                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/60 via-black/30 to-transparent lg:hidden -z-10 pointer-events-none"></div>
@@ -302,29 +302,29 @@ const Header: React.FC = () => {
                     aria-label="Toggle Menu"
                 >
                     <div className="w-8 h-8 flex flex-col justify-center items-center gap-[6px]">
-                        <span className={`block h-[3px] rounded-full bg-white transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 rotate-45 translate-y-[9px]' : 'w-8'}`}></span>
-                        <span className={`block h-[3px] rounded-full bg-white transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'w-0 opacity-0' : 'w-6'}`}></span>
-                        <span className={`block h-[3px] rounded-full bg-white transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 -rotate-45 -translate-y-[9px]' : 'w-5'}`}></span>
+                        <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 rotate-45 translate-y-[9px] bg-[#10595a]' : 'w-8 bg-white'}`}></span>
+                        <span className={`block h-[3px] rounded-full transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'w-0 opacity-0' : 'w-6 bg-white'}`}></span>
+                        <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 -rotate-45 -translate-y-[9px] bg-[#10595a]' : 'w-5 bg-white'}`}></span>
                     </div>
                 </button>
             </div>
 
             {/* Mobile Menu Overlay - Glassmorphism */}
-            <div className={`fixed inset-0 bg-black/60 backdrop-blur-xl z-[60] transition-all duration-500 ease-in-out lg:hidden flex flex-col justify-center items-center ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+            <div className={`fixed inset-0 bg-white/95 backdrop-blur-xl z-[60] transition-all duration-500 ease-in-out lg:hidden flex flex-col justify-center items-center ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
                 {/* Gradient Orb for Depth */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#90c69e]/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#10595a]/30 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#90c69e]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#10595a]/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
 
                 <nav className="flex flex-col gap-6 relative z-10 w-full px-12 text-center">
                     <MobileNavLink to="/" label="Inicio" />
-                    <div className="h-px bg-white/20 w-24 mx-auto"></div>
+                    <div className="h-px bg-[#10595a]/20 w-24 mx-auto"></div>
                     <MobileNavLink to="/gastronomia" label="Gastronomía" />
-                    <div className="h-px bg-white/20 w-24 mx-auto"></div>
+                    <div className="h-px bg-[#10595a]/20 w-24 mx-auto"></div>
                     <MobileNavLink to="/lugares" label="Lugares" />
-                    <div className="h-px bg-white/20 w-24 mx-auto"></div>
+                    <div className="h-px bg-[#10595a]/20 w-24 mx-auto"></div>
                     <MobileNavLink to="/eventos" label="Eventos" />
                 </nav>
-                <div className="absolute bottom-12 text-white/50 text-xs font-ui tracking-widest text-center">
+                <div className="absolute bottom-12 text-[#10595a]/50 text-xs font-ui tracking-widest text-center">
                     <p>GLAK APART</p>
                 </div>
             </div>

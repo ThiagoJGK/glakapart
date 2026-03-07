@@ -29,11 +29,11 @@ export const apartmentData: Record<ApartmentKey, any> = {
         ]
     },
     arje: {
-        name: "Arje",
+        name: "Arjé",
         tagline: "El Rincón Romántico",
-        description: "Nuestro apartamento más exclusivo, diseñado pensando en las parejas. Situado frente a la piscina, Arje combina privacidad con las mejores vistas del complejo. Un espacio íntimo, moderno y lleno de detalles para una escapada inolvidable.",
+        description: "Nuestro apartamento más exclusivo, diseñado pensando en las parejas. Situado con vista a la piscina, Arjé combina privacidad con las mejores vistas del complejo. Un espacio íntimo, moderno y lleno de detalles para una escapada inolvidable.",
         capacity: "2 Pasajeros (Parejas)",
-        features: ["Frente a Piscina", "Cama Queen", "Diseño Boutique", "Cocina Kitchenette", "Terraza Privada", "Ambiente Romántico"],
+        features: ["Vista a la piscina", "Cama Queen", "Diseño Boutique", "Anafe eléctrico y microondas", "Ambiente Romántico"],
         images: [
             "",
             "",

@@ -151,7 +151,7 @@ const Hero: React.FC = () => {
                     onClick={scrollToApartments}
                     className="btn-black w-full md:w-auto text-xs py-4 px-12 transition-transform hover:-translate-y-1"
                 >
-                    RESERVAR ESTANCIA
+                    RESERVAR
                 </button>
                 {promoVideoUrl && (
                     <button
@@ -165,27 +165,8 @@ const Hero: React.FC = () => {
             </div>
         </div>
     );
+    const renderReviewBadge = (isMobile = false) => null;
 
-    const renderReviewBadge = (isMobile = false) => (
-        <div className={`absolute bg-white/95 backdrop-blur-md flex items-center shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-[#10595a]/10 z-[100] animate-float ${isMobile
-            ? '-bottom-4 right-4 p-3 gap-3 rounded-2xl max-w-[200px]'
-            : '-bottom-8 -left-8 md:-right-8 md:left-auto p-6 gap-6 rounded-[2rem] max-w-xs'
-            }`}>
-            <div className={`flex items-center justify-center rounded-full bg-[#f4f1ea] ${isMobile ? 'w-8 h-8 text-lg' : 'w-12 h-12 text-2xl'}`}>
-                🌿
-            </div>
-            <div className="text-left min-w-0">
-                <p className={`font-ui tracking-widest text-gray-400 uppercase ${isMobile ? 'text-[8px] mb-0.5' : 'text-[10px] mb-1'}`}>Certificación</p>
-                <p className={`font-bold text-[#10595a] ${isMobile ? 'text-xs' : 'text-sm'}`}>Sostenible & Relax</p>
-                <div className="flex items-center gap-1 mt-1">
-                    <span className="text-xs font-bold text-black">5.0</span>
-                    <div className="flex text-[8px] text-[#90c69e] gap-0.5">
-                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
 
     return (
         <>

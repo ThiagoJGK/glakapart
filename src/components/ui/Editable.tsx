@@ -66,7 +66,10 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
     if (type === 'image' || type === 'backgroundImage') {
         const isBackground = type === 'backgroundImage';
         return (
-            <div className={`relative group ${className}`}>
+            <div
+                className={`relative group ${isAdminMode ? 'cursor-pointer' : ''} ${className}`}
+                onClick={isAdminMode ? (e) => { e.preventDefault(); setIsModalOpen(true); } : undefined}
+            >
                 {isBackground ? (
                     <div
                         className="w-full h-full bg-cover bg-center bg-fixed absolute inset-0 transition-opacity duration-500"

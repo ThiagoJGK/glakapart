@@ -20,8 +20,18 @@ const Gastronomia: React.FC = () => {
             <div className="container mx-auto px-6 mb-24 text-center">
                 {/* Mobile: H2 first (overlapping header), then Span. Desktop: Span then H2 (default flow) */}
                 <div className="flex flex-col md:block relative z-30">
-                    <h2 className="order-1 md:order-none font-script text-7xl md:text-9xl text-forest drop-shadow-sm relative z-30 mb-2 md:mb-12 -mt-16 md:mt-0">Ruta de Sabores</h2>
-                    <span className="order-2 md:order-none font-ui text-[10px] md:text-xs font-bold tracking-[0.3em] bg-[#10595a] text-white px-4 py-2 rounded-full uppercase mb-12 md:mb-6 block w-fit">De la Tierra a la Mesa</span>
+                    <Editable
+                        id="gastronomia.hero.title"
+                        defaultValue="Ruta de Sabores"
+                        className="order-1 md:order-none font-script text-7xl md:text-9xl text-forest drop-shadow-sm relative z-30 mb-2 md:mb-12 -mt-16 md:mt-0 block"
+                        label="Título Principal"
+                    />
+                    <Editable
+                        id="gastronomia.hero.badge"
+                        defaultValue="De la Tierra a la Mesa"
+                        className="order-2 md:order-none font-ui text-[10px] md:text-xs font-bold tracking-[0.3em] bg-[#10595a] text-white px-4 py-2 rounded-full uppercase mb-12 md:mb-6 block w-fit"
+                        label="Insignia Principal"
+                    />
                 </div>
 
                 {/* Hero Image in Frame */}
@@ -44,7 +54,7 @@ const Gastronomia: React.FC = () => {
                 {/* HISTORICAL CONTEXT */}
                 <ScrollReveal>
                     <div className="max-w-4xl mx-auto text-center mb-32 space-y-8">
-                        <h3 className="text-3xl font-script text-forest">Génesis Histórica</h3>
+                        <h3 className="text-5xl md:text-6xl font-script text-forest">Génesis Histórica</h3>
                         <div className="prose prose-lg mx-auto text-gray-600 leading-relaxed">
                             <Editable
                                 id="gastronomia.history"
@@ -64,7 +74,12 @@ const Gastronomia: React.FC = () => {
                 <section id="ceferino" className="scroll-mt-32">
                     <div className="flex items-end gap-6 mb-12 border-b border-sage/20 pb-6">
                         {/* Number removed */}
-                        <h3 className="text-4xl md:text-5xl font-ui font-black text-forest relative z-10">EL ALMA DEL PAN</h3>
+                        <Editable
+                            id="gastronomia.section1.title"
+                            defaultValue="EL ALMA DEL PAN"
+                            className="text-4xl md:text-5xl font-ui font-black text-forest relative z-10 block"
+                            label="Título Sección 1"
+                        />
                     </div>
 
                     <div className="bg-[#f8f5f0] rounded-[3rem] p-10 md:p-14 relative overflow-hidden shadow-lg border border-[#e8d5b5]">
@@ -126,18 +141,34 @@ const Gastronomia: React.FC = () => {
                                     defaultValue="https://images.unsplash.com/photo-1627341872134-2e21b7145749?auto=format&fit=crop&q=80&w=800"
                                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                                 />
-                                <div className="absolute top-4 left-4 bg-[#d4af37] text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-widest shadow-md">MEDALLA DE ORO 2024</div>
+                                <div className="absolute top-4 left-4">
+                                    <Editable
+                                        id="gastronomia.pequena.badge"
+                                        defaultValue="MEDALLA DE ORO 2024"
+                                        className="bg-[#d4af37] text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-widest shadow-md inline-block"
+                                        label="Insignia La Pequeña"
+                                    />
+                                </div>
                             </div>
                             <div className="md:w-7/12 space-y-6">
-                                <h4 className="text-4xl font-script text-forest">Lácteos "La Pequeña"</h4>
-                                <p className="text-gray-600 leading-relaxed">
-                                    Excelencia láctea y sostenibilidad. Su <strong>dulce de leche</strong> ha sido galardonado como el mejor del país. El establecimiento integra un modelo de economía circular, utilizando suero lácteo para alimentar un criadero de cerdos y proteger el ambiente.
-                                </p>
+                                <Editable
+                                    id="gastronomia.pequena.title"
+                                    defaultValue='Lácteos "La Pequeña"'
+                                    className="text-5xl md:text-6xl font-script text-forest block"
+                                    label="Título La Pequeña"
+                                />
+                                <Editable
+                                    id="gastronomia.pequena.desc"
+                                    type="textarea"
+                                    defaultValue="Excelencia láctea y sostenibilidad. Su <strong>dulce de leche</strong> ha sido galardonado como el mejor del país. El establecimiento integra un modelo de economía circular, utilizando suero lácteo para alimentar un criadero de cerdos y proteger el ambiente."
+                                    className="text-gray-600 leading-relaxed block"
+                                    label="Descripción La Pequeña"
+                                />
                                 <ul className="grid grid-cols-2 gap-4 text-sm text-gray-700 font-medium">
-                                    <li className="flex items-center gap-2"><span className="text-sage">✓</span> Dulce de Leche Repostero</li>
-                                    <li className="flex items-center gap-2"><span className="text-sage">✓</span> Quesos Tybo y Holanda</li>
-                                    <li className="flex items-center gap-2"><span className="text-sage">✓</span> Yogurt Artesanal Premium</li>
-                                    <li className="flex items-center gap-2"><span className="text-sage">✓</span> Visitas Guiadas</li>
+                                    <li className="flex items-center gap-2"><span className="text-sage">✓</span> <Editable id="gastronomia.pequena.feat1" defaultValue="Dulce de Leche Repostero" className="inline" label="Item 1" /></li>
+                                    <li className="flex items-center gap-2"><span className="text-sage">✓</span> <Editable id="gastronomia.pequena.feat2" defaultValue="Quesos Tybo y Holanda" className="inline" label="Item 2" /></li>
+                                    <li className="flex items-center gap-2"><span className="text-sage">✓</span> <Editable id="gastronomia.pequena.feat3" defaultValue="Yogurt Artesanal Premium" className="inline" label="Item 3" /></li>
+                                    <li className="flex items-center gap-2"><span className="text-sage">✓</span> <Editable id="gastronomia.pequena.feat4" defaultValue="Visitas Guiadas" className="inline" label="Item 4" /></li>
                                 </ul>
                             </div>
                         </div>
@@ -154,12 +185,26 @@ const Gastronomia: React.FC = () => {
                             </div>
                             <div className="md:w-7/12 space-y-6 text-right md:text-left">
                                 <div className="flex flex-col md:items-end">
-                                    <h4 className="text-4xl font-script text-forest">Finca Los Bayos</h4>
-                                    <span className="text-xs font-bold text-sage tracking-widest uppercase mt-1">EL RENACER DEL VINO ENTRERRIANO</span>
+                                    <Editable
+                                        id="gastronomia.finca.title"
+                                        defaultValue="Finca Los Bayos"
+                                        className="text-5xl md:text-6xl font-script text-forest block"
+                                        label="Título Finca"
+                                    />
+                                    <Editable
+                                        id="gastronomia.finca.badge"
+                                        defaultValue="EL RENACER DEL VINO ENTRERRIANO"
+                                        className="text-xs font-bold text-sage tracking-widest uppercase mt-1 block"
+                                        label="Insignia Finca"
+                                    />
                                 </div>
-                                <p className="text-gray-600 leading-relaxed md:text-right">
-                                    Una bodega artesanal en un entorno de 14 hectáreas. Cepas adaptadas al terruño local producen Merlot, Chardonnay y el vibrante Marselan. La experiencia se completa con espumantes método Champenoise y plantaciones de nuez pecán.
-                                </p>
+                                <Editable
+                                    id="gastronomia.finca.desc"
+                                    type="textarea"
+                                    defaultValue="Una bodega artesanal en un entorno de 14 hectáreas. Cepas adaptadas al terruño local producen Merlot, Chardonnay y el vibrante Marselan. La experiencia se completa con espumantes método Champenoise y plantaciones de nuez pecán."
+                                    className="text-gray-600 leading-relaxed md:text-right block"
+                                    label="Descripción Finca"
+                                />
                                 <div className="flex justify-end gap-3 flex-wrap">
                                     <span className="px-4 py-2 bg-gray-50 rounded-lg text-xs font-bold text-forest border border-gray-100">MARSELAN</span>
                                     <span className="px-4 py-2 bg-gray-50 rounded-lg text-xs font-bold text-forest border border-gray-100">CHARDONNAY</span>
@@ -174,23 +219,29 @@ const Gastronomia: React.FC = () => {
                 <section id="herencia" className="scroll-mt-32">
                     <div className="flex items-end gap-6 mb-12 border-b border-sage/20 pb-6">
                         {/* Number removed */}
-                        <h3 className="text-4xl md:text-5xl font-ui font-black text-forest relative z-10">MESA DE LOS ALEMANES</h3>
+                        <Editable
+                            id="gastronomia.section3.title"
+                            defaultValue="MESA DE LOS ALEMANES"
+                            className="text-4xl md:text-5xl font-ui font-black text-forest relative z-10 block"
+                            label="Título Sección 3"
+                        />
                     </div>
 
                     <div className="bg-forest text-white rounded-[3rem] p-10 md:p-16 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-96 h-96 bg-sage/20 rounded-full blur-3xl"></div>
 
                         <div className="relative z-10 text-center mb-12">
-                            <p className="max-w-3xl mx-auto text-lg leading-relaxed text-white/90">
-                                "Platos nacidos de la adaptación. La cocina de los alemanes del Volga es un ejemplo de aprovechamiento y sabor, preservada oralmente en familias como los Wagner y Riehme."
-                            </p>
+                            <Editable
+                                id="gastronomia.herencia.intro"
+                                type="textarea"
+                                defaultValue='"Platos nacidos de la adaptación. La cocina de los alemanes del Volga es un ejemplo de aprovechamiento y sabor, preservada oralmente en familias como los Wagner y Riehme."'
+                                className="max-w-3xl mx-auto text-lg leading-relaxed text-white/90 block"
+                                label="Intro Herencia Alemana"
+                            />
                         </div>
 
                         <div className="grid md:grid-cols-4 gap-6 relative z-10">
-                            <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
-                                <h4 className="font-bold text-[#e8d5b5] mb-2 font-ui tracking-widest text-sm">BEGLE NOODLE</h4>
-                                <p className="text-xs text-white/80 leading-5">Fideo relleno similar al raviol, clásico del almuerzo dominical en familia.</p>
-                            </div>
+
                             <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
                                 <h4 className="font-bold text-[#e8d5b5] mb-2 font-ui tracking-widest text-sm">SNITSUP</h4>
                                 <p className="text-xs text-white/80 leading-5">Sopa dulce de orejones y crema. Tradición de Semana Santa.</p>
@@ -210,8 +261,18 @@ const Gastronomia: React.FC = () => {
                 {/* 4. GUÍA URBANA (Restó & Pizzerias) */}
                 <section id="guia" className="scroll-mt-32">
                     <div className="text-center mb-16">
-                        <span className="font-ui text-xs font-bold tracking-[0.3em] text-gray-400 uppercase mb-4 block">DÓNDE COMER</span>
-                        <h3 className="text-5xl font-script text-forest">Guía Gastronómica</h3>
+                        <Editable
+                            id="gastronomia.section4.badge"
+                            defaultValue="DÓNDE COMER"
+                            className="font-ui text-xs font-bold tracking-[0.3em] text-gray-400 uppercase mb-4 block"
+                            label="Insignia Guía"
+                        />
+                        <Editable
+                            id="gastronomia.section4.title"
+                            defaultValue="Guía Gastronómica"
+                            className="text-5xl font-script text-forest block"
+                            label="Título Guía"
+                        />
                     </div>
 
                     <div className="grid lg:grid-cols-2 gap-12">
@@ -296,7 +357,7 @@ const Gastronomia: React.FC = () => {
                             {/* Regional Products Highlight */}
                             <div className="mt-8 bg-[#e8d5b5]/30 p-8 rounded-3xl border border-[#e8d5b5] relative overflow-hidden">
                                 <div className="absolute right-0 top-0 text-6xl opacity-10">🍯</div>
-                                <h5 className="font-script text-3xl text-forest mb-2">Para llevar a casa</h5>
+                                <h5 className="font-script text-5xl md:text-6xl text-forest mb-2">Para llevar a casa</h5>
                                 <p className="text-sm text-gray-700 mb-4">
                                     No te vayas sin visitar <strong>"Oto Cuche"</strong> o las ferias de emprendedores. Salame ahumado, miel multifloral, escabeches de ciervo y licores artesanales son los souvenirs perfectos.
                                 </p>
@@ -309,7 +370,12 @@ const Gastronomia: React.FC = () => {
                 <section id="info" className="scroll-mt-32 pb-20 border-t border-gray-100 pt-20">
                     <div className="grid md:grid-cols-2 gap-16">
                         <div>
-                            <h3 className="text-3xl font-script text-forest mb-6">Circuitos Recomendados</h3>
+                            <Editable
+                                id="gastronomia.section5.title1"
+                                defaultValue="Circuitos Recomendados"
+                                className="text-5xl md:text-6xl font-script text-forest mb-6 block"
+                                label="Título Circuitos"
+                            />
                             <ul className="space-y-4">
                                 <li className="flex gap-4">
                                     <span className="text-2xl">🚜</span>
@@ -335,17 +401,30 @@ const Gastronomia: React.FC = () => {
                             </ul>
                         </div>
                         <div>
-                            <h3 className="text-3xl font-script text-forest mb-6">Tendencias 2025</h3>
+                            <Editable
+                                id="gastronomia.section5.title2"
+                                defaultValue="Tendencias 2025"
+                                className="text-5xl md:text-6xl font-script text-forest mb-6 block"
+                                label="Título Tendencias"
+                            />
                             <div className="bg-sage/10 p-8 rounded-3xl">
-                                <p className="text-sm text-gray-700 leading-relaxed mb-4">
-                                    Urdinarrain se posiciona este 2025 como un destino accesible de alta calidad. Los precios de referencia permiten disfrutar de la gastronomía regional sin presiones inflacionarias extremas.
-                                </p>
+                                <Editable
+                                    id="gastronomia.tendencias.text1"
+                                    type="textarea"
+                                    defaultValue="Urdinarrain se posiciona este 2025 como un destino accesible de alta calidad. Los precios de referencia permiten disfrutar de la gastronomía regional sin presiones inflacionarias extremas."
+                                    className="text-sm text-gray-700 leading-relaxed mb-4 block"
+                                    label="Texto Tendencias"
+                                />
                                 <div className="text-xs font-bold text-forest tracking-widest uppercase">
                                     COMENTARIO DESTACADO
                                 </div>
-                                <p className="italic text-gray-500 text-sm mt-2">
-                                    "La relación precio-calidad en bodegones como El Parador o en productos como el dulce de leche de La Pequeña es imbatible en la región."
-                                </p>
+                                <Editable
+                                    id="gastronomia.tendencias.quote"
+                                    type="textarea"
+                                    defaultValue='"La relación precio-calidad en bodegones como El Parador o en productos como el dulce de leche de La Pequeña es imbatible en la región."'
+                                    className="italic text-gray-500 text-sm mt-2 block"
+                                    label="Cita Destacada"
+                                />
                             </div>
                         </div>
                     </div>

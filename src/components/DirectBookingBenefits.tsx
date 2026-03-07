@@ -1,5 +1,6 @@
 import React from 'react';
 import ScrollReveal from './ui/ScrollReveal';
+import Editable from './ui/Editable';
 import { Star, Clock, Gift, ShieldCheck } from 'lucide-react';
 
 const benefits = [
@@ -11,12 +12,12 @@ const benefits = [
     {
         icon: <Clock className="w-8 h-8 md:w-10 md:h-10 text-[#10595a] group-hover:text-white transition-colors duration-300" />,
         title: "Late Check-Out Flex",
-        description: "Disfrutá más tu último día con nosotros. Late check-out gratuito (sujeto a disponibilidad y solicitud previa)."
+        description: "Disfrutá más tu último día con nosotros. Flexibilidad de late check-out (sujeto a disponibilidad y solicitud previa)."
     },
     {
         icon: <Gift className="w-8 h-8 md:w-10 md:h-10 text-[#10595a] group-hover:text-white transition-colors duration-300" />,
         title: "Atención Personalizada",
-        description: "Contacto directo, modificaciones flexibles y una cálida hospitalidad brindada por sus propios dueños."
+        description: "Contacto directo y una cálida hospitalidad brindada por sus propios dueños."
     }
 ];
 
@@ -26,11 +27,19 @@ const DirectBookingBenefits: React.FC = () => {
             <div className="container mx-auto px-6 relative z-10">
                 <div className="max-w-3xl mx-auto text-center mb-16">
                     <ScrollReveal>
-                        <h2 className="font-script text-5xl md:text-6xl text-[#10595a] mb-6">¿Por qué Reservar Aquí?</h2>
-                        <p className="text-gray-600 font-light text-lg">
-                            Descubrí las ventajas exclusivas de reservar tu estadía a través de nuestra página oficial.
-                            Garantizando siempre la mejor experiencia desde el primer clic.
-                        </p>
+                        <Editable
+                            id="home.benefits.title"
+                            defaultValue="¿Por qué reservar aquí?"
+                            className="font-script text-5xl md:text-6xl text-[#10595a] mb-6 block"
+                            label="Título Beneficios"
+                        />
+                        <Editable
+                            id="home.benefits.desc"
+                            type="textarea"
+                            defaultValue="Descubrí las ventajas exclusivas de reservar tu estadía a través de nuestra página oficial. Garantizando siempre la mejor experiencia desde el primer clic."
+                            className="text-gray-600 font-light text-lg block"
+                            label="Descripción Beneficios"
+                        />
                     </ScrollReveal>
                 </div>
 

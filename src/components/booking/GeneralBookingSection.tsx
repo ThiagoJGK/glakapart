@@ -10,7 +10,7 @@ interface GeneralBookingSectionProps {
 
 const GeneralBookingSection: React.FC<GeneralBookingSectionProps> = ({ id }) => {
     return (
-        <section id={id} className="relative z-20 py-16 bg-[#f4f1ea] overflow-hidden">
+        <section id={id} className="relative z-[40] py-16 bg-[#f4f1ea] overflow-hidden">
             {/* Background Decor */}
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white to-transparent opacity-50"></div>
 

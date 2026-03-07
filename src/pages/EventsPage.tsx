@@ -83,23 +83,11 @@ const EventsPage: React.FC = () => {
     };
 
     const handleSeasonInteractionStart = (season: string) => {
-        // Clear any pending timeout that might turn it off
-        if (seasonTimeouts.current[season]) {
-            clearTimeout(seasonTimeouts.current[season]);
-        }
         setActiveSeason(season);
     };
 
-    const handleSeasonInteractionEnd = (season: string, isTap: boolean = false) => {
-        if (isTap) {
-            // If it was a quick tap, keep it active for 1 full cycle (e.g., 2 seconds) then turn off
-            seasonTimeouts.current[season] = setTimeout(() => {
-                setActiveSeason(current => current === season ? null : current);
-            }, 2000);
-        } else {
-            // If it was a hold release, turn off immediately
-            setActiveSeason(null);
-        }
+    const handleSeasonInteractionEnd = (season: string) => {
+        setActiveSeason(null);
     };
 
     return (
@@ -109,15 +97,20 @@ const EventsPage: React.FC = () => {
                 {/* Header - Friendly & Organic */}
                 <div className="text-center mb-32 relative group">
                     <div className="inline-block relative">
-                        <span className="font-script text-4xl md:text-6xl text-[#90c69e] absolute -top-8 left-0 md:-left-8 transform -rotate-12 opacity-90 drop-shadow-sm group-hover:-rotate-6 transition-transform duration-500">Descubrí</span>
-                        <h1 className="font-ui text-3xl md:text-6xl font-bold text-[#10595a] tracking-tight relative z-10 drop-shadow-sm">
-                            Momentos en Urdinarrain
-                        </h1>
+                        <Editable
+                            id="events.header.subtitle"
+                            defaultValue="Descubrí"
+                            className="font-script text-5xl md:text-6xl text-[#90c69e] absolute -top-8 left-0 md:-left-8 transform -rotate-12 opacity-90 drop-shadow-sm group-hover:-rotate-6 transition-transform duration-500 block"
+                            label="Subtítulo Header"
+                        />
+                        <Editable
+                            id="events.header.title"
+                            defaultValue="Momentos en Urdinarrain"
+                            className="font-ui text-3xl md:text-6xl font-bold text-[#10595a] tracking-tight relative z-10 drop-shadow-sm block"
+                            label="Título Header"
+                        />
                         <div className="absolute -bottom-2 right-0 w-[110%] h-4 bg-[#e8d5b5]/80 rounded-full -rotate-1 z-0 mix-blend-multiply"></div>
                     </div>
-                    <p className="mt-8 text-[#10595a]/70 font-ui font-medium tracking-[0.2em] uppercase text-sm md:text-base">
-                        Encuentros <span className="text-[#90c69e] mx-2">•</span> Cultura <span className="text-[#90c69e] mx-2">•</span> Relax
-                    </p>
                 </div>
 
                 <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 max-w-7xl mx-auto">
@@ -135,7 +128,7 @@ const EventsPage: React.FC = () => {
                             </div>
 
                             <div className="text-center mb-8 mt-2">
-                                <span className="font-ui text-xs font-bold text-[#10595a] tracking-[0.3em] uppercase border-b-2 border-[#90c69e]/30 pb-2">TU AGENDA</span>
+                                <span className="font-ui text-xs font-bold text-[#10595a] tracking-[0.3em] uppercase border-b-2 border-[#90c69e]/30 pb-2">AGENDA DE EVENTOS</span>
                             </div>
 
                             <div className="text-[#10595a] flex-grow flex items-center justify-center">
@@ -148,7 +141,7 @@ const EventsPage: React.FC = () => {
                             </div>
 
                             <div className="text-center mt-8">
-                                <p className="font-script text-[#10595a]/60 text-xl animate-pulse-slow">¡Hacé click en una fecha!</p>
+                                <p className="font-script text-[#10595a]/60 text-5xl md:text-6xl animate-pulse-slow">¡Hacé click en una fecha!</p>
                             </div>
                         </div>
                     </div>
@@ -224,8 +217,18 @@ const EventsPage: React.FC = () => {
                 {/* NEW SECTION: SEASONS OF URDINARRAIN */}
                 <div className="my-32 max-w-7xl mx-auto px-4">
                     <div className="text-center mb-16">
-                        <span className="font-script text-4xl text-[#90c69e] block mb-2 transform -rotate-2">Todo el año</span>
-                        <h2 className="font-ui text-4xl md:text-5xl font-black text-[#10595a] tracking-tight">URDINARRAIN EN 4 ESTACIONES</h2>
+                        <Editable
+                            id="events.seasons.subtitle"
+                            defaultValue="Todo el año"
+                            className="font-script text-5xl md:text-6xl text-[#90c69e] block mb-2 transform -rotate-2"
+                            label="Subtítulo Estaciones"
+                        />
+                        <Editable
+                            id="events.seasons.title"
+                            defaultValue="URDINARRAIN EN 4 ESTACIONES"
+                            className="font-ui text-4xl md:text-5xl font-black text-[#10595a] tracking-tight block"
+                            label="Título Estaciones"
+                        />
                         <div className="w-24 h-1 bg-[#e8d5b5] rounded-full mx-auto mt-6"></div>
                     </div>
 
@@ -252,9 +255,7 @@ const EventsPage: React.FC = () => {
                             }}
                             onHoverStart={() => handleSeasonInteractionStart('summer')}
                             onHoverEnd={() => handleSeasonInteractionEnd('summer')}
-                            onTouchStart={() => handleSeasonInteractionStart('summer')}
-                            onTouchEnd={() => handleSeasonInteractionEnd('summer', false)}
-                            onTap={() => handleSeasonInteractionEnd('summer', true)}
+                            onClick={() => setActiveSeason(current => current === 'summer' ? null : 'summer')}
                             className="group relative h-[220px] md:h-[400px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 md:hover:-translate-y-2 cursor-pointer"
                         >
                             <Editable
@@ -269,10 +270,21 @@ const EventsPage: React.FC = () => {
                             <SeasonSummer />
 
                             <div className="absolute bottom-0 left-0 p-4 md:p-8 w-full z-20 transition-transform duration-500 group-hover:translate-y-[-10px] group-active:translate-y-[-10px]">
-                                <h3 className="font-script text-3xl md:text-5xl text-[#e8d5b5] mb-1 md:mb-2 drop-shadow-md">Verano</h3>
-                                <p className="text-white/90 text-[10px] md:text-sm font-medium leading-relaxed opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0 group-active:translate-y-0 delay-100 hidden md:block">
-                                    Días largos de sol, piscina y tardes eternas en el parque. La estación perfecta para desconectar.
-                                </p>
+                                <Editable
+                                    id="events.season.summer.title"
+                                    defaultValue="Verano"
+                                    className="font-script text-5xl md:text-6xl text-[#e8d5b5] mb-1 md:mb-2 drop-shadow-md block"
+                                    label="Título Verano"
+                                />
+                                <div className="hidden md:block">
+                                    <Editable
+                                        id="events.season.summer.desc"
+                                        type="textarea"
+                                        defaultValue="Días largos de sol, piscina y tardes eternas en el parque. La estación perfecta para desconectar."
+                                        className="text-white/90 text-[10px] md:text-sm font-medium leading-relaxed opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0 group-active:translate-y-0 delay-100 block"
+                                        label="Descripción Verano"
+                                    />
+                                </div>
                             </div>
                         </motion.div>
 
@@ -287,9 +299,7 @@ const EventsPage: React.FC = () => {
                             }}
                             onHoverStart={() => handleSeasonInteractionStart('autumn')}
                             onHoverEnd={() => handleSeasonInteractionEnd('autumn')}
-                            onTouchStart={() => handleSeasonInteractionStart('autumn')}
-                            onTouchEnd={() => handleSeasonInteractionEnd('autumn', false)}
-                            onTap={() => handleSeasonInteractionEnd('autumn', true)}
+                            onClick={() => setActiveSeason(current => current === 'autumn' ? null : 'autumn')}
                             className="group relative h-[220px] md:h-[400px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 md:hover:-translate-y-2 cursor-pointer"
                         >
                             <Editable
@@ -304,10 +314,21 @@ const EventsPage: React.FC = () => {
                             <SeasonAutumn />
 
                             <div className="absolute bottom-0 left-0 p-4 md:p-8 w-full z-20 transition-transform duration-500 group-hover:translate-y-[-10px] group-active:translate-y-[-10px]">
-                                <h3 className="font-script text-3xl md:text-5xl text-[#e8d5b5] mb-1 md:mb-2 drop-shadow-md">Otoño</h3>
-                                <p className="text-white/90 text-[10px] md:text-sm font-medium leading-relaxed opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0 group-active:translate-y-0 delay-100 hidden md:block">
-                                    Colores ocres, aire fresco y paseos tranquilos. La ciudad se viste de dorado y calma.
-                                </p>
+                                <Editable
+                                    id="events.season.autumn.title"
+                                    defaultValue="Otoño"
+                                    className="font-script text-5xl md:text-6xl text-[#e8d5b5] mb-1 md:mb-2 drop-shadow-md block"
+                                    label="Título Otoño"
+                                />
+                                <div className="hidden md:block">
+                                    <Editable
+                                        id="events.season.autumn.desc"
+                                        type="textarea"
+                                        defaultValue="Colores ocres, aire fresco y paseos tranquilos. La ciudad se viste de dorado y calma."
+                                        className="text-white/90 text-[10px] md:text-sm font-medium leading-relaxed opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0 group-active:translate-y-0 delay-100 block"
+                                        label="Descripción Otoño"
+                                    />
+                                </div>
                             </div>
                         </motion.div>
 
@@ -322,9 +343,7 @@ const EventsPage: React.FC = () => {
                             }}
                             onHoverStart={() => handleSeasonInteractionStart('winter')}
                             onHoverEnd={() => handleSeasonInteractionEnd('winter')}
-                            onTouchStart={() => handleSeasonInteractionStart('winter')}
-                            onTouchEnd={() => handleSeasonInteractionEnd('winter', false)}
-                            onTap={() => handleSeasonInteractionEnd('winter', true)}
+                            onClick={() => setActiveSeason(current => current === 'winter' ? null : 'winter')}
                             className="group relative h-[220px] md:h-[400px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 md:hover:-translate-y-2 cursor-pointer"
                         >
                             <Editable
@@ -339,10 +358,21 @@ const EventsPage: React.FC = () => {
                             <SeasonWinter />
 
                             <div className="absolute bottom-0 left-0 p-4 md:p-8 w-full z-20 transition-transform duration-500 group-hover:translate-y-[-10px] group-active:translate-y-[-10px]">
-                                <h3 className="font-script text-3xl md:text-5xl text-[#e8d5b5] mb-1 md:mb-2 drop-shadow-md">Invierno</h3>
-                                <p className="text-white/90 text-[10px] md:text-sm font-medium leading-relaxed opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0 group-active:translate-y-0 delay-100 hidden md:block">
-                                    El encanto del frío, lecturas junto a la ventana y la calidez de nuestro hogar.
-                                </p>
+                                <Editable
+                                    id="events.season.winter.title"
+                                    defaultValue="Invierno"
+                                    className="font-script text-5xl md:text-6xl text-[#e8d5b5] mb-1 md:mb-2 drop-shadow-md block"
+                                    label="Título Invierno"
+                                />
+                                <div className="hidden md:block">
+                                    <Editable
+                                        id="events.season.winter.desc"
+                                        type="textarea"
+                                        defaultValue="El encanto del frío, lecturas junto a la ventana y la calidez de nuestro hogar."
+                                        className="text-white/90 text-[10px] md:text-sm font-medium leading-relaxed opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0 group-active:translate-y-0 delay-100 block"
+                                        label="Descripción Invierno"
+                                    />
+                                </div>
                             </div>
                         </motion.div>
 
@@ -357,9 +387,7 @@ const EventsPage: React.FC = () => {
                             }}
                             onHoverStart={() => handleSeasonInteractionStart('spring')}
                             onHoverEnd={() => handleSeasonInteractionEnd('spring')}
-                            onTouchStart={() => handleSeasonInteractionStart('spring')}
-                            onTouchEnd={() => handleSeasonInteractionEnd('spring', false)}
-                            onTap={() => handleSeasonInteractionEnd('spring', true)}
+                            onClick={() => setActiveSeason(current => current === 'spring' ? null : 'spring')}
                             className="group relative h-[220px] md:h-[400px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 md:hover:-translate-y-2 cursor-pointer"
                         >
                             <Editable
@@ -374,10 +402,21 @@ const EventsPage: React.FC = () => {
                             <SeasonSpring />
 
                             <div className="absolute bottom-0 left-0 p-4 md:p-8 w-full z-20 transition-transform duration-500 group-hover:translate-y-[-10px] group-active:translate-y-[-10px]">
-                                <h3 className="font-script text-3xl md:text-5xl text-[#e8d5b5] mb-1 md:mb-2 drop-shadow-md">Primavera</h3>
-                                <p className="text-white/90 text-[10px] md:text-sm font-medium leading-relaxed opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0 group-active:translate-y-0 delay-100 hidden md:block">
-                                    Naturaleza en flor, aromas dulces y vida al aire libre. La energía renace en cada rincón.
-                                </p>
+                                <Editable
+                                    id="events.season.spring.title"
+                                    defaultValue="Primavera"
+                                    className="font-script text-5xl md:text-6xl text-[#e8d5b5] mb-1 md:mb-2 drop-shadow-md block"
+                                    label="Título Primavera"
+                                />
+                                <div className="hidden md:block">
+                                    <Editable
+                                        id="events.season.spring.desc"
+                                        type="textarea"
+                                        defaultValue="Naturaleza en flor, aromas dulces y vida al aire libre. La energía renace en cada rincón."
+                                        className="text-white/90 text-[10px] md:text-sm font-medium leading-relaxed opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0 group-active:translate-y-0 delay-100 block"
+                                        label="Descripción Primavera"
+                                    />
+                                </div>
                             </div>
                         </motion.div>
                     </motion.div>
@@ -387,8 +426,18 @@ const EventsPage: React.FC = () => {
                 <div className="mt-20 max-w-7xl mx-auto">
                     <div className="flex items-end justify-between mb-12 px-4 relative">
                         <div>
-                            <span className="font-script text-3xl text-[#90c69e] block mb-2 -rotate-2">Lo que se viene...</span>
-                            <h3 className="font-ui text-2xl font-black text-[#10595a] tracking-tight">PRÓXIMAS FECHAS</h3>
+                            <Editable
+                                id="events.upcoming.subtitle"
+                                defaultValue="Lo que se viene..."
+                                className="font-script text-5xl md:text-6xl text-[#90c69e] block mb-2 -rotate-2"
+                                label="Subtítulo Próximos"
+                            />
+                            <Editable
+                                id="events.upcoming.title"
+                                defaultValue="PRÓXIMAS FECHAS"
+                                className="font-ui text-2xl font-black text-[#10595a] tracking-tight block"
+                                label="Título Próximos"
+                            />
                         </div>
                         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-[#10595a]/20 via-[#10595a]/5 to-transparent"></div>
 
@@ -430,9 +479,12 @@ const EventsPage: React.FC = () => {
                                     <p className="text-[#10595a]/60 text-sm line-clamp-2 leading-relaxed">{ev.description}</p>
                                     <div className="mt-6 flex items-center justify-between">
                                         <div className="h-px flex-grow bg-[#f4f1ea] group-hover:bg-[#90c69e]/30 transition-colors"></div>
-                                        <span className="text-[#90c69e] font-bold text-[10px] tracking-[0.2em] uppercase pl-4 opacity-70 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0">
-                                            VER INFO
-                                        </span>
+                                        <Editable
+                                            id="events.upcoming.card.link"
+                                            defaultValue="VER INFO"
+                                            className="text-[#90c69e] font-bold text-[10px] tracking-[0.2em] uppercase pl-4 opacity-70 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0 block"
+                                            label="Texto Ver Info"
+                                        />
                                     </div>
                                 </div>
                             </div>

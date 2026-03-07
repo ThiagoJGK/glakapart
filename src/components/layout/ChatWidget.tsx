@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { getContent } from '@/services/content';
 import { MessageCircle, X, Send, Bot, Phone } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -35,6 +36,7 @@ const ChatWidget: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [interactionId, setInteractionId] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const pathname = usePathname();
 
     useEffect(() => {
         getContent('chatbot').then(data => {
@@ -117,10 +119,11 @@ const ChatWidget: React.FC = () => {
         }
     };
 
-    if (!isEnabled) return null;
+    const isAdminPage = pathname?.startsWith('/admin');
+    if (!isEnabled || isAdminPage) return null;
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div id="chat-widget" className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
             {/* Chat Window */}
             {isOpen && (
                 <div className="bg-white w-[370px] max-w-[calc(100vw-48px)] h-[520px] max-h-[calc(100vh-120px)] rounded-2xl shadow-2xl border border-gray-100 mb-4 flex flex-col overflow-hidden animate-fade-in-up">

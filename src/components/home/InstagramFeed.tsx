@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Instagram } from 'lucide-react';
+import Editable from '../ui/Editable';
 
 const BEHOLD_URL = "https://feeds.behold.so/jy5tPEeLoFWFo1xciiyA";
 
@@ -56,7 +57,12 @@ const InstagramFeed: React.FC = () => {
             <div className="container mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
                     <div>
-                        <h2 className="font-script text-4xl text-forest">Seguinos en Instagram</h2>
+                        <Editable
+                            id="home.instagram.title"
+                            defaultValue="Seguinos en Instagram"
+                            className="font-script text-4xl text-forest block"
+                            label="Título Instagram"
+                        />
                     </div>
                     <a
                         href="https://instagram.com/glakapart"

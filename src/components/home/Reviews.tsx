@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { motion } from 'framer-motion';
+import Editable from '../ui/Editable';
 import { Star, Quote, ExternalLink } from 'lucide-react';
 
 const reviews = [
@@ -133,12 +134,27 @@ const Reviews: React.FC<ReviewsProps> = ({ embedded = false }) => {
             <div className="w-full relative z-10">
                 {!embedded && (
                     <div className="text-center mb-16 px-4">
-                        <span className="text-[#10595a]/60 font-ui tracking-[0.2em] text-sm uppercase block mb-4">Experiencias Reales</span>
-                        <h2 className="font-script text-5xl md:text-7xl text-[#10595a] mb-6">Lo que dicen nuestros huéspedes</h2>
+                        <Editable
+                            id="home.reviews.badge"
+                            defaultValue="Experiencias Reales"
+                            className="text-[#10595a]/60 font-ui tracking-[0.2em] text-sm uppercase block mb-4"
+                            label="Insignia Reseñas"
+                        />
+                        <Editable
+                            id="home.reviews.title"
+                            defaultValue="Lo que dicen nuestros huéspedes"
+                            className="font-script text-5xl md:text-7xl text-[#10595a] mb-6 block"
+                            label="Título Reseñas"
+                        />
                         <div className="flex justify-center gap-1 text-[#90c69e] text-2xl">
                             {[1, 2, 3, 4, 5].map((s) => <Star key={s} fill="currentColor" />)}
                         </div>
-                        <p className="text-[#10595a]/80 mt-2 font-ui tracking-wider text-sm">4.9/5 en Google Maps</p>
+                        <Editable
+                            id="home.reviews.subtitle"
+                            defaultValue="4.9/5 en Google Maps"
+                            className="text-[#10595a]/80 mt-2 font-ui tracking-wider text-sm block"
+                            label="Subtítulo Reseñas"
+                        />
                     </div>
                 )}
 

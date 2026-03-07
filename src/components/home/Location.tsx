@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { motion } from 'framer-motion';
+import Editable from '../ui/Editable';
 
 import { track } from '@vercel/analytics/react';
 import { trackEvent } from '@/services/analytics';
@@ -19,17 +20,26 @@ const Location: React.FC = () => {
                         className="w-full lg:w-5/12 text-center lg:text-left space-y-8"
                     >
                         <div>
-                            <span className="font-ui text-[10px] md:text-xs tracking-[0.25em] bg-[#10595a] text-white px-4 py-2 rounded-full w-fit uppercase font-bold mb-4 block">
-                                Ubicación
-                            </span>
-                            <h2 className="font-script text-5xl md:text-7xl text-forest mb-6">
-                                Encuéntranos
-                            </h2>
+                            <Editable
+                                id="home.location.badge"
+                                defaultValue="Ubicación"
+                                className="font-ui text-[10px] md:text-xs tracking-[0.25em] bg-[#10595a] text-white px-4 py-2 rounded-full w-fit uppercase font-bold mb-4 block"
+                                label="Insignia Ubicación"
+                            />
+                            <Editable
+                                id="home.location.title"
+                                defaultValue="Encuéntranos"
+                                className="font-script text-5xl md:text-7xl text-forest mb-6 block"
+                                label="Título Ubicación"
+                            />
                             <div className="w-16 h-px bg-sage/30 mx-auto lg:mx-0 mb-6"></div>
-                            <p className="font-light text-gray-600 text-lg leading-relaxed">
-                                Estamos ubicados en el corazón de <strong>Urdinarrain</strong>, una zona tranquila ideal para descansar.
-                                A pasos de todo lo que necesitás, pero con la privacidad y el silencio que buscás para tu estadía.
-                            </p>
+                            <Editable
+                                id="home.location.desc"
+                                type="textarea"
+                                defaultValue="Estamos ubicados en el corazón de <strong>Urdinarrain</strong>, una zona tranquila ideal para descansar. A pasos de todo lo que necesitás, pero con la privacidad y el silencio que buscás para tu estadía."
+                                className="font-light text-gray-600 text-lg leading-relaxed block"
+                                label="Descripción Ubicación"
+                            />
                         </div>
 
                         <div className="space-y-4">

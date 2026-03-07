@@ -39,6 +39,7 @@ const FloatingBookingButton: React.FC = () => {
 
     return (
         <button
+            id="floating-booking-button"
             onClick={scrollToBooking}
             className={`fixed bottom-6 right-24 z-50 bg-[#10595a] text-white p-4 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-500 hover:scale-110 hover:bg-[#156e70] ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
         >

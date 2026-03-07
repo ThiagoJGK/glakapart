@@ -2,6 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Editable from '../ui/Editable';
 
 const IconGastronomia = ({ className }: { className?: string }) => (
     <motion.svg viewBox="-4 -4 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -116,8 +117,18 @@ const SectionExplore: React.FC = () => {
         <section className="py-16 md:py-24">
             <div className="container mx-auto px-6 md:px-12">
                 <div className="text-center mb-12">
-                    <span className="font-ui text-[10px] md:text-xs tracking-[0.3em] uppercase bg-[#10595a] text-white px-4 py-2 rounded-full inline-block mb-3">MÁS POR DESCUBRIR</span>
-                    <h2 className="font-script text-4xl md:text-5xl text-forest">Explorá Más</h2>
+                    <Editable
+                        id="home.explore.badge"
+                        defaultValue="MÁS POR DESCUBRIR"
+                        className="font-ui text-[10px] md:text-xs tracking-[0.3em] uppercase bg-[#10595a] text-white px-4 py-2 rounded-full inline-block mb-3"
+                        label="Insignia Explorar"
+                    />
+                    <Editable
+                        id="home.explore.title"
+                        defaultValue="Explorá Más"
+                        className="font-script text-4xl md:text-5xl text-forest block"
+                        label="Título Explorar"
+                    />
                 </div>
 
                 <motion.div

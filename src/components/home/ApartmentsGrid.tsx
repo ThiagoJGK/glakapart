@@ -76,8 +76,18 @@ const ApartmentsGrid: React.FC = () => {
 
                 {/* Section Title */}
                 <div className="text-center mb-10 md:mb-16 space-y-2">
-                    <span className="font-ui text-[10px] md:text-xs tracking-[0.3em] uppercase bg-[#10595a] text-white px-4 py-2 rounded-full inline-block">Nuestros Espacios</span>
-                    <h2 className="font-script text-5xl md:text-6xl text-forest">Descubrí tu Lugar</h2>
+                    <Editable
+                        id="home.apartments.badge"
+                        defaultValue="Nuestros Espacios"
+                        className="font-ui text-[10px] md:text-xs tracking-[0.3em] uppercase bg-[#10595a] text-white px-4 py-2 rounded-full inline-block"
+                        label="Insignia Apartamentos"
+                    />
+                    <Editable
+                        id="home.apartments.title"
+                        defaultValue="Descubrí tu Lugar"
+                        className="font-script text-5xl md:text-6xl text-forest block"
+                        label="Título Apartamentos"
+                    />
                 </div>
 
                 {/* MOBILE: Coverflow Carousel */}

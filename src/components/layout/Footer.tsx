@@ -38,7 +38,7 @@ const Footer: React.FC = () => {
                 </div>
 
                 <div className="container mx-auto px-10 relative z-10 pt-10">
-                    <div className="grid md:grid-cols-4 gap-12 lg:gap-20 mb-16">
+                    <div className="grid md:grid-cols-3 gap-12 lg:gap-20 mb-16">
                         {/* Brand Column */}
                         <div className="col-span-1 md:col-span-1 space-y-6">
                             {/* Small Logo from Component */}
@@ -49,43 +49,14 @@ const Footer: React.FC = () => {
                             </p>
                         </div>
 
-                        {/* Footer Columns Container */}
-                        <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-8">
-                            {/* Navigation Links */}
-                            <div>
-                                <h4 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.2em] text-white mb-8 uppercase">Explorar</h4>
-                                <ul className="space-y-4 text-sm font-light text-white/70">
-                                    <li><Link href="/" className="hover:text-white hover:translate-x-1 transition-all inline-block">Inicio</Link></li>
-                                    <li><Link href="/gastronomia" className="hover:text-white hover:translate-x-1 transition-all inline-block">Gastronomía</Link></li>
-                                    <li><Link href="/lugares" className="hover:text-white hover:translate-x-1 transition-all inline-block">Lugares</Link></li>
-                                </ul>
-                            </div>
-
-                            {/* Trust Badges (Sellos de Confianza) */}
-                            <div>
-                                <h4 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.2em] text-white mb-8 uppercase">Calidad y Confianza</h4>
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
-                                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0">
-                                            <span className="text-[#10595a] font-bold text-xl font-serif">Q</span>
-                                        </div>
-                                        <div>
-                                            <p className="text-white text-xs font-bold">Calidad Turística</p>
-                                            <p className="text-white/60 text-[10px] uppercase tracking-wider">Certificado</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
-                                        <div className="w-10 h-10 bg-[#90c69e] rounded-full flex items-center justify-center flex-shrink-0">
-                                            <span className="text-white font-bold text-xl font-serif">S</span>
-                                        </div>
-                                        <div>
-                                            <p className="text-white text-xs font-bold">Sostenibilidad</p>
-                                            <p className="text-white/60 text-[10px] uppercase tracking-wider">Compromiso ODS</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Navigation Links */}
+                        <div className="col-span-1 md:col-span-1">
+                            <h4 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.2em] text-white mb-8 uppercase">Explorar</h4>
+                            <ul className="space-y-4 text-sm font-light text-white/70">
+                                <li><Link href="/" className="hover:text-white hover:translate-x-1 transition-all inline-block">Inicio</Link></li>
+                                <li><Link href="/gastronomia" className="hover:text-white hover:translate-x-1 transition-all inline-block">Gastronomía</Link></li>
+                                <li><Link href="/lugares" className="hover:text-white hover:translate-x-1 transition-all inline-block">Lugares</Link></li>
+                            </ul>
                         </div>
 
                         {/* Contact Info */}
