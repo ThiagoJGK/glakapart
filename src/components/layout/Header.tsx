@@ -276,7 +276,7 @@ const Header: React.FC = () => {
                 <div className="lg:hidden w-8"></div>
 
                 {/* Logo Section - Uses Blurred BG Image for Frost Effect */}
-                <Link href="/" className="flex flex-col items-center cursor-pointer group hover:opacity-90 transition-opacity relative pointer-events-auto z-[80]">
+                <Link href="/" className={`flex flex-col items-center cursor-pointer group hover:opacity-90 transition-opacity duration-300 relative pointer-events-auto z-[80] ${isMobileMenuOpen ? 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto' : 'opacity-100'}`}>
                     <div
                         className="rounded-full p-1 md:p-2 shadow-2xl flex items-center justify-center overflow-hidden border border-white/10 relative"
                         style={getFrostedStyle()}
@@ -310,7 +310,7 @@ const Header: React.FC = () => {
             </div>
 
             {/* Mobile Menu Overlay - Glassmorphism */}
-            <div className={`fixed inset-0 bg-white/95 backdrop-blur-xl z-[60] transition-all duration-500 ease-in-out lg:hidden flex flex-col justify-center items-center ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+            <div className={`fixed inset-0 bg-white/30 backdrop-blur-md z-[60] transition-all duration-500 ease-in-out lg:hidden flex flex-col justify-center items-center ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
                 {/* Gradient Orb for Depth */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#90c69e]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#10595a]/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
