@@ -55,11 +55,6 @@ const ApartmentDetail: React.FC = () => {
             setRotatingIndex(0);
             return;
         }
-        setRotatingIndex(3); // start at index 3
-        const interval = setInterval(() => {
-            setRotatingIndex(prev => prev >= displayGallery.length - 1 ? 3 : prev + 1);
-        }, 3500);
-        return () => clearInterval(interval);
     }, [displayGallery]);
 
     const openLightbox = (index: number) => {
@@ -182,60 +177,80 @@ const ApartmentDetail: React.FC = () => {
 
                 </div>
 
-                {/* Artistic Photo Slider */}
+                {/* Artistic Photo Slider Redesign */}
                 <div className="mb-24 overflow-hidden relative">
                     <ScrollReveal>
                         <h3 className="font-script text-6xl text-center mb-16 text-[#10595a]">Galería Visual</h3>
                     </ScrollReveal>
 
                     {displayGallery.length > 0 && (
-                        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px] md:h-[600px]">
-                            {/* Main Rotating Image (Left) */}
-                            <div
-                                className="col-span-1 lg:col-span-8 h-[300px] lg:h-full rounded-[2.5rem] overflow-hidden shadow-2xl relative cursor-pointer group"
-                                onClick={() => openLightbox(rotatingIndex)}
-                            >
+                        <div className="max-w-7xl mx-auto px-4 md:px-6">
+
+                            {/* MOBILE: Scroll Snap Carousel */}
+                            <div className="flex overflow-x-auto gap-4 pb-8 md:hidden snap-x snap-mandatory hide-scrollbar -mx-4 px-4">
                                 {displayGallery.map((img: string, idx: number) => (
-                                    <img
-                                        key={`main-${idx}`}
-                                        src={img}
-                                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${(displayGallery.length <= 3 && idx === 0) || idx === rotatingIndex ? 'opacity-100' : 'opacity-0'
-                                            } group-hover:scale-105 transition-transform`}
-                                        alt="Main Gallery"
-                                    />
+                                    <div
+                                        key={`mob-${idx}`}
+                                        className="min-w-[85vw] h-[400px] rounded-[2rem] overflow-hidden shadow-xl relative snap-center cursor-pointer flex-shrink-0"
+                                        onClick={() => openLightbox(idx)}
+                                    >
+                                        <img src={img} className="w-full h-full object-cover" alt={`Gallery ${idx + 1}`} />
+                                        <div className="absolute inset-0 bg-black/10 active:bg-black/20 transition-colors pointer-events-none"></div>
+                                        <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md rounded-full px-3 py-1 pointer-events-none">
+                                            <span className="text-white text-xs font-ui tracking-widest">{idx + 1} / {displayGallery.length}</span>
+                                        </div>
+                                    </div>
                                 ))}
-                                <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500"></div>
                             </div>
 
-                            {/* Secondary Images (Right) */}
-                            {displayGallery.length > 1 && (
-                                <div className="col-span-1 lg:col-span-4 grid grid-rows-2 gap-6 h-full">
-                                    <div
-                                        className="rounded-[2.5rem] overflow-hidden shadow-xl relative cursor-pointer group"
-                                        onClick={() => openLightbox(1)}
-                                    >
-                                        <img src={displayGallery[1]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Secondary 1" />
-                                        <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500"></div>
+                            {/* DESKTOP: Bento Grid / Masonry Layout */}
+                            <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-4 h-[600px]">
+                                {/* Main Highlight (Left - 2 columns, 2 rows) */}
+                                <div
+                                    className="col-span-2 row-span-2 rounded-[2.5rem] overflow-hidden shadow-2xl relative cursor-pointer group"
+                                    onClick={() => openLightbox(0)}
+                                >
+                                    <img src={displayGallery[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Main Photo" />
+                                    <div className="absolute inset-0 bg-black/5 group-hover:bg-black/20 transition-colors duration-500 flex items-center justify-center">
+                                        <div className="bg-white/20 backdrop-blur-md rounded-full p-4 opacity-0 group-hover:opacity-100 transition-opacity transform scale-50 group-hover:scale-100 duration-300 pointer-events-none">
+                                            <View className="text-white w-8 h-8" />
+                                        </div>
                                     </div>
+                                </div>
 
-                                    {displayGallery.length > 2 && (
+                                {/* Up to 4 Secondary Images (Right Side Grid) */}
+                                {displayGallery.slice(1, 5).map((img: string, idx: number) => {
+                                    const actualIndex = idx + 1;
+                                    const isLastShown = idx === 3;
+                                    const hasMore = displayGallery.length > 5;
+
+                                    return (
                                         <div
-                                            className="rounded-[2.5rem] overflow-hidden shadow-xl relative cursor-pointer group"
-                                            onClick={() => openLightbox(2)}
+                                            key={`desktop-${actualIndex}`}
+                                            className="col-span-1 row-span-1 rounded-[2rem] overflow-hidden shadow-xl relative cursor-pointer group"
+                                            onClick={() => openLightbox(actualIndex)}
                                         >
-                                            <img src={displayGallery[2]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Secondary 2" />
-                                            <div className="absolute inset-0 bg-black/10 transition-colors duration-500"></div>
+                                            <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={`Photo ${actualIndex + 1}`} />
+                                            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500 pointer-events-none flex items-center justify-center">
+                                                {!isLastShown || !hasMore ? (
+                                                     <div className="bg-white/20 backdrop-blur-md rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                                         <View className="text-white w-5 h-5" />
+                                                     </div>
+                                                ) : null}
+                                            </div>
 
-                                            {/* + Fotos Overlay */}
-                                            {displayGallery.length > 3 && (
-                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm group-hover:bg-black/50 transition-colors">
-                                                    <span className="text-white font-ui font-black tracking-widest text-2xl drop-shadow-md">+{displayGallery.length - 3} FOTOS</span>
+                                            {/* Overflow Indicator */}
+                                            {isLastShown && hasMore && (
+                                                <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center group-hover:bg-black/60 transition-colors pointer-events-none">
+                                                    <span className="text-white font-ui font-black tracking-widest text-xl drop-shadow-md">
+                                                        +{displayGallery.length - 5}
+                                                    </span>
                                                 </div>
                                             )}
                                         </div>
-                                    )}
-                                </div>
-                            )}
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
                 </div>

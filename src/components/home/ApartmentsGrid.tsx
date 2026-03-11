@@ -120,7 +120,7 @@ const ApartmentsGrid: React.FC = () => {
                                             className="w-full h-full object-cover"
                                             label={`Fondo ${apt.title}`}
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-forest/90 via-forest/10 to-transparent"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-forest/90 via-forest/10 to-transparent pointer-events-none"></div>
                                     </div>
 
                                     {/* Content - Only visible fully on Active */}
@@ -155,7 +155,7 @@ const ApartmentsGrid: React.FC = () => {
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                     label={`Fondo ${apt.title}`}
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-forest/90 via-forest/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-forest/90 via-forest/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300 pointer-events-none"></div>
                             </div>
 
                             <div className="absolute bottom-0 left-0 w-full p-10 z-10 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">

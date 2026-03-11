@@ -5,6 +5,8 @@ export interface Event {
     endDate: string;   // ISO string
     description: string;
     image?: string;
+    images?: string[];
+    coverImage?: string;
     videoUrl?: string;
     isAnnual?: boolean;
     estimatedSeason?: string; // e.g. "Verano", "Marzo"

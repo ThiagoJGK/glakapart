@@ -67,6 +67,7 @@ const AdminStats: React.FC = () => {
     const [events, setEvents] = useState<AnalyticsEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [range, setRange] = useState<TimeRange>('7d');
+    const [viewType, setViewType] = useState<'daily'|'monthly'>('daily');
 
     const rangeDays = range === '7d' ? 7 : range === '30d' ? 30 : 90;
 
@@ -145,21 +146,39 @@ const AdminStats: React.FC = () => {
             inquired: new Set(bookingInquiries.map(e => e.sessionId)).size,
         };
 
-        // ─── Daily chart ───
-        const chartDays = Math.min(rangeDays, 14); // max 14 bars
-        const dailyViews: { label: string; count: number }[] = [];
-        for (let i = chartDays - 1; i >= 0; i--) {
-            const dayStart = daysAgo(i);
-            const dayEnd = new Date(dayStart); dayEnd.setDate(dayEnd.getDate() + 1);
-            dailyViews.push({
-                label: fmtDate(dayStart),
-                count: pageViews.filter(e => {
-                    const d = e.timestamp.toDate();
-                    return d >= dayStart && d < dayEnd;
-                }).length,
-            });
+        // ─── Chart Data ───
+        const chartData: { label: string; count: number }[] = [];
+        if (viewType === 'daily') {
+            const chartDays = Math.min(rangeDays, 14); // max 14 bars
+            for (let i = chartDays - 1; i >= 0; i--) {
+                const dayStart = daysAgo(i);
+                const dayEnd = new Date(dayStart); dayEnd.setDate(dayEnd.getDate() + 1);
+                chartData.push({
+                    label: dayStart.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' }),
+                    count: pageViews.filter(e => {
+                        const d = e.timestamp.toDate();
+                        return d >= dayStart && d < dayEnd;
+                    }).length,
+                });
+            }
+        } else {
+            // monthly grouping
+            const numMonths = range === '90d' ? 3 : range === '30d' ? 2 : 1;
+            for (let i = numMonths - 1; i >= 0; i--) {
+                const monthDate = new Date(now);
+                monthDate.setMonth(monthDate.getMonth() - i);
+                const month = monthDate.getMonth();
+                const year = monthDate.getFullYear();
+                chartData.push({
+                    label: monthDate.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }),
+                    count: pageViews.filter(e => {
+                        const d = e.timestamp.toDate();
+                        return d.getMonth() === month && d.getFullYear() === year;
+                    }).length,
+                });
+            }
         }
-        const maxDaily = Math.max(...dailyViews.map(d => d.count), 1);
+        const maxDaily = Math.max(...chartData.map(d => d.count), 1);
 
         // ─── Behavioral Insights ───
         // Abandonment: opened form but no inquiry in same session
@@ -214,7 +233,7 @@ const AdminStats: React.FC = () => {
             aptViews,
             aptBooked,
             funnelSessions,
-            dailyViews,
+            chartData,
             maxDaily,
             abandonRate,
             convertingAptViews,
@@ -224,7 +243,7 @@ const AdminStats: React.FC = () => {
             topFaqs,
             recentEvents: events.slice(0, 15),
         };
-    }, [events, rangeDays]);
+    }, [events, rangeDays, viewType]);
 
     // ─── Render ───
 
@@ -242,16 +261,34 @@ const AdminStats: React.FC = () => {
     return (
         <div className="space-y-8">
             {/* Range Selector */}
-            <div className="flex gap-2">
-                {(['7d', '30d', '90d'] as TimeRange[]).map(r => (
-                    <button
-                        key={r}
-                        onClick={() => setRange(r)}
-                        className={`px-4 py-2 text-xs font-ui tracking-widest rounded-lg transition-all ${range === r ? 'bg-forest text-white shadow-lg' : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200'}`}
-                    >
-                        {r === '7d' ? '7 DÍAS' : r === '30d' ? '30 DÍAS' : '90 DÍAS'}
-                    </button>
-                ))}
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
+                <div className="flex gap-2">
+                    {(['7d', '30d', '90d'] as TimeRange[]).map(r => (
+                        <button
+                            key={r}
+                            onClick={() => { setRange(r); if (r === '7d') setViewType('daily'); }}
+                            className={`px-4 py-2 text-xs font-ui tracking-widest rounded-lg transition-all ${range === r ? 'bg-forest text-white shadow-lg' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
+                        >
+                            {r === '7d' ? '7 DÍAS' : r === '30d' ? '30 DÍAS' : '90 DÍAS'}
+                        </button>
+                    ))}
+                </div>
+                {range !== '7d' && (
+                    <div className="flex gap-2 border border-gray-100 p-1 rounded-lg bg-gray-50">
+                        <button
+                            onClick={() => setViewType('daily')}
+                            className={`px-3 py-1.5 text-[10px] font-bold tracking-widest rounded-md transition-all ${viewType === 'daily' ? 'bg-white shadow text-forest' : 'text-gray-400 hover:text-gray-600'}`}
+                        >
+                            POR DÍA
+                        </button>
+                        <button
+                            onClick={() => setViewType('monthly')}
+                            className={`px-3 py-1.5 text-[10px] font-bold tracking-widest rounded-md transition-all ${viewType === 'monthly' ? 'bg-white shadow text-forest' : 'text-gray-400 hover:text-gray-600'}`}
+                        >
+                            POR MES
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* KPI Cards */}
@@ -264,24 +301,24 @@ const AdminStats: React.FC = () => {
 
             {/* Chart + Funnel Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Daily Chart */}
+                {/* Daily/Monthly Chart */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="font-ui text-xs tracking-widest text-gray-400 mb-6 flex items-center gap-2">
-                        <BarChart3 size={14} /> VISITAS POR DÍA
+                    <h3 className="font-ui text-xs tracking-widest text-gray-400 mb-6 flex items-center gap-2 uppercase">
+                        <BarChart3 size={14} /> VISITAS {viewType === 'daily' ? 'POR DÍA' : 'POR MES'}
                     </h3>
-                    <div className="flex items-end gap-1 h-48 pb-6 px-1 mt-2">
-                        {stats.dailyViews.map((d, i) => (
-                            <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
-                                <span className="text-[10px] text-gray-400 font-mono mb-1">{d.count || ''}</span>
+                    <div className="flex items-end gap-2 h-48 pb-6 px-1 mt-2">
+                        {stats.chartData.map((d, i) => (
+                            <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group">
+                                <span className="text-[10px] text-gray-400 font-mono mb-1 opacity-0 group-hover:opacity-100 transition-opacity">{d.count || ''}</span>
                                 <div className="w-full flex-1 relative">
                                     <div
-                                        className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-forest to-sage rounded-t-md transition-all duration-500 hover:opacity-80 min-h-[2px]"
+                                        className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-forest to-sage rounded-t-md transition-all duration-500 group-hover:opacity-80 min-h-[4px]"
                                         style={{ height: `${stats.maxDaily > 0 ? (d.count / stats.maxDaily) * 100 : 0}%` }}
                                         title={`${d.label}: ${d.count} visitas`}
                                     />
                                 </div>
-                                <div className="relative w-full h-0 mt-2">
-                                    <span className="absolute top-1 left-1/2 -translate-x-1/2 text-[9px] text-gray-400 rotate-[-45deg] origin-top-left whitespace-nowrap">{d.label}</span>
+                                <div className="mt-3 capitalize h-4 relative">
+                                    <span className="absolute top-0 left-1/2 -translate-x-1/2 text-[9px] text-gray-400 whitespace-nowrap">{d.label}</span>
                                 </div>
                             </div>
                         ))}
@@ -398,12 +435,14 @@ const AdminStats: React.FC = () => {
             </div>
 
             {/* Recent Activity Feed */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <h3 className="font-ui text-xs tracking-widest text-gray-400 mb-4">🕐 ÚLTIMAS ACCIONES</h3>
-                <div className="space-y-2 max-h-[400px] overflow-y-auto">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative">
+                <h3 className="font-ui text-xs tracking-widest text-gray-400 mb-6 uppercase">🕐 Timeline de Actividad</h3>
+                <div className="relative pl-6 space-y-6 before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px before:w-0.5 before:bg-gray-100 before:z-0">
                     {stats.recentEvents.map((e, i) => {
-                        const meta = EVENT_LABELS[e.event] || { label: e.event, icon: <Eye size={14} />, color: 'bg-gray-100 text-gray-500' };
+                        const meta = EVENT_LABELS[e.event] || { label: e.event, icon: <Eye size={14} />, color: 'bg-gray-300 text-white border-white' };
                         const time = e.timestamp?.toDate();
+                        const timeStr = time ? time.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : '';
+                        const dateStr = time ? time.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }) : '';
                         const detail = e.event === 'apartment_view' || e.event === 'apartment_click'
                             ? e.params?.apartment
                             : e.event === 'faq_open'
@@ -411,23 +450,39 @@ const AdminStats: React.FC = () => {
                                 : e.event === 'page_view'
                                     ? (PAGE_LABELS[e.page] || e.page)
                                     : e.params?.location || '';
+                        
+                        // Check if day changed
+                        const isNewDay = i === 0 || (time && stats.recentEvents[i - 1]?.timestamp?.toDate()?.toLocaleDateString() !== time.toLocaleDateString());
+
                         return (
-                            <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                                <span className={`p-1.5 rounded-lg ${meta.color}`}>{meta.icon}</span>
-                                <div className="flex-1 min-w-0">
-                                    <span className="text-sm text-gray-700">{meta.label}</span>
-                                    {detail && <span className="text-xs text-gray-400 ml-2">{detail}</span>}
+                            <React.Fragment key={i}>
+                                {isNewDay && (
+                                    <div className="relative z-10 -ml-8 flex items-center mb-4 mt-6">
+                                        <div className="bg-white border border-gray-200 px-3 py-1 rounded-full shadow-sm text-[10px] font-bold tracking-widest text-gray-500 uppercase">
+                                            {dateStr === new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }) ? 'Hoy' : dateStr}
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="relative z-10 flex gap-4 items-start group">
+                                    <div className={`mt-0.5 w-6 h-6 flex items-center justify-center rounded-full border-2 border-white ring-2 ring-transparent group-hover:ring-gray-100 transition-all shadow-sm ${meta.color} bg-white`}>
+                                        {React.cloneElement(meta.icon as any, { size: 12 })}
+                                    </div>
+                                    <div className="flex-1 min-w-0 bg-gray-50/50 p-3 rounded-xl border border-transparent group-hover:border-gray-100 group-hover:bg-white transition-all shadow-sm">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-sm font-semibold text-gray-800">{meta.label}</span>
+                                            <span className="text-xs text-gray-400 font-mono">{timeStr}</span>
+                                        </div>
+                                        {detail && <p className="text-xs text-gray-500 leading-relaxed capitalize">{detail}</p>}
+                                        <div className="mt-2 flex items-center gap-1.5 opacity-50">
+                                            {e.isMobile ? <Smartphone size={10} className="text-gray-400" /> : <Monitor size={10} className="text-gray-400" />}
+                                            <span className="text-[9px] text-gray-400 max-w-[120px] truncate">{e.referrer ? new URL(e.referrer).hostname : 'Directo'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                    {e.isMobile ? <Smartphone size={12} className="text-gray-300" /> : <Monitor size={12} className="text-gray-300" />}
-                                    <span className="text-[10px] text-gray-300 font-mono">
-                                        {time ? time.toLocaleString('es-AR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : ''}
-                                    </span>
-                                </div>
-                            </div>
+                            </React.Fragment>
                         );
                     })}
-                    {stats.recentEvents.length === 0 && <p className="text-sm text-gray-400 italic py-4 text-center">Sin actividad aún. Navegá el sitio para generar eventos.</p>}
+                    {stats.recentEvents.length === 0 && <p className="text-sm text-gray-400 italic py-4 text-center relative z-10 bg-white">Sin actividad aún. Navegá el sitio para generar eventos.</p>}
                 </div>
             </div>
         </div>

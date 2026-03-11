@@ -27,7 +27,8 @@ const AdminDraftControls: React.FC = () => {
         await confirmDraft();
         setIsSaving(false);
         setShowConfirmModal(false);
-        alert('Cambios publicados correctamente');
+        toggleDraftMode(false);
+        router.push('/admin');
     };
 
     const handleDiscard = () => {
@@ -48,55 +49,31 @@ const AdminDraftControls: React.FC = () => {
 
     return (
         <>
-            {/* Floating Control Bar */}
-            <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-[9999] flex items-center gap-4 bg-black/90 text-white p-2 rounded-full shadow-2xl backdrop-blur-md border border-white/20 pl-6 pr-2 animate-fade-in-up">
-
-                <div className="flex items-center gap-3 mr-4">
-                    <div className={`w-2 h-2 rounded-full ${hasPendingChanges ? 'bg-yellow-400 animate-pulse' : 'bg-green-500'}`}></div>
-                    <span className="text-[10px] font-ui tracking-widest uppercase opacity-80 hidden md:block">
-                        {hasPendingChanges ? 'Cambios sin guardar' : 'Modo Edición'}
-                    </span>
-                </div>
-
-                {/* Preview Toggle */}
-                <button
-                    onClick={togglePreviewMode}
-                    className={`p-3 rounded-full transition-colors ${isPreviewMode ? 'bg-sage text-white' : 'hover:bg-white/10 text-gray-300'}`}
-                    title={isPreviewMode ? "Salir de Previsualización" : "Previsualizar"}
-                >
-                    {isPreviewMode ? (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                    ) : (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                    )}
-                </button>
-
-                <div className="w-px h-6 bg-white/20 mx-1"></div>
-
-                {/* Confirm Button */}
-                <button
-                    onClick={() => setShowConfirmModal(true)}
-                    disabled={!hasPendingChanges}
-                    className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${hasPendingChanges
-                            ? 'bg-sage text-white hover:scale-110 shadow-[0_0_15px_rgba(144,198,158,0.5)]'
-                            : 'bg-white/5 text-gray-500 cursor-not-allowed'
-                        }`}
-                    title="Publicar Cambios"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                </button>
-
-                {/* Discard / Exit Button */}
-                <button
-                    onClick={() => {
-                        if (hasPendingChanges) setShowDiscardModal(true);
-                        else handleExit();
-                    }}
-                    className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-red-500/20 hover:text-red-400 text-gray-300 transition-colors"
-                    title={hasPendingChanges ? "Descartar Cambios" : "Salir"}
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
+            {/* Floating Control Bar - Bottom Left */}
+            <div className="fixed bottom-6 left-6 z-[9999] animate-fade-in-up">
+                {hasPendingChanges ? (
+                    <button
+                        onClick={() => setShowConfirmModal(true)}
+                        className="flex items-center gap-3 bg-sage text-white px-6 py-3 rounded-full shadow-[0_0_20px_rgba(144,198,158,0.6)] hover:bg-sage/90 transition-all group"
+                        title="Publicar Cambios y Volver al Dashboard"
+                    >
+                        <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                        </span>
+                        <span className="text-xs font-bold tracking-widest uppercase">Publicar y Volver</span>
+                        <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                    </button>
+                ) : (
+                    <button
+                        onClick={handleExit}
+                        className="flex items-center gap-2 bg-black/80 hover:bg-black text-white px-6 py-3 rounded-full shadow-lg backdrop-blur-md transition-all group"
+                        title="Volver al Admin"
+                    >
+                        <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                        <span className="text-xs tracking-widest uppercase">Volver al Admin</span>
+                    </button>
+                )}
             </div>
 
             {/* Confirm Modal */}

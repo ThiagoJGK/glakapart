@@ -4,14 +4,30 @@ import { getContent, updateContent } from '@/services/content';
 import { uploadImage } from '@/services/images';
 import { generateBlurredImage } from '@/utils/imageUtils';
 import { Toast } from '../ui/Toast';
+import { Bot, Save, Palette, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
 
 const AdminBranding: React.FC = () => {
-    const [headerSettings, setHeaderSettings] = useState<Record<string, string>>({});
-    const [activeSection, setActiveSection] = useState<'home' | 'gastronomia' | 'lugares' | 'eventos' | 'apartamentos'>('home');
-    const [faviconUrl, setFaviconUrl] = useState('');
+    // Branding States
     const [logoType, setLogoType] = useState<'svg' | 'image'>('svg');
     const [logoSvg, setLogoSvg] = useState('');
     const [logoUrl, setLogoUrl] = useState('');
+    const [faviconUrl, setFaviconUrl] = useState('');
+    const [primaryColor, setPrimaryColor] = useState('#10595a');
+    const [secondaryColor, setSecondaryColor] = useState('#819488');
+    
+    // Header Images State
+    const [headerSettings, setHeaderSettings] = useState<Record<string, string>>({});
+    const [activeSection, setActiveSection] = useState<'home' | 'gastronomia' | 'lugares' | 'eventos' | 'apartamentos'>('home');
+    
+    // Social / Links State
+    const [instagramUrl, setInstagramUrl] = useState('');
+    const [facebookUrl, setFacebookUrl] = useState('');
+    const [whatsappNumber, setWhatsappNumber] = useState('');
+
+    // Chatbot State
+    const [chatbotEnabled, setChatbotEnabled] = useState(false);
+    const [chatbotPrompt, setChatbotPrompt] = useState('');
+
     const [loading, setLoading] = useState(true);
     const [uploadStatus, setUploadStatus] = useState('');
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -22,41 +38,62 @@ const AdminBranding: React.FC = () => {
 
     const loadSettings = async () => {
         setLoading(true);
-        const data = await getContent('settings');
-        if (data) {
-            setLogoType(data.logoType || 'svg');
-            setLogoSvg(data.logoSvg || '');
-            setLogoUrl(data.logoUrl || '');
-            setFaviconUrl(data.faviconUrl || '');
+        try {
+            const [settingsData, chatbotData] = await Promise.all([
+                getContent('settings'),
+                getContent('chatbot')
+            ]);
+            
+            if (settingsData) {
+                setLogoType(settingsData.logoType || 'svg');
+                setLogoSvg(settingsData.logoSvg || '');
+                setLogoUrl(settingsData.logoUrl || '');
+                setFaviconUrl(settingsData.faviconUrl || '');
+                setPrimaryColor(settingsData.primaryColor || '#10595a');
+                setSecondaryColor(settingsData.secondaryColor || '#819488');
+                setInstagramUrl(settingsData.instagramUrl || '');
+                setFacebookUrl(settingsData.facebookUrl || '');
+                setWhatsappNumber(settingsData.whatsappNumber || '');
 
-            // Load all keys starting with header_
-            // For now, we manually map or just accept that initial state is overwritten
-            // New logic: store all unknown keys if relevant, or just look for specific sections
-            const newSettings: any = {};
-            ['home', 'gastronomia', 'lugares', 'eventos', 'apartamentos'].forEach(sec => {
-                newSettings[`header_${sec}_bg`] = data[`header_${sec}_bg`] || '';
-                newSettings[`header_${sec}_blur`] = data[`header_${sec}_blur`] || '';
-            });
+                const newSettings: any = {};
+                ['home', 'gastronomia', 'lugares', 'eventos', 'apartamentos'].forEach(sec => {
+                    newSettings[`header_${sec}_bg`] = settingsData[`header_${sec}_bg`] || '';
+                    newSettings[`header_${sec}_blur`] = settingsData[`header_${sec}_blur`] || '';
+                });
 
-            // Backwards compatibility for old 'headerBgUrl' -> assign to home if home empty?
-            if (!newSettings['header_home_bg'] && data.headerBgUrl) {
-                newSettings['header_home_bg'] = data.headerBgUrl;
-                newSettings['header_home_blur'] = data.headerBgBlurredUrl;
+                if (!newSettings['header_home_bg'] && settingsData.headerBgUrl) {
+                    newSettings['header_home_bg'] = settingsData.headerBgUrl;
+                    newSettings['header_home_blur'] = settingsData.headerBgBlurredUrl;
+                }
+
+                setHeaderSettings(newSettings);
             }
-
-            setHeaderSettings(newSettings);
+            
+            if (chatbotData) {
+                setChatbotEnabled(chatbotData.enabled || false);
+                setChatbotPrompt(chatbotData.systemPrompt || '');
+            }
+        } catch (error) {
+            console.error('Error loading config:', error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleSave = async () => {
+        setLoading(true);
         try {
             const updates = [
-                updateContent('settings', 'logoType', logoType),
-                updateContent('settings', 'logoSvg', logoSvg),
+                updateContent('settings', 'logoType', logoUrl ? 'image' : logoType), // Auto switch if image uploaded
                 updateContent('settings', 'logoUrl', logoUrl),
                 updateContent('settings', 'faviconUrl', faviconUrl),
-                // Spread current header settings
+                updateContent('settings', 'primaryColor', primaryColor),
+                updateContent('settings', 'secondaryColor', secondaryColor),
+                updateContent('settings', 'instagramUrl', instagramUrl),
+                updateContent('settings', 'facebookUrl', facebookUrl),
+                updateContent('settings', 'whatsappNumber', whatsappNumber),
+                updateContent('chatbot', 'enabled', chatbotEnabled),
+                updateContent('chatbot', 'systemPrompt', chatbotPrompt),
                 ...Object.entries(headerSettings).map(([key, value]) => updateContent('settings', key, value))
             ];
 
@@ -67,6 +104,8 @@ const AdminBranding: React.FC = () => {
         } catch (error) {
             console.error(error);
             setToast({ message: 'Error al guardar la configuración', type: 'error' });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -75,7 +114,7 @@ const AdminBranding: React.FC = () => {
             setLoading(true);
             try {
                 const url = await uploadImage(e.target.files[0], (status) => {
-                    setUploadStatus(status === 'optimizing' ? 'OPTIMIZANDO LOGO...' : 'SUBIENDO DATO...');
+                    setUploadStatus(status === 'optimizing' ? 'OPTIMIZANDO...' : 'SUBIENDO...');
                 });
                 setter(url);
             } catch (error) {
@@ -90,14 +129,12 @@ const AdminBranding: React.FC = () => {
     const handleHeaderUpload = async (e: React.ChangeEvent<HTMLInputElement>, section: string) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            setLoading(true); // Re-using loading state or just blocking interaction
+            setLoading(true);
             try {
-                // 1. Upload Original
                 const originalUrl = await uploadImage(file, (status) => {
                     setUploadStatus(status === 'optimizing' ? 'OPTIMIZANDO FONDO...' : 'SUBIENDO IMAGEN...');
                 });
 
-                // 2. Generate and Upload Blur
                 setUploadStatus('GENERANDO FONDO BLUR...');
                 const blurredFile = await generateBlurredImage(file);
                 const blurredUrl = await uploadImage(blurredFile, (status) => {
@@ -110,7 +147,7 @@ const AdminBranding: React.FC = () => {
                     [`header_${section}_blur`]: blurredUrl
                 }));
 
-                setToast({ message: 'Imágenes generadas y subidas correctamente', type: 'success' });
+                setToast({ message: 'Imágenes subidas correctamente', type: 'success' });
             } catch (error) {
                 console.error(error);
                 setToast({ message: 'Error al procesar imágenes', type: 'error' });
@@ -122,7 +159,7 @@ const AdminBranding: React.FC = () => {
     };
 
     return (
-        <div className="bg-white p-4 md:p-8 rounded-sm shadow-sm border border-gray-100 max-w-4xl relative">
+        <div className="bg-white p-4 md:p-8 rounded-2xl shadow-sm border border-gray-100 max-w-5xl relative">
             {toast && (
                 <Toast
                     message={toast.message}
@@ -132,65 +169,81 @@ const AdminBranding: React.FC = () => {
             )}
 
             {loading && uploadStatus && (
-                <div className="absolute inset-0 bg-white/80 z-20 flex flex-col items-center justify-center rounded-sm">
+                <div className="absolute inset-0 bg-white/80 z-20 flex flex-col items-center justify-center rounded-2xl backdrop-blur-sm">
                     <div className="w-8 h-8 border-4 border-sage border-t-forest rounded-full animate-spin mb-4"></div>
                     <p className="text-xs text-forest font-bold tracking-widest animate-pulse">{uploadStatus}</p>
                 </div>
             )}
 
-            <h3 className="font-ui tracking-widest text-sm mb-8 text-sage">IDENTIDAD DE MARCA</h3>
+            <div className="mb-10">
+                <h3 className="font-ui tracking-widest text-lg mb-2 text-forest">AJUSTES DEL SITIO</h3>
+                <p className="text-sm text-gray-500">
+                    Administra la identidad gráfica, redes sociales y configuraciones de asistentes inteligentes de tu plataforma.
+                </p>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                {/* Editor */}
-                <div className="space-y-12">
-                    {/* Logo Section */}
-                    <div className="space-y-6">
-                        <label className="block text-xs font-bold text-gray-400 mb-4 border-b pb-2">LOGO PRINCIPAL</label>
-                        <div className="flex gap-4 mb-4">
-                            <button
-                                onClick={() => setLogoType('svg')}
-                                className={`px-4 py-2 text-xs border ${logoType === 'svg' ? 'bg-forest text-white border-forest' : 'border-gray-200 text-gray-400'}`}
-                            >
-                                CÓDIGO SVG
-                            </button>
-                            <button
-                                onClick={() => setLogoType('image')}
-                                className={`px-4 py-2 text-xs border ${logoType === 'image' ? 'bg-forest text-white border-forest' : 'border-gray-200 text-gray-400'}`}
-                            >
-                                IMAGEN (PNG/JPG)
-                            </button>
+            <div className="space-y-12">
+                {/* 1. BRANDING & COLORS */}
+                <section>
+                    <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-3">
+                        <Palette className="w-5 h-5 text-sage" />
+                        <h4 className="font-bold text-gray-700 uppercase tracking-widest text-sm">Identidad Visual</h4>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Logo & Favicon */}
+                        <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 space-y-6">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 mb-2 uppercase">Logo Principal</label>
+                                {logoType === 'svg' && !logoUrl && (
+                                    <p className="text-[10px] text-amber-600 mb-2 bg-amber-50 p-2 rounded">El logo actual es SVG. Para editarlo, sube una nueva imagen y lo reemplazará automáticamente.</p>
+                                )}
+                                <div className="flex gap-4 items-center">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleFileUpload(e, setLogoUrl)}
+                                        className="w-full border p-2 text-xs bg-white rounded-lg"
+                                    />
+                                    {(logoUrl || logoSvg) && (
+                                        <div className="w-12 h-12 bg-forest rounded shadow-inner flex items-center justify-center p-2 shrink-0">
+                                            {logoUrl ? (
+                                                <img src={logoUrl} alt="Logo" className="w-full object-contain" />
+                                            ) : (
+                                                <div className="w-full text-white [&>svg]:w-full [&>svg]:h-auto" dangerouslySetInnerHTML={{ __html: logoSvg }} />
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 mb-2 uppercase">Favicon (Ícono de Pestaña)</label>
+                                <div className="flex gap-4 items-center">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleFileUpload(e, setFaviconUrl)}
+                                        className="w-full border p-2 text-xs bg-white rounded-lg"
+                                    />
+                                    {faviconUrl && (
+                                        <img src={faviconUrl} alt="Favicon" className="w-8 h-8 rounded-md border border-gray-200 object-contain shrink-0" />
+                                    )}
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                </section>
 
-                        {logoType === 'svg' ? (
-                            <div>
-                                <label className="block text-xs font-bold text-gray-400 mb-2">CÓDIGO SVG</label>
-                                <textarea
-                                    value={logoSvg}
-                                    onChange={(e) => setLogoSvg(e.target.value)}
-                                    className="w-full h-32 border p-3 font-mono text-xs focus:border-sage focus:outline-none"
-                                    placeholder="<svg>..."
-                                />
-                            </div>
-                        ) : (
-                            <div>
-                                <label className="block text-xs font-bold text-gray-400 mb-2">IMAGEN DE LOGO</label>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => handleFileUpload(e, setLogoUrl)}
-                                    className="w-full border p-3 text-xs"
-                                />
-                                {logoUrl && <p className="text-[10px] text-gray-400 mt-2 break-all">URL: {logoUrl}</p>}
-                            </div>
-                        )}
+                {/* 2. HEADER IMAGES */}
+                <section>
+                    <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-3">
+                        <ImageIcon className="w-5 h-5 text-sage" />
+                        <h4 className="font-bold text-gray-700 uppercase tracking-widest text-sm">Fondos de Cabecera</h4>
                     </div>
 
-                    {/* Header Background Section with Tabs */}
-                    <div className="space-y-6">
-                        <label className="block text-xs font-bold text-gray-400 mb-4 border-b pb-2">FONDOS DE ENCABEZADO POR SECCIÓN</label>
-
-                        {/* Tabs */}
-                        <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2">
+                    <div className="bg-gray-50 border border-gray-100 rounded-xl overflow-hidden">
+                        <div className="flex flex-wrap overflow-x-auto border-b border-gray-200 bg-white">
                             {[
                                 { id: 'home', label: 'INICIO' },
                                 { id: 'gastronomia', label: 'GASTRONOMÍA' },
@@ -201,9 +254,9 @@ const AdminBranding: React.FC = () => {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveSection(tab.id as any)}
-                                    className={`px-4 py-2 text-[10px] font-bold tracking-widest rounded-full whitespace-nowrap transition-colors ${activeSection === tab.id
-                                        ? 'bg-[#10595a] text-white'
-                                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                                    className={`px-5 py-3 text-xs font-bold tracking-widest whitespace-nowrap transition-colors border-b-2 ${activeSection === tab.id
+                                        ? 'border-forest text-forest bg-forest/5'
+                                        : 'border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
                                         }`}
                                 >
                                     {tab.label}
@@ -211,79 +264,134 @@ const AdminBranding: React.FC = () => {
                             ))}
                         </div>
 
-                        <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
-                            <label className="block text-xs font-bold text-gray-400 mb-2">IMAGEN PRINCIPAL ({activeSection.toUpperCase()})</label>
-                            <p className="text-[10px] text-gray-400 mb-4">La versión desenfocada se generará automáticamente.</p>
+                        <div className="p-6">
+                            <label className="cursor-pointer inline-flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-lg text-xs font-bold text-forest hover:bg-gray-50 transition-colors mb-6 shadow-sm">
+                                <ImageIcon size={14} /> SUBIR NUEVA IMAGEN
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleHeaderUpload(e, activeSection)}
+                                    className="hidden"
+                                />
+                            </label>
 
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleHeaderUpload(e, activeSection)}
-                                className="w-full border p-3 text-xs bg-white mb-4"
-                            />
-
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <span className="text-[10px] text-gray-400 block mb-1">Original</span>
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Original</span>
                                     {headerSettings[`header_${activeSection}_bg`] ? (
-                                        <img width={800} height={600} src={headerSettings[`header_${activeSection}_bg`]} alt="Original" className="w-full h-24 object-cover rounded shadow-sm" />
+                                        <img src={headerSettings[`header_${activeSection}_bg`]} alt="Original" className="w-full h-32 object-cover rounded-xl shadow-sm border border-gray-200" />
                                     ) : (
-                                        <div className="w-full h-24 bg-gray-200 rounded flex items-center justify-center text-[10px] text-gray-400">Sin imagen</div>
+                                        <div className="w-full h-32 bg-gray-200 rounded-xl flex items-center justify-center text-xs font-ui tracking-widest uppercase text-gray-400">Sin imagen</div>
                                     )}
                                 </div>
                                 <div>
-                                    <span className="text-[10px] text-gray-400 block mb-1">Desenfocada (Auto)</span>
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Desenfocada (Blur)</span>
                                     {headerSettings[`header_${activeSection}_blur`] ? (
-                                        <img width={800} height={600} src={headerSettings[`header_${activeSection}_blur`]} alt="Blur" className="w-full h-24 object-cover rounded shadow-sm" />
+                                        <img src={headerSettings[`header_${activeSection}_blur`]} alt="Blur" className="w-full h-32 object-cover rounded-xl shadow-sm border border-gray-200" />
                                     ) : (
-                                        <div className="w-full h-24 bg-gray-200 rounded flex items-center justify-center text-[10px] text-gray-400">Sin imagen</div>
+                                        <div className="w-full h-32 bg-gray-200 rounded-xl flex items-center justify-center text-xs font-ui tracking-widest uppercase text-gray-400">Sin imagen</div>
                                     )}
                                 </div>
                             </div>
                         </div>
                     </div>
+                </section>
 
-                    {/* Favicon Section */}
-                    <div className="space-y-6">
-                        <label className="block text-xs font-bold text-gray-400 mb-4 border-b pb-2">FAVICON DE LA PESTAÑA</label>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-400 mb-2">IMAGEN O SVG (RECOMENDADO 32x32)</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleFileUpload(e, setFaviconUrl)}
-                                className="w-full border p-3 text-xs"
-                            />
-                            {faviconUrl && <img width={800} height={600} src={faviconUrl} alt="Favicon" className="mt-2 w-8 h-8 object-contain rounded" />}
-                        </div>
+                {/* 3. SOCIAL MEDIA & LINKS */}
+                <section>
+                    <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-3">
+                        <LinkIcon className="w-5 h-5 text-sage" />
+                        <h4 className="font-bold text-gray-700 uppercase tracking-widest text-sm">Redes y Contacto</h4>
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                            <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">WhatsApp (URL wa.me)</label>
+                            <input
+                                type="url"
+                                value={whatsappNumber}
+                                onChange={(e) => setWhatsappNumber(e.target.value)}
+                                placeholder="https://wa.me/..."
+                                className="w-full border border-gray-200 p-3 text-sm rounded-lg focus:border-forest focus:outline-none bg-white"
+                            />
+                        </div>
+                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                            <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Instagram URL</label>
+                            <input
+                                type="url"
+                                value={instagramUrl}
+                                onChange={(e) => setInstagramUrl(e.target.value)}
+                                placeholder="https://instagram.com/..."
+                                className="w-full border border-gray-200 p-3 text-sm rounded-lg focus:border-forest focus:outline-none bg-white"
+                            />
+                        </div>
+                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                            <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Facebook URL</label>
+                            <input
+                                type="url"
+                                value={facebookUrl}
+                                onChange={(e) => setFacebookUrl(e.target.value)}
+                                placeholder="https://facebook.com/..."
+                                className="w-full border border-gray-200 p-3 text-sm rounded-lg focus:border-forest focus:outline-none bg-white"
+                            />
+                        </div>
+                    </div>
+                </section>
 
+                {/* 4. CHATBOT CONFIGURATION */}
+                <section>
+                    <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-3">
+                        <Bot className="w-5 h-5 text-sage" />
+                        <h4 className="font-bold text-gray-700 uppercase tracking-widest text-sm">Asistente IA (Chatbot)</h4>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 border border-gray-100 p-5 rounded-xl gap-4">
+                            <div>
+                                <h5 className="font-bold text-gray-700 text-sm mb-1">Activar Chatbot de Atención</h5>
+                                <p className="text-xs text-gray-500">Un pequeño widget de chat aparecerá en todas las páginas para interactuar con los visitantes a través de IA.</p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={chatbotEnabled}
+                                    onChange={(e) => setChatbotEnabled(e.target.checked)}
+                                />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#10595a]"></div>
+                            </label>
+                        </div>
+
+                        <div className="bg-gray-50 border border-gray-100 p-5 rounded-xl">
+                            <div className="flex justify-between items-center mb-4">
+                                <h5 className="font-bold text-gray-700 text-sm">Base de Conocimiento (System Prompt)</h5>
+                            </div>
+                            <p className="text-xs text-gray-500 mb-4 leading-relaxed line-clamp-2 hover:line-clamp-none transition-all">
+                                Ingresa aquí todas las reglas, precios, y la personalidad que el asistente debe seguir. Ejemplo: "Eres el recepcionista de Glak. Eres amable e invitas a reservar por WhatsApp."
+                            </p>
+                            <textarea
+                                value={chatbotPrompt}
+                                onChange={(e) => setChatbotPrompt(e.target.value)}
+                                className="w-full h-48 bg-white border border-gray-200 rounded-lg p-4 text-sm focus:outline-none focus:border-forest text-gray-700 font-mono resize-y"
+                                placeholder="Escribe el contexto para el Asistente IA..."
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                <div className="flex justify-center sm:justify-end pt-8 border-t border-gray-100">
                     <button
                         onClick={handleSave}
-                        className="bg-forest text-white px-8 py-3 text-xs tracking-widest hover:bg-sage transition-colors w-full"
+                        disabled={loading}
+                        className="flex items-center gap-2 bg-forest text-white px-8 py-4 rounded-xl text-sm font-bold tracking-widest hover:bg-forest/90 transition-all shadow-md hover:shadow-lg disabled:opacity-50 w-full sm:w-auto justify-center"
                     >
-                        GUARDAR CAMBIOS
+                        {loading ? (
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <Save className="w-5 h-5" />
+                        )}
+                        GUARDAR TODA LA CONFIGURACIÓN
                     </button>
-                </div>
-
-                {/* Preview (hidden on small mobile for space) */}
-                <div className="hidden md:block space-y-8">
-                    <div className="bg-gray-100 p-8 flex flex-col items-center justify-center rounded-sm border-dashed border-2 border-gray-200 min-h-[300px]">
-                        <p className="text-[10px] tracking-widest text-gray-400 mb-8">VISTA PREVIA DE LOGO</p>
-                        <div className="bg-forest w-full p-8 flex justify-center mb-8 rounded-sm">
-                            {logoType === 'svg' && logoSvg ? (
-                                <div
-                                    className="w-48 text-white admin-logo-preview [&>svg]:w-full [&>svg]:h-auto [&>svg]:max-h-full flex items-center justify-center"
-                                    dangerouslySetInnerHTML={{ __html: logoSvg }}
-                                />
-                            ) : logoType === 'image' && logoUrl ? (
-                                <img width={800} height={600} src={logoUrl} alt="Logo Preview" className="w-48 object-contain" />
-                            ) : (
-                                <p className="text-white/20 text-xs">Sin logo seleccionado</p>
-                            )}
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -291,12 +399,3 @@ const AdminBranding: React.FC = () => {
 };
 
 export default AdminBranding;
-
-
-
-
-
-
-
-
-

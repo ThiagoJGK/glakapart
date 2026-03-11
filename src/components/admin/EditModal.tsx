@@ -77,7 +77,7 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, initialV
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all duration-300 scale-100">
                 <div className="bg-forest p-6 flex justify-between items-center text-white">
                     <h3 className="font-ui tracking-widest text-sm font-bold">EDITAR CONTENIDO</h3>

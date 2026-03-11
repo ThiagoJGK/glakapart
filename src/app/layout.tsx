@@ -4,6 +4,7 @@ import './globals.css';
 import { Providers } from './providers';
 import Script from 'next/script';
 import ChatWidget from '@/components/layout/ChatWidget';
+import AdminDraftControls from '@/components/admin/AdminDraftControls';
 
 const jost = Jost({
   subsets: ['latin'],
@@ -61,6 +62,7 @@ export default function RootLayout({
       <body className={`${jost.variable} ${montserrat.variable} ${qwitcher.variable}`}>
         <Providers>
           {children}
+          <AdminDraftControls />
           <ChatWidget />
         </Providers>
         <Script id="schema-lodging" type="application/ld+json" strategy="lazyOnload">

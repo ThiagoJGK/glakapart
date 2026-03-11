@@ -68,7 +68,7 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
         return (
             <div
                 className={`relative group ${isAdminMode ? 'cursor-pointer' : ''} ${className}`}
-                onClick={isAdminMode ? (e) => { e.preventDefault(); setIsModalOpen(true); } : undefined}
+                onClick={isAdminMode ? (e) => { e.preventDefault(); e.stopPropagation(); setIsModalOpen(true); } : undefined}
             >
                 {isBackground ? (
                     <div
@@ -82,7 +82,7 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
                 {isAdminMode && (
                     <div
                         onClick={() => setIsModalOpen(true)}
-                        className="absolute inset-0 bg-forest/50 border-4 border-sage flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all duration-300 z-50"
+                        className="absolute inset-0 bg-forest/50 border-4 border-sage flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all duration-300 z-[9999]"
                     >
                         <div className="bg-white w-16 h-16 flex items-center justify-center rounded-full shadow-xl transition-transform hover:scale-110">
                             <span className="text-2xl">✏️</span>
@@ -107,12 +107,12 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
         <>
             <div
                 className={`relative ${isAdminMode ? 'cursor-pointer group' : ''} ${className}`}
-                onClick={isAdminMode ? (e) => { e.preventDefault(); setIsModalOpen(true); } : undefined}
+                onClick={isAdminMode ? (e) => { e.preventDefault(); e.stopPropagation(); setIsModalOpen(true); } : undefined}
                 title={isAdminMode ? 'Click para editar' : ''}
             >
                 {/* Visual Indicator in Admin Mode */}
                 {isAdminMode && (
-                    <div className="absolute -top-4 -right-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-black w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-full shadow-lg border border-forest/20 cursor-pointer hover:scale-110">
+                    <div className="absolute -top-4 -right-4 z-[9999] opacity-0 group-hover:opacity-100 transition-opacity bg-white text-black w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-full shadow-lg border border-forest/20 cursor-pointer hover:scale-110">
                         <span className="text-sm block transform-none">✏️</span>
                     </div>
                 )}
@@ -126,7 +126,7 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
 
                 {/* Highlight box on hover */}
                 {isAdminMode && (
-                    <div className="absolute inset-0 border-2 border-sage/50 rounded-sm opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity"></div>
+                    <div className="absolute inset-0 border-2 border-sage/50 rounded-sm opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[9999]"></div>
                 )}
             </div>
 

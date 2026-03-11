@@ -6,7 +6,8 @@ import { Event } from '@/types';
 import { DayPicker, DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { CalendarHeart, Play } from 'lucide-react';
+import { CalendarHeart, Play, Image as ImageIcon, Star, Trash2 } from 'lucide-react';
+import { uploadImage } from '@/services/images';
 import 'react-day-picker/style.css';
 
 const SEASON_OPTIONS = ['Verano', 'Otoño', 'Invierno', 'Primavera', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -16,6 +17,35 @@ const AdminEvents: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [currentEvent, setCurrentEvent] = useState<Partial<Event>>({});
     const [selectedRange, setSelectedRange] = useState<DateRange | undefined>();
+    const [uploadingImage, setUploadingImage] = useState(false);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.length) return;
+        setUploadingImage(true);
+        const newImages = [...(currentEvent.images || [])];
+        for (let i = 0; i < e.target.files.length; i++) {
+            const url = await uploadImage(e.target.files[i]);
+            newImages.push(url);
+        }
+        let cover = currentEvent.coverImage;
+        if (!cover && newImages.length > 0) cover = newImages[0];
+        
+        setCurrentEvent({ ...currentEvent, images: newImages, coverImage: cover });
+        setUploadingImage(false);
+    };
+
+    const removeImage = (url: string) => {
+        const newImages = (currentEvent.images || []).filter(img => img !== url);
+        let cover = currentEvent.coverImage;
+        if (cover === url) {
+            cover = newImages.length > 0 ? newImages[0] : '';
+        }
+        setCurrentEvent({ ...currentEvent, images: newImages, coverImage: cover });
+    };
+
+    const setCover = (url: string) => {
+        setCurrentEvent({ ...currentEvent, coverImage: url });
+    };
 
     useEffect(() => {
         loadEvents();
@@ -68,6 +98,8 @@ const AdminEvents: React.FC = () => {
             startDate: selectedRange.from!.toISOString(),
             endDate: selectedRange.to!.toISOString(),
             image: currentEvent.image || '',
+            images: currentEvent.images || [],
+            coverImage: currentEvent.coverImage || '',
             videoUrl: currentEvent.videoUrl || '',
             isAnnual: currentEvent.isAnnual || false,
             estimatedSeason: currentEvent.estimatedSeason || '',
@@ -134,6 +166,43 @@ const AdminEvents: React.FC = () => {
                                     className="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-sage"
                                     placeholder="https://youtube.com/watch?v=..."
                                 />
+                            </div>
+
+                            {/* Images Section */}
+                            <div className="mt-6 border-t border-gray-100 pt-4">
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Imágenes del Evento</label>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                    id="event-image-upload"
+                                />
+                                <label htmlFor="event-image-upload" className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm cursor-pointer hover:bg-gray-50 text-gray-600 transition-colors">
+                                    <ImageIcon size={16} /> {uploadingImage ? 'Subiendo...' : 'Agregar Imágenes...'}
+                                </label>
+                                
+                                {currentEvent.images && currentEvent.images.length > 0 && (
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-4">
+                                        {currentEvent.images.map(img => (
+                                            <div key={img} className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${currentEvent.coverImage === img ? 'border-sage shadow-md' : 'border-transparent'}`}>
+                                                <img src={img} alt="Event" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+                                                    <button onClick={(e) => { e.preventDefault(); setCover(img); }} className={`p-1.5 rounded-full ${currentEvent.coverImage === img ? 'bg-sage text-white' : 'bg-white text-gray-600 hover:text-sage'}`} title="Marcar como Portada">
+                                                        <Star size={14} fill={currentEvent.coverImage === img ? "currentColor" : "none"} />
+                                                    </button>
+                                                    <button onClick={(e) => { e.preventDefault(); removeImage(img); }} className="p-1.5 bg-white text-red-500 hover:bg-red-50 rounded-full" title="Eliminar">
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                                {currentEvent.coverImage === img && (
+                                                    <div className="absolute top-1 left-1 bg-sage text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">PORTADA</div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -212,6 +281,11 @@ const AdminEvents: React.FC = () => {
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <h4 className="font-ui text-base md:text-lg font-bold text-forest">{ev.title}</h4>
+                                    {ev.images && ev.images.length > 0 && (
+                                        <span className="bg-sage/10 text-sage px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase flex items-center gap-1">
+                                            <ImageIcon size={10} /> {ev.images.length}
+                                        </span>
+                                    )}
                                     {ev.isAnnual && (
                                         <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase flex items-center gap-1">
                                             <CalendarHeart size={10} /> Anual
