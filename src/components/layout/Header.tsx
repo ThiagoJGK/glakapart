@@ -184,11 +184,11 @@ const Header: React.FC = () => {
         return (
             <div className="overflow-hidden">
                 {onClick ? (
-                    <button onClick={onClick} className={`block text-3xl font-script text-[#10595a] py-4 w-full text-center transition-transform hover:scale-105 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
+                    <button onClick={onClick} className={`block text-5xl font-script text-[#10595a] py-6 w-full text-center transition-transform hover:scale-105 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
                         {label}
                     </button>
                 ) : (
-                    <Link href={to!} onClick={() => setIsMobileMenuOpen(false)} className={`block text-3xl font-script text-[#10595a] py-4 w-full text-center transition-transform hover:scale-105 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
+                    <Link href={to!} onClick={() => setIsMobileMenuOpen(false)} className={`block text-5xl font-script text-[#10595a] py-6 w-full text-center transition-transform hover:scale-105 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
                         {label}
                     </Link>
                 )}
@@ -227,7 +227,7 @@ const Header: React.FC = () => {
             </svg>
 
             <div
-                className={`absolute top-0 left-0 w-full overflow-hidden pointer-events-none header-curved-bg ${isHome ? 'z-0 extended' : 'z-20'}`}
+                className={`absolute top-0 left-0 w-full overflow-hidden pointer-events-none header-curved-bg transition-all duration-[1500ms] ease-in-out ${isHome ? 'z-0 extended' : 'z-20'}`}
                 style={useCustomHeader ? {
                     backgroundImage: `url('${currentBgUrl}')`,
                     backgroundSize: 'cover',

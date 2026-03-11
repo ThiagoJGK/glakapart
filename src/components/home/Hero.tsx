@@ -132,7 +132,7 @@ const Hero: React.FC = () => {
             <Editable
                 id={`hero.slide${currentSlide}.mainTitle`}
                 defaultValue={slides[currentSlide].mainTitle}
-                className={`font-script text-forest block leading-tight ${isMobile ? 'text-4xl mt-2' : 'text-3xl md:text-4xl'} `}
+                className={`font-script text-forest block leading-none ${isMobile ? 'text-6xl md:text-7xl mt-4 pb-2' : 'text-3xl md:text-4xl'} `}
                 label="Título Principal"
             />
 
@@ -149,7 +149,7 @@ const Hero: React.FC = () => {
             <div className="pt-2 flex flex-col md:flex-row items-center gap-4">
                 <button
                     onClick={scrollToApartments}
-                    className="btn-black w-full md:w-auto text-xs py-4 px-12 transition-transform hover:-translate-y-1"
+                    className={`${isMobile ? 'bg-[#10595a] text-white hover:bg-[#0a3839] rounded-full' : 'btn-black'} w-full md:w-auto text-xs py-4 px-12 transition-transform hover:-translate-y-1 font-ui tracking-widest uppercase shadow-md`}
                 >
                     RESERVAR
                 </button>
@@ -200,8 +200,8 @@ const Hero: React.FC = () => {
                             className="flex flex-col h-full"
                         >
                             {/* Image Part of Card */}
-                            {/* Changed h-[280px] to aspect-video w-full h-auto to match web horizontal aspect ratio */}
-                            <div className="w-full aspect-video relative overflow-hidden">
+                            {/* Changed aspect-video to a fixed taller height to prevent cutting off */}
+                            <div className="w-full h-[40vh] min-h-[300px] max-h-[380px] relative overflow-hidden">
                                 <div className="absolute inset-0 bg-gray-200 animate-pulse"></div> {/* Placeholder */}
                                 <Editable
                                     id={`home.heroImage.${currentSlide}`}
@@ -212,11 +212,11 @@ const Hero: React.FC = () => {
                                     withBlur={true}
                                 />
                                 {/* Gradient to blend image into text part */}
-                                <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#f4f1ea] to-transparent"></div>
+                                <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#f4f1ea] via-[#f4f1ea]/80 to-transparent"></div>
                             </div>
 
                             {/* Content Part of Card */}
-                            <div className="relative -mt-10">
+                            <div className="relative pt-2">
                                 {renderTextContent(true)}
                             </div>
                         </motion.div>
