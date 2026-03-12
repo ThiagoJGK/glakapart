@@ -23,13 +23,13 @@ const Location: React.FC = () => {
                             <Editable
                                 id="home.location.badge"
                                 defaultValue="Ubicación"
-                                className="font-ui text-[10px] md:text-xs tracking-[0.25em] bg-[#10595a] text-white px-4 py-2 rounded-full w-fit uppercase font-bold mb-4 block"
+                                className="font-ui text-[10px] md:text-xs tracking-[0.25em] bg-transparent border border-sage text-[#10595a] px-4 py-2 rounded-full w-fit uppercase font-bold mb-4 block mx-auto lg:mx-0"
                                 label="Insignia Ubicación"
                             />
                             <Editable
                                 id="home.location.title"
                                 defaultValue="Encuéntranos"
-                                className="font-script text-5xl md:text-7xl text-forest mb-6 block"
+                                className="font-script text-5xl md:text-7xl text-forest mb-6 block text-center lg:text-left"
                                 label="Título Ubicación"
                             />
                             <div className="w-16 h-px bg-sage/30 mx-auto lg:mx-0 mb-6"></div>
@@ -37,13 +37,13 @@ const Location: React.FC = () => {
                                 id="home.location.desc"
                                 type="textarea"
                                 defaultValue="Estamos ubicados en el corazón de <strong>Urdinarrain</strong>, una zona tranquila ideal para descansar. A pasos de todo lo que necesitás, pero con la privacidad y el silencio que buscás para tu estadía."
-                                className="font-light text-gray-600 text-lg leading-relaxed block"
+                                className="font-light text-gray-600 text-lg leading-relaxed block text-center lg:text-left"
                                 label="Descripción Ubicación"
                             />
                         </div>
 
                         <div className="space-y-4">
-                            <div className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 font-light">
+                            <div className="flex flex-col md:flex-row items-center justify-center lg:justify-start gap-4 text-gray-500 font-light text-center lg:text-left">
                                 <span className="p-3 bg-sage/10 rounded-full text-sage text-xl">📍</span>
                                 <div>
                                     <p className="uppercase text-[10px] md:text-xs tracking-widest font-bold text-[#10595a]">Dirección</p>
@@ -52,7 +52,7 @@ const Location: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="pt-4">
+                        <div className="pt-4 flex justify-center lg:justify-start">
                             <a
                                 href="https://www.google.com/maps/search/?api=1&query=Glak+Apart+Urdinarrain"
                                 target="_blank"
@@ -60,7 +60,7 @@ const Location: React.FC = () => {
                                 onClick={() => { track('View Location', { location: 'Location Map Button' }); trackEvent('location_click'); }}
                             >
                                 {/* Note: Ideally specific Google Maps link, using generic search link fallback in iframe for now */}
-                                <button className="px-8 py-4 border bg-[#10595a] text-white hover:bg-forest transition-all duration-300 rounded-sm font-ui text-xs font-bold tracking-widest uppercase">
+                                <button className="px-8 py-4 border bg-[#10595a] text-white hover:bg-forest transition-all duration-300 rounded-full font-ui text-xs font-bold tracking-widest uppercase">
                                     CÓMO LLEGAR
                                 </button>
                             </a>

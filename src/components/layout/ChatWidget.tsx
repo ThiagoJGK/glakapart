@@ -37,6 +37,23 @@ const ChatWidget: React.FC = () => {
     const [interactionId, setInteractionId] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const pathname = usePathname();
+    const [isFooterVisible, setIsFooterVisible] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsFooterVisible(entry.isIntersecting);
+            },
+            { root: null, threshold: 0.1 }
+        );
+
+        const footer = document.querySelector('footer');
+        if (footer) observer.observe(footer);
+
+        return () => {
+            if (footer) observer.unobserve(footer);
+        };
+    }, []);
 
     useEffect(() => {
         getContent('chatbot').then(data => {
@@ -123,7 +140,7 @@ const ChatWidget: React.FC = () => {
     if (!isEnabled || isAdminPage) return null;
 
     return (
-        <div id="chat-widget" className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div id="chat-widget" className={`fixed bottom-6 right-6 z-50 flex flex-col items-end transition-all duration-500 ${isFooterVisible ? 'translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
             {/* Chat Window */}
             {isOpen && (
                 <div className="bg-white w-[370px] max-w-[calc(100vw-48px)] h-[520px] max-h-[calc(100vh-120px)] rounded-2xl shadow-2xl border border-gray-100 mb-4 flex flex-col overflow-hidden animate-fade-in-up">
@@ -233,6 +250,11 @@ const ChatWidget: React.FC = () => {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* Mobile Optional Frost Overlay */}
+            {isOpen && (
+                <div className="fixed inset-0 z-[-1] bg-black/10 backdrop-blur-[2px] md:hidden" onClick={() => setIsOpen(false)} />
             )}
 
             {/* Floating Toggle Button */}

@@ -15,15 +15,11 @@ import Events from '@/components/home/Events';
 
 const Home: React.FC = () => {
     return (
-        <main className="overflow-hidden">
+        <main className="overflow-hidden bg-[#f4f1ea]">
             <Hero />
 
             <ScrollReveal>
                 <ApartmentsGrid />
-            </ScrollReveal>
-
-            <ScrollReveal delay={100}>
-                <DirectBookingBenefits />
             </ScrollReveal>
 
             <ScrollReveal delay={200}>
@@ -31,16 +27,19 @@ const Home: React.FC = () => {
             </ScrollReveal>
 
             <ScrollReveal delay={100}>
-                <SectionExplore />
+                <DirectBookingBenefits />
             </ScrollReveal>
-            {/* <Events /> Removed as per request (moved to proper section) */}
 
-            <ScrollReveal delay={200}>
-                <Location />
+            <ScrollReveal delay={100}>
+                <SectionExplore />
             </ScrollReveal>
 
             <ScrollReveal delay={200}>
                 <InstagramFeed />
+            </ScrollReveal>
+
+            <ScrollReveal delay={200}>
+                <Location />
             </ScrollReveal>
 
             <ScrollReveal delay={200}>

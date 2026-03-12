@@ -11,6 +11,7 @@ import AdminHome from '@/components/admin/AdminHome';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminApartments from '@/components/admin/AdminApartments';
 import AdminSeasons from '@/components/admin/AdminSeasons';
+import AdminSEO from '@/components/admin/AdminSEO';
 import { Logo } from '@/components/layout/Logo';
 
 const ALLOWED_EMAILS = [
@@ -26,6 +27,7 @@ const TAB_TITLES: Record<string, string> = {
     seasons: 'Fotos de Estaciones',
     apartments: 'Galería de Apartamentos',
     faq: 'Preguntas Frecuentes',
+    seo: 'SEO & Open Graph',
     settings: 'Configuración General',
 };
 
@@ -38,6 +40,7 @@ const getUserFirstName = (email: string | null | undefined) => {
 const AdminLogin: React.FC = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
     const handleGoogleLogin = async () => {
         setError('');
@@ -55,12 +58,9 @@ const AdminLogin: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
             <div className="w-full max-w-sm">
-                <div className="text-center mb-10 flex flex-col items-center">
-                    <div className="h-32 mb-8 flex items-center justify-center">
+                    <div className="h-32 mb-8 flex items-center justify-center cursor-pointer" onClick={() => router.push('/')}>
                         <Logo className="w-auto h-full max-w-[400px]" />
                     </div>
-                    <p className="text-[10px] text-gray-400 tracking-[0.3em] uppercase">Panel de Control</p>
-                </div>
 
                 <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 space-y-5">
                     {error && (
@@ -101,7 +101,7 @@ const Admin: React.FC = () => {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
                 <div className="text-center flex flex-col items-center">
-                    <div className="h-32 mb-10 flex items-center justify-center animate-pulse opacity-50">
+                    <div className="h-32 mb-10 flex items-center justify-center animate-pulse opacity-50 cursor-pointer" onClick={() => router.push('/')}>
                         <Logo className="w-auto h-full max-w-[400px]" />
                     </div>
                     <p className="text-xs text-gray-400 tracking-widest">CARGANDO...</p>
@@ -173,6 +173,9 @@ const Admin: React.FC = () => {
             <div className="px-8 py-2 mt-6 mb-1">
                 <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Ajustes del Sitio</p>
             </div>
+            <button onClick={() => handleTabChange('seo')} className={navButtonClass('seo')}>
+                SEO / OPEN GRAPH
+            </button>
             <button onClick={() => handleTabChange('settings')} className={navButtonClass('settings')}>
                 CONFIGURACIÓN
             </button>
@@ -199,7 +202,7 @@ const Admin: React.FC = () => {
                 <div className="w-10 flex items-center justify-center opacity-50">
                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                 </div>
-                <div className="flex-1 flex flex-col items-center justify-center h-[56px]">
+                <div className="flex-1 flex flex-col items-center justify-center h-[56px] cursor-pointer" onClick={() => router.push('/')}>
                     <Logo className="h-full w-auto brightness-0 invert max-w-[200px]" />
                 </div>
                 <button
@@ -228,7 +231,7 @@ const Admin: React.FC = () => {
                 {/* ─── Desktop Sidebar (hidden on mobile) ─── */}
                 <aside className="hidden md:block w-64 bg-forest text-white h-screen fixed left-0 top-0 overflow-y-auto">
                     <div className="p-8 flex flex-col items-center border-b border-white/10">
-                        <div className="h-32 w-full flex items-center justify-center mb-6">
+                        <div className="h-32 w-full flex items-center justify-center mb-6 cursor-pointer" onClick={() => router.push('/')}>
                             <Logo className="h-full w-auto max-w-[240px] brightness-0 invert" />
                         </div>
                         <p className="text-[10px] opacity-70 tracking-widest">PANEL DE CONTROL</p>
@@ -269,6 +272,7 @@ const Admin: React.FC = () => {
                     {activeTab === 'events' && <AdminEvents />}
                     {activeTab === 'seasons' && <AdminSeasons />}
                     {activeTab === 'faq' && <AdminFAQ />}
+                    {activeTab === 'seo' && <AdminSEO />}
                     {activeTab === 'settings' && <AdminBranding />}
                 </main>
             </div>

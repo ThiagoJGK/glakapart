@@ -94,7 +94,7 @@ const FAQ: React.FC = () => {
     };
 
     return (
-        <section className="py-24 bg-[#f4f1ea]" id="faq">
+        <section className="py-24" id="faq">
             <div className="container mx-auto px-6 md:px-10 max-w-3xl">
                 {/* Section Header */}
                 <div className="text-center mb-16">

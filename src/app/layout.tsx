@@ -4,7 +4,7 @@ import './globals.css';
 import { Providers } from './providers';
 import Script from 'next/script';
 import ChatWidget from '@/components/layout/ChatWidget';
-import AdminDraftControls from '@/components/admin/AdminDraftControls';
+
 
 const jost = Jost({
   subsets: ['latin'],
@@ -29,6 +29,11 @@ export const metadata: Metadata = {
   description: 'Glak Apart: Apartamentos turísticos en Urdinarrain, Entre Ríos. Alojamiento rural con pileta, naturaleza, gastronomía regional y la mejor experiencia de descanso en el campo entrerriano.',
   keywords: 'Glak Apart, apartamentos Urdinarrain, alojamiento Urdinarrain, cabañas Entre Ríos, turismo rural Entre Ríos, apart hotel Urdinarrain, alojamiento turístico Urdinarrain, cabañas con pileta Entre Ríos, escapada rural Argentina',
   metadataBase: new URL('https://glakapart.com.ar'),
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
     type: 'website',
     url: 'https://glakapart.com.ar',
@@ -62,10 +67,9 @@ export default function RootLayout({
       <body className={`${jost.variable} ${montserrat.variable} ${qwitcher.variable}`}>
         <Providers>
           {children}
-          <AdminDraftControls />
           <ChatWidget />
         </Providers>
-        <Script id="schema-lodging" type="application/ld+json" strategy="lazyOnload">
+        <Script id="schema-lodging" type="application/ld+json" strategy="afterInteractive">
           {`
             {
               "@context": "https://schema.org",
@@ -73,7 +77,7 @@ export default function RootLayout({
               "name": "Glak Apart",
               "description": "Apartamentos turísticos en Urdinarrain, Entre Ríos. Alojamiento rural con pileta y naturaleza.",
               "url": "https://glakapart.com.ar",
-              "telephone": "+5493446XXXXXXXX", // TO BE UPDATED BY OWNER
+              "telephone": "+541169675050",
               "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "Urdinarrain",
@@ -87,10 +91,17 @@ export default function RootLayout({
                 "latitude": -32.6833,
                 "longitude": -58.8833
               },
-              "image": "https://glakapart.com.ar/logo.svg",
+              "image": "https://glakapart.com.ar/icon.svg",
               "starRating": {
                 "@type": "Rating",
                 "ratingValue": "5"
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "5.0",
+                "reviewCount": "8",
+                "bestRating": "5",
+                "worstRating": "3.5"
               },
               "priceRange": "$$"
             }

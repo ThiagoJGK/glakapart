@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Logo } from './Logo';
+import { MapPin } from 'lucide-react';
 
 import { track } from '@vercel/analytics/react';
 import { trackEvent } from '@/services/analytics';
@@ -23,7 +24,7 @@ const Footer: React.FC = () => {
             {/* Scroll to Top Button - Positioned to overlap wave and content */}
             <button
                 onClick={scrollToTop}
-                className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-[#10595a] hover:bg-sage hover:text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-colors duration-300 z-50 border-4 border-white"
+                className="absolute top-2 md:top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-[#10595a] hover:bg-sage hover:text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-colors duration-300 z-50 border-4 border-white"
                 aria-label="Volver arriba"
             >
                 <span className="text-xl font-bold">↑</span>
@@ -32,15 +33,10 @@ const Footer: React.FC = () => {
             {/* Main Footer Content - Forest Background (Hardcoded Hex to guarantee opacity) */}
             <div className="w-full bg-[#10595a] text-white relative overflow-hidden mt-[-1px]">
 
-                {/* Watermark moved here to stay clipped inside the background */}
-                <div className="absolute bottom-0 right-0 opacity-[0.03] pointer-events-none select-none">
-                    <span className="font-ui text-[15rem] md:text-[20rem] font-bold leading-none tracking-tighter">GLAK</span>
-                </div>
-
                 <div className="container mx-auto px-10 relative z-10 pt-10">
-                    <div className="grid md:grid-cols-3 gap-12 lg:gap-20 mb-16">
+                    <div className="grid md:grid-cols-3 gap-12 lg:gap-20 mb-16 text-center md:text-left">
                         {/* Brand Column */}
-                        <div className="col-span-1 md:col-span-1 space-y-6">
+                        <div className="col-span-1 md:col-span-1 space-y-6 flex flex-col items-center md:items-start">
                             {/* Small Logo from Component */}
                             <Logo className="w-24 h-auto text-white/90" />
 
@@ -50,24 +46,24 @@ const Footer: React.FC = () => {
                         </div>
 
                         {/* Navigation Links */}
-                        <div className="col-span-1 md:col-span-1">
-                            <h4 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.2em] text-white mb-8 uppercase">Explorar</h4>
-                            <ul className="space-y-4 text-sm font-light text-white/70">
+                        <div className="col-span-1 md:col-span-1 flex flex-col items-center md:items-start">
+                            <h4 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.2em] text-white mb-8 uppercase text-center md:text-left">Explorar</h4>
+                            <ul className="space-y-4 text-sm font-light text-white/70 flex flex-col items-center md:items-start">
                                 <li><Link href="/" className="hover:text-white hover:translate-x-1 transition-all inline-block">Inicio</Link></li>
                                 <li><Link href="/gastronomia" className="hover:text-white hover:translate-x-1 transition-all inline-block">Gastronomía</Link></li>
                                 <li><Link href="/lugares" className="hover:text-white hover:translate-x-1 transition-all inline-block">Lugares</Link></li>
+                                <li><Link href="/eventos" className="hover:text-white hover:translate-x-1 transition-all inline-block">Eventos</Link></li>
                             </ul>
                         </div>
 
                         {/* Contact Info */}
-                        <div className="col-span-1 md:col-span-1">
-                            <h4 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.2em] text-white mb-8 uppercase">Contacto</h4>
-                            <ul className="space-y-6 text-sm font-light text-white/70">
+                        <div className="col-span-1 md:col-span-1 flex flex-col items-center md:items-start">
+                            <h4 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.2em] text-white mb-8 uppercase text-center md:text-left">Contacto</h4>
+                            <ul className="space-y-6 text-sm font-light text-white/70 flex flex-col items-center md:items-start">
                                 <li className="flex items-start gap-4">
-                                    <span className="text-white mt-1">📍</span>
-                                    <div>
-                                        <p className="text-white">Urdinarrain, Entre Ríos</p>
-                                        <p className="text-xs mt-1 text-white/50">Argentina</p>
+                                    <MapPin className="w-6 h-6 text-white/70" />
+                                    <div className="text-center md:text-left">
+                                        <p className="text-white">Urdinarrain, Entre Ríos, Argentina</p>
                                     </div>
                                 </li>
                                 <li>
@@ -83,31 +79,18 @@ const Footer: React.FC = () => {
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="https://instagram.com/glakapart" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:translate-x-1 transition-transform group">
+                                    <a href="https://instagram.com/glak_apart" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:translate-x-1 transition-transform group">
                                         <svg className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
-                                        <span>@glakapart</span>
+                                        <span>@glak_apart</span>
                                     </a>
                                 </li>
                             </ul>
                         </div>
                     </div>
 
-                    <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40 font-light pb-10">
-                        <p>&copy; {new Date().getFullYear()} Glak Apart. Todos los derechos reservados.</p>
-                        <p className="flex items-center gap-2">
-                            <span>Diseño & Desarrollo web</span>
-                        </p>
+                    <div className="border-t border-white/10 pt-8 flex flex-col justify-center items-center gap-4 text-xs text-white/40 font-light pb-10">
+                        <p className="text-center">&copy; {new Date().getFullYear()} Glak Apart. Todos los derechos reservados.</p>
                     </div>
-                </div>
-
-                {/* Developer Signature - Light Background (Inside main flex container) */}
-                <div className="w-full bg-[#e8eee6] py-3 text-center relative z-20">
-                    <p className="font-ui text-[8px] md:text-[9px] font-bold tracking-[0.2em] text-[#10595a]/60 uppercase mb-1">
-                        Diseñado y Desarrollado por
-                    </p>
-                    <h3 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.3em] text-[#10595a] uppercase hover:text-[#90c69e] transition-colors cursor-default drop-shadow-sm">
-                        Thiago J. Gomez K.
-                    </h3>
                 </div>
             </div>
         </footer>

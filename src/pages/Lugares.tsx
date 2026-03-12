@@ -6,6 +6,8 @@ import Link from 'next/link';
 const Lugares: React.FC = () => {
     return (
         <main className="relative z-30 pt-64 md:pt-[480px] pb-32 animate-fade-in group/main overflow-x-clip">
+            {/* SEO: Semantic H1 */}
+            <h1 className="sr-only">Lugares para visitar en Urdinarrain — Turismo, naturaleza y aventura | Glak Apart</h1>
             {/* Fixed Editable Background */}
             <div className="fixed inset-0 -z-20 w-full h-full">
                 <Editable

@@ -92,6 +92,8 @@ const EventsPage: React.FC = () => {
 
     return (
         <main className="min-h-screen pt-52 md:pt-[480px] pb-20 relative z-30 overflow-hidden selection:bg-[#90c69e] selection:text-white">
+            {/* SEO: Semantic H1 */}
+            <h1 className="sr-only">Eventos y actividades en Urdinarrain — Glak Apart</h1>
 
             <div className="container mx-auto px-4 md:px-6 relative z-10">
                 {/* Header - Friendly & Organic */}
@@ -160,7 +162,7 @@ const EventsPage: React.FC = () => {
                                                 <img
                                                     src={selectedEvent.image || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069"}
                                                     className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
-                                                    alt="Evento"
+                                                    alt={selectedEvent.title || 'Evento en Urdinarrain — Glak Apart'}
                                                 />
                                             </div>
                                             <div className="absolute top-6 left-6 bg-white/95 px-5 py-2 rounded-2xl shadow-lg border border-[#10595a]/5">
@@ -465,6 +467,7 @@ const EventsPage: React.FC = () => {
                                     <img
                                         src={ev.image || `https://source.unsplash.com/random/800x600?sig=${i}&nature`}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        alt={ev.title || 'Evento en Urdinarrain — Glak Apart'}
                                         onError={(e) => (e.currentTarget.src = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069")}
                                     />
                                     <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>

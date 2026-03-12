@@ -29,7 +29,7 @@ const ApartmentsGrid: React.FC = () => {
         },
         {
             id: 'arje',
-            title: 'Arje',
+            title: 'Arjé',
             pax: 'Parejas (2 Pax)',
             desc: 'Nuestro rincón más íntimo, frente a la piscina. Ideal para escapadas románticas.',
             img: '',
@@ -82,12 +82,14 @@ const ApartmentsGrid: React.FC = () => {
                         className="font-ui text-[10px] md:text-xs tracking-[0.3em] uppercase bg-[#10595a] text-white px-4 py-2 rounded-full inline-block"
                         label="Insignia Apartamentos"
                     />
+                    <h2>
                     <Editable
                         id="home.apartments.title"
                         defaultValue="Descubrí tu Lugar"
-                        className="font-script text-5xl md:text-6xl text-forest block"
+                        className="font-script text-4xl md:text-5xl text-forest block"
                         label="Título Apartamentos"
                     />
+                    </h2>
                 </div>
 
                 {/* MOBILE: Coverflow Carousel */}
@@ -184,6 +186,7 @@ const ApartmentsGrid: React.FC = () => {
 };
 
 export default ApartmentsGrid;
+
 
 
 

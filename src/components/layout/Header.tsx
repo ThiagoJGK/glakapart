@@ -267,7 +267,7 @@ const Header: React.FC = () => {
 
             {/* Navbar Layer (Content) */}
             {/* Navbar Layer (Content) */}
-            <div className="container mx-auto px-6 md:px-10 pt-12 pb-4 md:py-6 flex items-center justify-between relative z-[70] pointer-events-none">
+            <div className="container mx-auto px-6 md:px-10 pt-12 pb-4 md:py-6 flex items-center justify-between relative z-[45] pointer-events-none">
 
                 {/* Mobile Gradient Overlay for Status Bar/Menu Integration */}
                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/60 via-black/30 to-transparent lg:hidden -z-10 pointer-events-none"></div>
@@ -276,14 +276,19 @@ const Header: React.FC = () => {
                 <div className="lg:hidden w-8"></div>
 
                 {/* Logo Section - Uses Blurred BG Image for Frost Effect */}
-                <Link href="/" className={`flex flex-col items-center cursor-pointer group hover:opacity-90 transition-opacity duration-300 relative pointer-events-auto z-[80] ${isMobileMenuOpen ? 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto' : 'opacity-100'}`}>
+                <Link href="/" className={`flex flex-col items-center cursor-pointer group hover:opacity-90 transition-opacity duration-300 relative pointer-events-auto z-[46] ${isMobileMenuOpen ? 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto' : 'opacity-100'}`}>
                     <div
                         className="rounded-full p-1 md:p-2 shadow-2xl flex items-center justify-center overflow-hidden border border-white/10 relative"
-                        style={getFrostedStyle()}
                     >
+                        {/* Blurred background image - desaturated separately from the logo */}
+                        <div
+                            className="absolute inset-0 z-0"
+                            style={{ ...getFrostedStyle(), filter: 'grayscale(100%)' }}
+                        />
+                        {/* Green overlay on top of the desaturated bg */}
+                        <div className="absolute inset-0 bg-[#10595a]/60 z-[1]"></div>
+                        {/* Logo in full color above everything */}
                         <Logo className="w-32 md:w-52 h-auto text-white relative z-10" />
-                        {/* Overlay for tint (optional) */}
-                        <div className="absolute inset-0 bg-[#10595a]/60 z-0"></div>
                     </div>
                 </Link>
 

@@ -43,7 +43,7 @@ const GeneralBookingSection: React.FC<GeneralBookingSectionProps> = ({ id }) => 
                 <div className="mt-12 border-t border-gray-200/50 pt-8">
                     <div className="text-center mb-6">
                         <span className="font-ui text-sage text-[10px] tracking-[0.2em] uppercase font-bold">Experiencias</span>
-                        <h3 className="font-script text-3xl text-forest">Nuestros Huéspedes</h3>
+                        <h3 className="font-script text-5xl md:text-7xl text-forest mt-2">Nuestros Huéspedes</h3>
                     </div>
                     <Reviews embedded />
                 </div>

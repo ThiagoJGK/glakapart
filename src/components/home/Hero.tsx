@@ -170,6 +170,9 @@ const Hero: React.FC = () => {
 
     return (
         <>
+            {/* SEO: Hidden H1 for crawlers */}
+            <h1 className="sr-only">Glak Apart — Apartamentos turísticos en Urdinarrain, Entre Ríos</h1>
+
             {/* --- MOBILE LAYOUT (VERTICAL FLOW) --- */}
             {/* Added pt-44 (was pt-36) to push content below logo as requested */}
             <div className="lg:hidden relative z-10 min-h-screen flex flex-col pt-44">
@@ -211,12 +214,14 @@ const Hero: React.FC = () => {
                                     label="Imagen Principal"
                                     withBlur={true}
                                 />
-                                {/* Gradient to blend image into text part */}
-                                <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#f4f1ea] via-[#f4f1ea]/80 to-transparent"></div>
+                                {/* Gradient to blend image into text part - Modified to use fully opaque base color to avoid beige tone mismatches */}
+                                <div className="absolute bottom-0 left-0 w-full h-12 bg-[#f4f1ea]"></div>
+                                {/* Smoother step above it */}
+                                <div className="absolute bottom-12 left-0 w-full h-24 bg-gradient-to-t from-[#f4f1ea] to-transparent"></div>
                             </div>
 
                             {/* Content Part of Card */}
-                            <div className="relative pt-2">
+                            <div className="relative pt-0">
                                 {renderTextContent(true)}
                             </div>
                         </motion.div>

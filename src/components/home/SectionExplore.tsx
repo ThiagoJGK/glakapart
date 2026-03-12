@@ -120,7 +120,7 @@ const SectionExplore: React.FC = () => {
                     <Editable
                         id="home.explore.badge"
                         defaultValue="MÁS POR DESCUBRIR"
-                        className="font-ui text-[10px] md:text-xs tracking-[0.3em] uppercase bg-[#10595a] text-white px-4 py-2 rounded-full inline-block mb-3"
+                        className="font-ui text-[10px] md:text-xs tracking-[0.3em] uppercase bg-transparent border border-sage text-[#10595a] px-4 py-2 rounded-full inline-block mb-3"
                         label="Insignia Explorar"
                     />
                     <Editable
