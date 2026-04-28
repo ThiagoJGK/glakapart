@@ -6,9 +6,8 @@ import SectionExplore from '@/components/home/SectionExplore';
 import ScrollReveal from '@/components/ui/ScrollReveal';
 import DirectBookingBenefits from '@/components/DirectBookingBenefits';
 
-import Location from '@/components/home/Location';
 import Reviews from '@/components/home/Reviews';
-import InstagramFeed from '@/components/home/InstagramFeed';
+import GuestGallery from '@/components/home/GuestGallery';
 import FAQ from '@/components/home/FAQ';
 
 import Events from '@/components/home/Events';
@@ -35,11 +34,11 @@ const Home: React.FC = () => {
             </ScrollReveal>
 
             <ScrollReveal delay={200}>
-                <InstagramFeed />
+                <Reviews />
             </ScrollReveal>
 
             <ScrollReveal delay={200}>
-                <Location />
+                <GuestGallery />
             </ScrollReveal>
 
             <ScrollReveal delay={200}>

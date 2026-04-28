@@ -1,51 +1,121 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Logo } from './Logo';
-import { MapPin } from 'lucide-react';
-
+import { MapPin, Instagram } from 'lucide-react';
 import { trackEvent } from '@/services/analytics';
 
+const BEHOLD_URL = "https://feeds.behold.so/jy5tPEeLoFWFo1xciiyA";
+
+interface InstagramPost {
+    id: string;
+    mediaUrl: string;
+    permalink: string;
+    caption?: string;
+    mediaInput?: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
+}
+
 const Footer: React.FC = () => {
+    const [posts, setPosts] = useState<InstagramPost[]>([]);
+
+    useEffect(() => {
+        const fetchFeed = async () => {
+            try {
+                const response = await fetch(BEHOLD_URL);
+                if (!response.ok) throw new Error('Failed to fetch instagram feed');
+                const data = await response.json();
+                const feedItems = data.posts || [];
+                const mappedPosts = feedItems.slice(0, 6).map((post: any) => ({
+                    id: post.id,
+                    mediaUrl: (post.mediaType === 'VIDEO' || post.mediaType === 'REEL') && post.thumbnailUrl
+                        ? post.thumbnailUrl
+                        : post.mediaUrl,
+                    permalink: post.permalink,
+                    caption: post.prunedCaption || post.caption || ""
+                }));
+                setPosts(mappedPosts);
+            } catch (error) {
+                console.warn("Error fetching Behold.so feed.", error);
+            }
+        };
+
+        fetchFeed();
+    }, []);
+
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
-        <footer className="relative mt-auto w-full z-40">
-            {/* Wave SVG - Sits on top of the footer */}
-            <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0] transform -translate-y-full z-10">
+        <footer className="relative mt-auto w-full z-40 bg-[#f4f1ea]">
+            
+            {/* Pre-footer Instagram Strip */}
+            <div className="w-full pt-12 pb-24 px-4 md:px-10">
+                <div className="container mx-auto max-w-7xl">
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <h3 className="font-script text-4xl text-[#10595a]">Seguinos en Instagram</h3>
+                        <a
+                            href="https://instagram.com/glak_apart"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center gap-2 px-5 py-2 bg-white hover:bg-[#10595a] hover:text-white text-[#10595a] rounded-full transition-all duration-300 shadow-sm border border-[#10595a]/10"
+                        >
+                            <Instagram className="w-4 h-4" />
+                            <span className="text-xs tracking-wider uppercase font-bold">@glak_apart</span>
+                        </a>
+                    </div>
+                    <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
+                        {posts.map((post) => (
+                            <a
+                                key={post.id}
+                                href={post.permalink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group relative aspect-square overflow-hidden rounded-xl cursor-pointer shadow-sm hover:shadow-md transition-shadow"
+                            >
+                                <img width={400} height={400}
+                                    src={post.mediaUrl}
+                                    alt={post.caption || "Instagram Post"}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-2 text-center">
+                                    <Instagram className="w-6 h-6 text-white mb-2 opacity-90" />
+                                </div>
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Wave SVG - Sits on top of the green footer */}
+            <div className="relative w-full overflow-hidden leading-[0] z-10">
                 <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block h-[60px] md:h-[100px] w-full fill-[#10595a]">
-                    {/* Cubic Bezier Wave: Down-Up-FlatBottom */}
                     <path d="M0,60 C400,150 800,10 1200,60 V120 H0 Z" stroke="none"></path>
                 </svg>
             </div>
 
-            {/* Scroll to Top Button - Positioned to overlap wave and content */}
-            <button
-                onClick={scrollToTop}
-                className="absolute top-2 md:top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-[#10595a] hover:bg-sage hover:text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-colors duration-300 z-50 border-4 border-white"
-                aria-label="Volver arriba"
-            >
-                <span className="text-xl font-bold">↑</span>
-            </button>
-
-            {/* Main Footer Content - Forest Background (Hardcoded Hex to guarantee opacity) */}
+            {/* Main Footer Content - Forest Background */}
             <div className="w-full bg-[#10595a] text-white relative overflow-hidden mt-[-1px]">
+                 
+                <button
+                    onClick={scrollToTop}
+                    className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-[#10595a] hover:bg-[#90c69e] hover:text-[#10595a] w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-colors duration-300 z-50 border-4 border-[#10595a]"
+                    aria-label="Volver arriba"
+                >
+                    <span className="text-xl font-bold">↑</span>
+                </button>
 
-                <div className="container mx-auto px-10 relative z-10 pt-10">
-                    <div className="grid md:grid-cols-3 gap-12 lg:gap-20 mb-16 text-center md:text-left">
+                <div className="container mx-auto px-6 md:px-10 relative z-10 pt-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16 text-center md:text-left">
                         {/* Brand Column */}
-                        <div className="col-span-1 md:col-span-1 space-y-6 flex flex-col items-center md:items-start">
-                            {/* Small Logo from Component */}
+                        <div className="space-y-6 flex flex-col items-center md:items-start">
                             <Logo className="w-24 h-auto text-white/90" />
-
                             <p className="text-white/70 text-sm leading-7 font-light pt-2">
                                 Tu refugio natural en Urdinarrain. Diseñado para desconectar del mundo y reconectar con lo esencial.
                             </p>
                         </div>
 
                         {/* Navigation Links */}
-                        <div className="col-span-1 md:col-span-1 flex flex-col items-center md:items-start">
+                        <div className="flex flex-col items-center md:items-start">
                             <h4 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.2em] text-white mb-8 uppercase text-center md:text-left">Explorar</h4>
                             <ul className="space-y-4 text-sm font-light text-white/70 flex flex-col items-center md:items-start">
                                 <li><Link href="/" className="hover:text-white hover:translate-x-1 transition-all inline-block">Inicio</Link></li>
@@ -56,11 +126,11 @@ const Footer: React.FC = () => {
                         </div>
 
                         {/* Contact Info */}
-                        <div className="col-span-1 md:col-span-1 flex flex-col items-center md:items-start">
+                        <div className="flex flex-col items-center md:items-start">
                             <h4 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.2em] text-white mb-8 uppercase text-center md:text-left">Contacto</h4>
                             <ul className="space-y-6 text-sm font-light text-white/70 flex flex-col items-center md:items-start">
                                 <li className="flex items-start gap-4">
-                                    <MapPin className="w-6 h-6 text-white/70" />
+                                    <MapPin className="w-5 h-5 text-white/70 flex-shrink-0 mt-1" />
                                     <div className="text-center md:text-left">
                                         <p className="text-white">Urdinarrain, Entre Ríos, Argentina</p>
                                     </div>
@@ -79,12 +149,41 @@ const Footer: React.FC = () => {
                                 </li>
                                 <li>
                                     <a href="https://instagram.com/glak_apart" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:translate-x-1 transition-transform group">
-                                        <svg className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
+                                        <Instagram className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" />
                                         <span>@glak_apart</span>
                                     </a>
                                 </li>
                             </ul>
                         </div>
+
+                        {/* Encontranos */}
+                        <div className="flex flex-col items-center md:items-start">
+                            <h4 className="font-ui text-[10px] md:text-xs font-bold tracking-[0.2em] text-white mb-8 uppercase text-center md:text-left">Encontranos</h4>
+                            <div className="w-full max-w-[280px]">
+                                <div className="w-full aspect-[4/3] rounded-xl overflow-hidden border border-white/10 mb-4 shadow-inner">
+                                    <iframe
+                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3357.621449384342!2d-58.88635179999999!3d-32.69611049999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95b045000e3e5bcf%3A0xf49d11b20d215623!2sGlak%20Apart!5e0!3m2!1ses!2sar!4v1766867919706!5m2!1ses!2sar"
+                                        className="w-full h-full border-0 filter grayscale-[0.3] hover:grayscale-0 transition-all duration-500"
+                                        allowFullScreen
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        title="Ubicación Glak Apart"
+                                    ></iframe>
+                                </div>
+                                <a
+                                    href="https://www.google.com/maps/search/?api=1&query=Glak+Apart+Urdinarrain"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={() => { trackEvent('location_click', { location: 'footer' }); }}
+                                    className="w-full"
+                                >
+                                    <button className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-ui text-[10px] font-bold tracking-widest uppercase transition-colors">
+                                        Cómo Llegar
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div className="border-t border-white/10 pt-8 flex flex-col justify-center items-center gap-4 text-xs text-white/40 font-light pb-10">
@@ -97,8 +196,3 @@ const Footer: React.FC = () => {
 };
 
 export default Footer;
-
-
-
-
-
