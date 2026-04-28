@@ -4,7 +4,7 @@ import { getContent, updateContent } from '@/services/content';
 import { uploadImage } from '@/services/images';
 import { generateBlurredImage } from '@/utils/imageUtils';
 import { Toast } from '../ui/Toast';
-import { Bot, Save, Palette, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
+import { Bot, Save, Palette, Image as ImageIcon, Link as LinkIcon, AlertTriangle } from 'lucide-react';
 
 const AdminBranding: React.FC = () => {
     // Branding States
@@ -23,6 +23,7 @@ const AdminBranding: React.FC = () => {
     const [instagramUrl, setInstagramUrl] = useState('');
     const [facebookUrl, setFacebookUrl] = useState('');
     const [whatsappNumber, setWhatsappNumber] = useState('');
+    const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
 
     // Chatbot State
     const [chatbotEnabled, setChatbotEnabled] = useState(false);
@@ -54,6 +55,7 @@ const AdminBranding: React.FC = () => {
                 setInstagramUrl(settingsData.instagramUrl || '');
                 setFacebookUrl(settingsData.facebookUrl || '');
                 setWhatsappNumber(settingsData.whatsappNumber || '');
+                setMaintenanceEnabled(settingsData.maintenanceEnabled || false);
 
                 const newSettings: any = {};
                 ['home', 'gastronomia', 'lugares', 'eventos', 'apartamentos'].forEach(sec => {
@@ -92,6 +94,7 @@ const AdminBranding: React.FC = () => {
                 updateContent('settings', 'instagramUrl', instagramUrl),
                 updateContent('settings', 'facebookUrl', facebookUrl),
                 updateContent('settings', 'whatsappNumber', whatsappNumber),
+                updateContent('settings', 'maintenanceEnabled', maintenanceEnabled),
                 updateContent('chatbot', 'enabled', chatbotEnabled),
                 updateContent('chatbot', 'systemPrompt', chatbotPrompt),
                 ...Object.entries(headerSettings).map(([key, value]) => updateContent('settings', key, value))
@@ -338,7 +341,33 @@ const AdminBranding: React.FC = () => {
                     </div>
                 </section>
 
-                {/* 4. CHATBOT CONFIGURATION */}
+                {/* 4. MANTENIMIENTO */}
+                <section>
+                    <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-3">
+                        <AlertTriangle className="w-5 h-5 text-amber-500" />
+                        <h4 className="font-bold text-gray-700 uppercase tracking-widest text-sm">Estado del Sitio</h4>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-amber-50 border border-amber-100 p-5 rounded-xl gap-4">
+                            <div>
+                                <h5 className="font-bold text-amber-900 text-sm mb-1">Modo Mantenimiento</h5>
+                                <p className="text-xs text-amber-700">Activa esta opción para ocultar el sitio público a los visitantes. Solo verán una pantalla de mantenimiento con redirección a WhatsApp.</p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={maintenanceEnabled}
+                                    onChange={(e) => setMaintenanceEnabled(e.target.checked)}
+                                />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                {/* 5. CHATBOT CONFIGURATION */}
                 <section>
                     <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-3">
                         <Bot className="w-5 h-5 text-sage" />

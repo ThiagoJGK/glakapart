@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -7,9 +7,33 @@ import AdminDraftControls from '@/components/admin/AdminDraftControls';
 import GeneralBookingSection from '@/components/booking/GeneralBookingSection';
 import FloatingBookingButton from '@/components/events/FloatingBookingButton';
 import { trackEvent } from '@/services/analytics';
+import { getContent } from '@/services/content';
+import MaintenanceScreen from '@/components/common/MaintenanceScreen';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const [isMaintenance, setIsMaintenance] = useState(false);
+    const [isChecking, setIsChecking] = useState(true);
+
+    useEffect(() => {
+        const checkMaintenance = async () => {
+            const settings = await getContent('settings');
+            if (settings?.maintenanceEnabled) {
+                setIsMaintenance(true);
+            } else {
+                setIsMaintenance(false);
+            }
+            setIsChecking(false);
+        };
+        checkMaintenance();
+
+        const updateHandler = () => { checkMaintenance(); };
+        window.addEventListener('GLAK_CONTENT_UPDATE', updateHandler);
+
+        return () => {
+            window.removeEventListener('GLAK_CONTENT_UPDATE', updateHandler);
+        };
+    }, []);
 
     useEffect(() => {
         // Instant scroll to top on route change
@@ -23,8 +47,17 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         trackEvent('page_view', { path: pathname });
     }, [pathname]);
 
+    if (isMaintenance && !isChecking) {
+        return (
+            <div className="min-h-screen flex flex-col relative">
+                <AdminDraftControls />
+                <MaintenanceScreen />
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen flex flex-col relative">
+        <div className="min-h-screen flex flex-col relative opacity-0 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <Header />
             <AdminDraftControls />
             {children}
