@@ -14,13 +14,25 @@ export default function MaintenanceScreen() {
     useEffect(() => {
         const fetchSettings = async () => {
             const settings = await getContent('settings');
+            const home = await getContent('home');
+            
             if (settings) {
                 setWhatsapp(settings.whatsappNumber || '');
-                setBgUrl(settings.headerBgUrl || '');
                 setLogoSvg(settings.logoSvg || '');
                 setLogoType(settings.logoType || 'svg');
                 setLogoUrl(settings.logoUrl || '');
             }
+            
+            // Prioritize the actual home hero image
+            let bg = '';
+            if (home && home['heroImage.0']) {
+                bg = home['heroImage.0'];
+            } else if (settings?.header_home_bg) {
+                bg = settings.header_home_bg;
+            } else if (settings?.headerBgUrl) {
+                bg = settings.headerBgUrl;
+            }
+            setBgUrl(bg);
         };
         fetchSettings();
     }, []);
@@ -36,7 +48,7 @@ export default function MaintenanceScreen() {
                     backgroundImage: `url('${bgUrl || 'https://images.unsplash.com/photo-1542314831-c6a4d14d885f?auto=format&fit=crop&q=80'}')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    filter: 'blur(8px) brightness(0.3)',
+                    filter: 'blur(8px) brightness(0.4)',
                 }}
             />
 
@@ -63,7 +75,7 @@ export default function MaintenanceScreen() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, ease: "easeOut" }}
-                className="relative z-10 flex flex-col items-center text-center p-8 md:p-16 mx-4 mb-16 max-w-2xl bg-white/5 backdrop-blur-xl border border-white/10 rounded-[40px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
+                className="relative z-10 flex flex-col items-center text-center p-8 md:px-24 md:py-20 mx-4 mb-16 w-[90%] max-w-4xl bg-white/5 backdrop-blur-xl border border-white/10 rounded-[40px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
             >
                 {/* Logo */}
                 <motion.div
