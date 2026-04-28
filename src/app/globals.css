@@ -156,9 +156,10 @@ body {
   animation: fadeInUp 0.5s ease-out forwards;
 }
 
-/* Lightbox global state */
+/* Lightbox and Maintenance global states */
 body.lightbox-open #floating-booking-button,
-body.lightbox-open #chat-widget {
+body.lightbox-open #chat-widget,
+body.maintenance-mode #chat-widget {
   display: none !important;
 }
 

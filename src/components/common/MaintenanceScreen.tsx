@@ -12,6 +12,11 @@ export default function MaintenanceScreen() {
     const [logoUrl, setLogoUrl] = useState('');
 
     useEffect(() => {
+        document.body.classList.add('maintenance-mode');
+        return () => document.body.classList.remove('maintenance-mode');
+    }, []);
+
+    useEffect(() => {
         const fetchSettings = async () => {
             const settings = await getContent('settings');
             const home = await getContent('home');
@@ -75,7 +80,7 @@ export default function MaintenanceScreen() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, ease: "easeOut" }}
-                className="relative z-10 flex flex-col items-center text-center p-8 md:px-24 md:py-20 mx-4 mb-16 w-[90%] max-w-4xl bg-white/5 backdrop-blur-xl border border-white/10 rounded-[40px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
+                className="relative z-10 flex flex-col items-center text-center p-8 md:px-24 md:py-12 mx-4 w-[90%] max-w-4xl bg-white/5 backdrop-blur-xl border border-white/10 rounded-[40px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
             >
                 {/* Logo */}
                 <motion.div
@@ -111,7 +116,7 @@ export default function MaintenanceScreen() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.9 }}
-                    className="text-sm md:text-base text-gray-200 font-light tracking-wide leading-relaxed mb-10 max-w-sm"
+                    className="text-sm md:text-base text-gray-200 font-light tracking-wide leading-relaxed mb-8 max-w-sm"
                 >
                     Estamos realizando mejoras en nuestra plataforma para ofrecerte una mejor experiencia. El sitio volverá a estar disponible muy pronto.
                 </motion.p>
