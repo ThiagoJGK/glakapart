@@ -14,7 +14,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             } catch (e) {
                 console.warn('Prefetch error, continuing:', e);
             } finally {
-                setTimeout(() => setIsLoading(false), 1200);
+                setTimeout(() => setIsLoading(false), 200);
             }
         };
         init();
