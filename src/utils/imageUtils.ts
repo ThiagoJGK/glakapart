@@ -48,6 +48,7 @@ export const generateBlurredImage = (file: File, blurAmount: number = 20): Promi
             reject(new Error('Image load failed'));
         };
 
+        img.src = url; // ← línea que faltaba: sin esto img.onload nunca se dispara
     });
 };
 

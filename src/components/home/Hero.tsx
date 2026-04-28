@@ -6,7 +6,6 @@ import { useAdmin } from '@/context/AdminContext';
 import Editable from '../ui/Editable';
 import { Logo } from '../layout/Logo';
 import { getContent } from '@/services/content';
-import { track } from '@vercel/analytics/react';
 import { trackEvent } from '@/services/analytics';
 
 const slides = [
@@ -97,7 +96,6 @@ const Hero: React.FC = () => {
     }, [isAdmin, isDraftMode]);
 
     const scrollToApartments = () => {
-        track('Click Reserve', { location: 'Hero CTA' });
         trackEvent('hero_cta_click');
         document.getElementById('apartamentos')?.scrollIntoView({ behavior: 'smooth' });
     };

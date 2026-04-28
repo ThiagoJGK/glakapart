@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import EventsPage from '@/pages/EventsPage';
 import { getContent } from '@/services/content';
 
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
     const seo = await getContent('seo').catch(() => null);
     const title = seo?.['eventos.title'] || 'Eventos | Glak Apart — Próximos Eventos en la Región';

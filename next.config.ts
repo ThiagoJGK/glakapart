@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   images: {
     unoptimized: true, // Firebase-hosted images, no Next.js image optimization needed
     remotePatterns: [

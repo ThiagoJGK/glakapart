@@ -41,7 +41,7 @@ const Gastronomia: React.FC = () => {
                     <Editable
                         id="gastronomia.heroImage"
                         type="image"
-                        defaultValue="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80&w=1920"
+                        defaultValue=""
                         className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-1000"
                         label="Imagen Hero"
                     />
@@ -117,7 +117,7 @@ const Gastronomia: React.FC = () => {
                                 <Editable
                                     id="gastronomia.ceferino.image"
                                     type="image"
-                                    defaultValue="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=800"
+                                    defaultValue=""
                                     className="w-full h-full object-cover"
                                     label="Foto Ceferino"
                                 />
@@ -140,7 +140,7 @@ const Gastronomia: React.FC = () => {
                                 <Editable
                                     id="gastronomia.pequena.image"
                                     type="image"
-                                    defaultValue="https://images.unsplash.com/photo-1627341872134-2e21b7145749?auto=format&fit=crop&q=80&w=800"
+                                    defaultValue=""
                                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                                 />
                                 <div className="absolute top-4 left-4">
@@ -181,7 +181,7 @@ const Gastronomia: React.FC = () => {
                                 <Editable
                                     id="gastronomia.finca.image"
                                     type="image"
-                                    defaultValue="https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&q=80&w=800"
+                                    defaultValue=""
                                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                                 />
                             </div>
@@ -242,7 +242,7 @@ const Gastronomia: React.FC = () => {
                             />
                         </div>
 
-                        <div className="grid md:grid-cols-4 gap-6 relative z-10">
+                        <div className="grid md:grid-cols-3 gap-6 relative z-10">
 
                             <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
                                 <h4 className="font-bold text-[#e8d5b5] mb-2 font-ui tracking-widest text-sm">SNITSUP</h4>

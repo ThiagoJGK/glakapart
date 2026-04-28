@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { CalendarCheck } from 'lucide-react';
 
-
-import { track } from '@vercel/analytics/react';
 import { trackEvent } from '@/services/analytics';
 
 const FloatingBookingButton: React.FC = () => {
@@ -42,7 +40,6 @@ const FloatingBookingButton: React.FC = () => {
     }, []);
 
     const scrollToBooking = () => {
-        track('Click Reserve', { location: 'Floating Button' });
         trackEvent('booking_cta_click', { location: 'floating_button' });
         const bookingSection = document.getElementById('reservas');
         if (bookingSection) {

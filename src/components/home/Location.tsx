@@ -3,7 +3,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Editable from '../ui/Editable';
 
-import { track } from '@vercel/analytics/react';
 import { trackEvent } from '@/services/analytics';
 
 const Location: React.FC = () => {
@@ -57,7 +56,7 @@ const Location: React.FC = () => {
                                 href="https://www.google.com/maps/search/?api=1&query=Glak+Apart+Urdinarrain"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                onClick={() => { track('View Location', { location: 'Location Map Button' }); trackEvent('location_click'); }}
+                                onClick={() => { trackEvent('location_click'); }}
                             >
                                 {/* Note: Ideally specific Google Maps link, using generic search link fallback in iframe for now */}
                                 <button className="px-8 py-4 border bg-[#10595a] text-white hover:bg-forest transition-all duration-300 rounded-full font-ui text-xs font-bold tracking-widest uppercase">

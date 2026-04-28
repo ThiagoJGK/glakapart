@@ -23,6 +23,8 @@ const parseId = (id: string) => {
     return { section: 'general', field: id };
 };
 
+import MissingImagePlaceholder from './MissingImagePlaceholder';
+
 const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', className = '', label = 'Editar Contenido', withBlur }) => {
     const { isAdminMode } = useAdmin();
     const [content, setContent] = useState(defaultValue);
@@ -71,12 +73,20 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
                 onClick={isAdminMode ? (e) => { e.preventDefault(); e.stopPropagation(); setIsModalOpen(true); } : undefined}
             >
                 {isBackground ? (
-                    <div
-                        className="w-full h-full bg-cover bg-center bg-fixed absolute inset-0 transition-opacity duration-500"
-                        style={{ backgroundImage: content ? `url(${content})` : undefined, backgroundColor: '#10595a' }}
-                    ></div>
+                    content ? (
+                        <div
+                            className="w-full h-full bg-cover bg-center bg-fixed absolute inset-0 transition-opacity duration-500"
+                            style={{ backgroundImage: `url(${content})`, backgroundColor: '#10595a' }}
+                        ></div>
+                    ) : (
+                        <MissingImagePlaceholder id={id} label={label} className="absolute inset-0" />
+                    )
                 ) : (
-                    <img width={800} height={600} src={content || undefined} alt={label} className="w-full h-full object-cover" />
+                    content ? (
+                        <img width={800} height={600} src={content} alt={label} className="w-full h-full object-cover" />
+                    ) : (
+                        <MissingImagePlaceholder id={id} label={label} />
+                    )
                 )}
 
                 {isAdminMode && (

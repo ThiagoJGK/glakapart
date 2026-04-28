@@ -1,8 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { AdminProvider } from '@/context/AdminContext';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import { prefetchContent } from '@/services/content';
 
@@ -26,8 +24,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <AdminProvider>
             <LoadingScreen isLoading={isLoading} />
             {children}
-            <Analytics />
-            <SpeedInsights />
         </AdminProvider>
     );
 }

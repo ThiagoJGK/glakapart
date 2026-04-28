@@ -6,7 +6,6 @@ import { es } from 'date-fns/locale';
 import 'react-day-picker/style.css';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { track } from '@vercel/analytics/react';
 import { trackEvent } from '@/services/analytics';
 import { getBookedDates } from '@/services/availability';
 
@@ -34,8 +33,6 @@ const GeneralBookingForm: React.FC = () => {
         const checkIn = format(range.from, 'dd/MM/yyyy');
         const checkOut = format(range.to, 'dd/MM/yyyy');
 
-        // Track the event (Vercel + custom)
-        track('Booking Inquiry', { adults, children, checkIn, checkOut });
         trackEvent('booking_inquiry', { adults, children, checkIn, checkOut });
 
         // Construct the message

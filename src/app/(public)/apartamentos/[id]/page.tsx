@@ -44,6 +44,8 @@ const FALLBACK = {
     keywords: (name: string) => `apartamento ${name}, alojamiento Urdinarrain, turismo rural Entre Ríos, Glak Apart`,
 };
 
+export const revalidate = 60;
+
 // ─── Dynamic metadata per apartment ───
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { id } = await params;

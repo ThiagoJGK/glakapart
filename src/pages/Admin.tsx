@@ -59,7 +59,9 @@ const AdminLogin: React.FC = () => {
         <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
             <div className="w-full max-w-sm">
                     <div className="h-32 mb-8 flex items-center justify-center cursor-pointer" onClick={() => router.push('/')}>
-                        <Logo className="w-auto h-full max-w-[400px]" />
+                        <div style={{ filter: 'brightness(0) saturate(100%) invert(23%) sepia(38%) saturate(600%) hue-rotate(130deg) brightness(85%)' }}>
+                            <Logo className="w-auto h-32 max-w-[400px]" />
+                        </div>
                     </div>
 
                 <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 space-y-5">

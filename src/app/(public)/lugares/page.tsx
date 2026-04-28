@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import Lugares from '@/pages/Lugares';
 import { getContent } from '@/services/content';
 
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
     const seo = await getContent('seo').catch(() => null);
     const title = seo?.['lugares.title'] || 'Qué hacer en Urdinarrain | Lugares y Atractivos Turísticos — Glak Apart';
     const description = seo?.['lugares.description'] || 'Explorá los mejores lugares y atractivos turísticos cerca de Glak Apart en Urdinarrain, Entre Ríos.';
-    const imageUrl = seo?.['lugares.image'] || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1200';
+    const imageUrl = seo?.['lugares.image'];
     return {
         title,
         description,

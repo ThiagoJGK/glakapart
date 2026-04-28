@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import Gastronomia from '@/pages/Gastronomia';
 import { getContent } from '@/services/content';
 
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
     const seo = await getContent('seo').catch(() => null);
     const title = seo?.['gastronomia.title'] || 'Gastronomía en Urdinarrain | Glak Apart — Sabores de Entre Ríos';
     const description = seo?.['gastronomia.description'] || 'Descubrí la mejor gastronomía regional de Urdinarrain y Entre Ríos. Restaurantes, asadores, parrilladas y platos típicos recomendados cerca de Glak Apart.';
-    const imageUrl = seo?.['gastronomia.image'] || 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=1200';
+    const imageUrl = seo?.['gastronomia.image'];
     return {
         title,
         description,

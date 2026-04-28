@@ -41,15 +41,15 @@ export const metadata: Metadata = {
     description: 'Apartamentos turísticos en Urdinarrain, Entre Ríos. Alojamiento rural con pileta, naturaleza, gastronomía regional y descanso en el campo entrerriano.',
     siteName: 'Glak Apart',
     images: [{
-      url: 'https://images.unsplash.com/photo-1449156493391-d2cfa28e468b?auto=format&fit=crop&q=80&w=2000',
+      url: '/icon.svg',
     }],
     locale: 'es_AR',
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'Glak Apart | Apartamentos turísticos en Urdinarrain, Entre Ríos',
     description: 'Apartamentos turísticos en Urdinarrain, Entre Ríos. Alojamiento rural con pileta, naturaleza, gastronomía regional y descanso en el campo entrerriano.',
-    images: ['https://images.unsplash.com/photo-1449156493391-d2cfa28e468b?auto=format&fit=crop&q=80&w=2000'],
+    images: ['/icon.svg'],
   },
   robots: {
     index: true,

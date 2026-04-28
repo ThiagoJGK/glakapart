@@ -13,13 +13,6 @@ interface InstagramPost {
     mediaInput?: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
 }
 
-const MOCK_POSTS = [
-    { id: '1', mediaUrl: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80', permalink: '#' },
-    { id: '2', mediaUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80', permalink: '#' },
-    { id: '3', mediaUrl: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&q=80', permalink: '#' },
-    { id: '4', mediaUrl: 'https://images.unsplash.com/photo-1598928636135-d146006ff4be?auto=format&fit=crop&q=80', permalink: '#' }
-];
-
 const InstagramFeed: React.FC = () => {
     const [posts, setPosts] = useState<InstagramPost[]>([]);
 

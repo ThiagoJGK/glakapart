@@ -40,7 +40,7 @@ const Lugares: React.FC = () => {
                     <Editable
                         id="lugares.heroImage"
                         type="image"
-                        defaultValue="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1920"
+                        defaultValue=""
                         className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-1000"
                         label="Imagen Hero Lugares"
                     />
@@ -90,7 +90,7 @@ const Lugares: React.FC = () => {
                                         <Editable
                                             id="lugares.nature.image"
                                             type="image"
-                                            defaultValue="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800"
+                                            defaultValue=""
                                             className="w-full h-full object-cover transform scale-110 group-hover:scale-100 transition-transform duration-1000"
                                             label="Foto Arenas Blancas"
                                         />
@@ -165,14 +165,14 @@ const Lugares: React.FC = () => {
                             <Editable
                                 id="lugares.sabores.image1"
                                 type="image"
-                                defaultValue="https://images.unsplash.com/photo-1627341872134-2e21b7145749?auto=format&fit=crop&q=80&w=400"
+                                defaultValue=""
                                 className="rounded-2xl shadow-md rotate-2 aspect-[4/5] overflow-hidden"
                                 label="Foto Sabores 1"
                             />
                             <Editable
                                 id="lugares.sabores.image2"
                                 type="image"
-                                defaultValue="https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&q=80&w=400"
+                                defaultValue=""
                                 className="rounded-2xl shadow-md -rotate-2 mt-8 aspect-[4/5] overflow-hidden"
                                 label="Foto Sabores 2"
                             />
@@ -199,7 +199,7 @@ const Lugares: React.FC = () => {
                                 <Editable
                                     id="lugares.adventure.plane.image"
                                     type="image"
-                                    defaultValue="https://images.unsplash.com/photo-1520636254070-07973d09a061?auto=format&fit=crop&q=80&w=800"
+                                    defaultValue=""
                                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                                     label="Imagen Planeador"
                                 />
@@ -236,7 +236,7 @@ const Lugares: React.FC = () => {
                                 <Editable
                                     id="lugares.adventure.bike.image"
                                     type="image"
-                                    defaultValue="https://images.unsplash.com/photo-1541625602330-2277a4c46182?auto=format&fit=crop&q=80&w=800"
+                                    defaultValue=""
                                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                                     label="Imagen Bici"
                                 />
@@ -387,14 +387,14 @@ const Lugares: React.FC = () => {
                             <Editable
                                 id="lugares.history.image1"
                                 type="image"
-                                defaultValue="https://images.unsplash.com/photo-1543360210-2384738590c6?auto=format&fit=crop&q=80&w=800"
+                                defaultValue=""
                                 className="absolute top-0 right-0 w-4/5 h-4/5 rounded-[2rem] shadow-xl z-10 border-4 border-white transform rotate-3 overflow-hidden"
                                 label="Foto Estación 1"
                             />
                             <Editable
                                 id="lugares.history.image2"
                                 type="image"
-                                defaultValue="https://images.unsplash.com/photo-1449156493391-d2cfa28e468b?auto=format&fit=crop&q=80&w=800"
+                                defaultValue=""
                                 className="absolute bottom-0 left-0 w-4/5 h-4/5 rounded-[2rem] shadow-xl border-4 border-white transform -rotate-2 opacity-80 grayscale hover:grayscale-0 transition-all duration-700 overflow-hidden"
                                 label="Foto Estación 2"
                             />

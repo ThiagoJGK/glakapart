@@ -54,7 +54,7 @@ const EventsPage: React.FC = () => {
             if (settingsData) {
                 const url = settingsData.header_events_blur ||
                     settingsData.header_home_blur ||
-                    "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070";
+                    "";
                 setBlurBg(url);
 
                 setSeasonImages({
@@ -160,7 +160,7 @@ const EventsPage: React.FC = () => {
                                             <div className="absolute inset-0 bg-[#90c69e]/20 rounded-[2.5rem] transform rotate-3 scale-105 transition-transform group-hover:rotate-6"></div>
                                             <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden shadow-lg border-2 border-white">
                                                 <img
-                                                    src={selectedEvent.image || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069"}
+                                                    src={selectedEvent.image || ""}
                                                     className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                                                     alt={selectedEvent.title || 'Evento en Urdinarrain — Glak Apart'}
                                                 />
@@ -263,7 +263,7 @@ const EventsPage: React.FC = () => {
                             <Editable
                                 id="settings.season_summer"
                                 type="image"
-                                defaultValue={seasonImages.season_summer || "https://images.unsplash.com/photo-1560252829-8aa848520338?q=80&w=800"}
+                                defaultValue={seasonImages.season_summer || ""}
                                 className="absolute inset-0 w-full h-full transition-transform duration-1000 group-hover:scale-110"
                                 label="Imagen Verano"
                             />
@@ -307,7 +307,7 @@ const EventsPage: React.FC = () => {
                             <Editable
                                 id="settings.season_autumn"
                                 type="image"
-                                defaultValue={seasonImages.season_autumn || "https://images.unsplash.com/photo-1507371341162-763b5e419408?q=80&w=800"}
+                                defaultValue={seasonImages.season_autumn || ""}
                                 className="absolute inset-0 w-full h-full transition-transform duration-1000 group-hover:scale-110"
                                 label="Imagen Otoño"
                             />
@@ -351,7 +351,7 @@ const EventsPage: React.FC = () => {
                             <Editable
                                 id="settings.season_winter"
                                 type="image"
-                                defaultValue={seasonImages.season_winter || "https://images.unsplash.com/photo-1486496146582-9ffcd0b2b2b7?q=80&w=800"}
+                                defaultValue={seasonImages.season_winter || ""}
                                 className="absolute inset-0 w-full h-full transition-transform duration-1000 group-hover:scale-110"
                                 label="Imagen Invierno"
                             />
@@ -395,7 +395,7 @@ const EventsPage: React.FC = () => {
                             <Editable
                                 id="settings.season_spring"
                                 type="image"
-                                defaultValue={seasonImages.season_spring || "https://images.unsplash.com/photo-1490750967868-69c2f016752d?q=80&w=800"}
+                                defaultValue={seasonImages.season_spring || ""}
                                 className="absolute inset-0 w-full h-full transition-transform duration-1000 group-hover:scale-110"
                                 label="Imagen Primavera"
                             />
@@ -465,10 +465,10 @@ const EventsPage: React.FC = () => {
                                 <div className="h-52 rounded-[2rem] overflow-hidden mb-6 relative z-0">
                                     <div className="absolute inset-0 bg-[#10595a]/20 group-hover:bg-transparent transition-colors duration-500 z-10 hidden"></div>
                                     <img
-                                        src={ev.image || `https://source.unsplash.com/random/800x600?sig=${i}&nature`}
+                                        src={ev.image || ""}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                         alt={ev.title || 'Evento en Urdinarrain — Glak Apart'}
-                                        onError={(e) => (e.currentTarget.src = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069")}
+                                        onError={(e) => (e.currentTarget.src = "")}
                                     />
                                     <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
                                     <div className="absolute top-4 left-4 bg-white/95 px-4 py-2 rounded-xl shadow-lg z-20">

@@ -4,11 +4,12 @@ import { getContent, updateContent } from '@/services/content';
 import { uploadImage } from '@/services/images';
 import { generateBlurredImage } from '@/utils/imageUtils';
 import { Toast } from '../ui/Toast';
+import MissingImagePlaceholder from '../ui/MissingImagePlaceholder';
 
 const SLIDES_INFO = [
-    { id: 0, label: 'Slide 1: Experiencia (Inicial)', defaultImg: 'https://images.unsplash.com/photo-1449156493391-d2cfa28e468b?auto=format&fit=crop&q=80&w=2000' },
-    { id: 1, label: 'Slide 2: Cielo Estrellado', defaultImg: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=2000' },
-    { id: 2, label: 'Slide 3: Atardeceres', defaultImg: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&q=80&w=2000' }
+    { id: 0, label: 'Slide 1: Experiencia (Inicial)', defaultImg: '' },
+    { id: 1, label: 'Slide 2: Cielo Estrellado', defaultImg: '' },
+    { id: 2, label: 'Slide 3: Atardeceres', defaultImg: '' }
 ];
 
 const AdminHome: React.FC = () => {
@@ -207,11 +208,15 @@ const AdminHome: React.FC = () => {
 
                             {/* Preview Area */}
                             <div className="relative h-48 w-full bg-gray-200 group-hover:opacity-90 transition-opacity">
-                                <img width={800} height={600}
-                                    src={currentImg}
-                                    alt={`Slide ${slide.id}`}
-                                    className="w-full h-full object-cover"
-                                />
+                                {currentImg ? (
+                                    <img width={800} height={600}
+                                        src={currentImg}
+                                        alt={`Slide ${slide.id}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <MissingImagePlaceholder id={`home.heroImage.${slide.id}`} label={`Imagen ${slide.label}`} />
+                                )}
 
                                 {/* Overlay Upload Button */}
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px]">

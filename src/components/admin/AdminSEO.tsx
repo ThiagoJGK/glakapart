@@ -3,13 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { getContent, updateContent } from '@/services/content';
 import { uploadImage } from '@/services/images';
 import { Toast } from '../ui/Toast';
-import { Globe, Save, Image as ImageIcon, ExternalLink } from 'lucide-react';
+import { Globe, Save, Image as ImageIcon, ExternalLink, Home } from 'lucide-react';
 
 const PAGES = [
-    { id: 'home', label: 'INICIO', url: '/' },
-    { id: 'gastronomia', label: 'GASTRONOMÍA', url: '/gastronomia' },
-    { id: 'lugares', label: 'LUGARES', url: '/lugares' },
-    { id: 'eventos', label: 'EVENTOS', url: '/eventos' },
+    { id: 'home', label: 'INICIO', url: '/', group: 'pages' },
+    { id: 'gastronomia', label: 'GASTRONOMÍA', url: '/gastronomia', group: 'pages' },
+    { id: 'lugares', label: 'LUGARES', url: '/lugares', group: 'pages' },
+    { id: 'eventos', label: 'EVENTOS', url: '/eventos', group: 'pages' },
+    { id: 'nacarado', label: '🏠 NACARADO', url: '/apartamentos/nacarado', group: 'aparts' },
+    { id: 'arrebol', label: '🏠 ARREBOL', url: '/apartamentos/arrebol', group: 'aparts' },
+    { id: 'arje', label: '🏠 ARJÉ', url: '/apartamentos/arje', group: 'aparts' },
 ];
 
 const DEFAULT_SEO: Record<string, { title: string; description: string }> = {
@@ -29,16 +32,25 @@ const DEFAULT_SEO: Record<string, { title: string; description: string }> = {
         title: 'Eventos en Urdinarrain | Glak Apart',
         description: 'Conocé los próximos eventos y actividades en Urdinarrain.',
     },
+    nacarado: {
+        title: 'Apartamento Nacarado | Alquiler Vacacional para Familias en Urdinarrain — Glak Apart',
+        description: 'Reservá el apartamento Nacarado en Glak Apart. Dormitorio independiente, cocina equipada, WiFi, piscina y parrilla compartida. Ideal para familias de 3 a 4 personas.',
+    },
+    arrebol: {
+        title: 'Apartamento Arrebol | Alojamiento Amplio con Vista al Parque en Urdinarrain — Glak Apart',
+        description: 'Alquilá el apartamento Arrebol. Espacio amplio para 4–5 personas con living, vista al parque, Smart TV 50", estacionamiento y acceso a pileta.',
+    },
+    arje: {
+        title: 'Apartamento Arjé | Escapada Romántica con Vista a la Piscina en Urdinarrain — Glak Apart',
+        description: 'Reservá el apartamento Arjé. Diseño boutique exclusivo para parejas, cama queen, vista a la piscina y ambiente romántico en Entre Ríos.',
+    },
 };
 
 const AdminSEO: React.FC = () => {
     const [activePage, setActivePage] = useState('home');
-    const [seoData, setSeoData] = useState<Record<string, { title: string; description: string; image: string }>>({
-        home: { title: '', description: '', image: '' },
-        gastronomia: { title: '', description: '', image: '' },
-        lugares: { title: '', description: '', image: '' },
-        eventos: { title: '', description: '', image: '' },
-    });
+    const [seoData, setSeoData] = useState<Record<string, { title: string; description: string; image: string }>>(
+        Object.fromEntries(PAGES.map(p => [p.id, { title: '', description: '', image: '' }]))
+    );
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -135,20 +147,42 @@ const AdminSEO: React.FC = () => {
                 </p>
             </div>
 
-            {/* Page Tabs */}
-            <div className="flex flex-wrap gap-1 border-b border-gray-100 mb-8">
-                {PAGES.map(page => (
-                    <button
-                        key={page.id}
-                        onClick={() => setActivePage(page.id)}
-                        className={`px-5 py-2.5 text-xs font-bold tracking-widest transition-all border-b-2 ${activePage === page.id
-                            ? 'border-forest text-forest bg-forest/5'
-                            : 'border-transparent text-gray-400 hover:text-gray-600'
-                        }`}
-                    >
-                        {page.label}
-                    </button>
-                ))}
+            {/* Page Tabs: General Pages */}
+            <div className="mb-2">
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Páginas Generales</p>
+                <div className="flex flex-wrap gap-1 border-b border-gray-100 mb-4">
+                    {PAGES.filter(p => p.group === 'pages').map(page => (
+                        <button
+                            key={page.id}
+                            onClick={() => setActivePage(page.id)}
+                            className={`px-5 py-2.5 text-xs font-bold tracking-widest transition-all border-b-2 ${activePage === page.id
+                                ? 'border-forest text-forest bg-forest/5'
+                                : 'border-transparent text-gray-400 hover:text-gray-600'
+                            }`}
+                        >
+                            {page.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Page Tabs: Apartamentos */}
+            <div className="mb-8">
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Apartamentos</p>
+                <div className="flex flex-wrap gap-1 border-b border-gray-100">
+                    {PAGES.filter(p => p.group === 'aparts').map(page => (
+                        <button
+                            key={page.id}
+                            onClick={() => setActivePage(page.id)}
+                            className={`px-5 py-2.5 text-xs font-bold tracking-widest transition-all border-b-2 ${activePage === page.id
+                                ? 'border-forest text-forest bg-forest/5'
+                                : 'border-transparent text-gray-400 hover:text-gray-600'
+                            }`}
+                        >
+                            {page.label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {loading ? (

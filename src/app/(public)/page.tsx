@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import Home from '@/pages/Home';
 import { getContent } from '@/services/content';
 
+export const revalidate = 60; // Regenerate page dynamically in background every 60s for SEO updates
+
 export async function generateMetadata(): Promise<Metadata> {
     const seo = await getContent('seo').catch(() => null);
     const title = seo?.['home.title'] || 'Glak Apart | Apartamentos turísticos en Urdinarrain, Entre Ríos';
     const description = seo?.['home.description'] || 'Viví la experiencia Glak Apart entre paisaje y naturaleza. Alojamientos turísticos pensados para desconectar y disfrutar con los tuyos.';
-    const imageUrl = seo?.['home.image'] || 'https://images.unsplash.com/photo-1449156493391-d2cfa28e468b?auto=format&fit=crop&q=80&w=2000';
+    const imageUrl = seo?.['home.image'];
     return {
         title,
         description,
