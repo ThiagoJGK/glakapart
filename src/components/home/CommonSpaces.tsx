@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import Editable from '../ui/Editable';
 import { getContent } from '@/services/content';
@@ -96,18 +95,18 @@ const CommonSpaces: React.FC = () => {
                         </div>
 
                         {/* Image Gallery */}
-                        <div className="h-[400px] lg:h-[600px] w-full lg:w-[55%] relative group/gallery isolate overflow-hidden">
-                            <AnimatePresence initial={false} mode="wait">
-                                <motion.img
-                                    key={poolIndex}
-                                    src={activePoolGallery[poolIndex]}
-                                    initial={{ opacity: 0, scale: 1.05 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.8 }}
-                                    className="w-full h-full object-cover"
+                        <div className="h-[400px] lg:h-[600px] w-full lg:w-[55%] relative group/gallery isolate overflow-hidden bg-gray-100">
+                            {activePoolGallery.map((img, idx) => (
+                                <img
+                                    key={idx}
+                                    src={img}
+                                    alt={`Piscina ${idx + 1}`}
+                                    loading="lazy"
+                                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${
+                                        idx === poolIndex ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'
+                                    }`}
                                 />
-                            </AnimatePresence>
+                            ))}
                             
                             {/* Inner Shadow for better text/button contrast */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 opacity-0 group-hover/gallery:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
@@ -173,25 +172,25 @@ const CommonSpaces: React.FC = () => {
                     <div className="bg-white rounded-[40px] shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-500 overflow-hidden flex flex-col lg:flex-row-reverse relative">
                         
                         {/* Image Gallery */}
-                        <div className="h-[350px] lg:h-[500px] w-full lg:w-[45%] relative group/gallery isolate overflow-hidden">
+                        <div className="h-[350px] lg:h-[500px] w-full lg:w-[45%] relative group/gallery isolate overflow-hidden bg-[#f4f1ea]">
                             {galleriesLoaded && gardenGallery.length > 0 ? (
-                                <AnimatePresence initial={false} mode="wait">
-                                    <motion.img
-                                        key={gardenIndex}
-                                        src={gardenGallery[gardenIndex]}
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.5 }}
-                                        className="w-full h-full object-cover"
+                                gardenGallery.map((img, idx) => (
+                                    <img
+                                        key={idx}
+                                        src={img}
+                                        alt={`Parque ${idx + 1}`}
+                                        loading="lazy"
+                                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${
+                                            idx === gardenIndex ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'
+                                        }`}
                                     />
-                                </AnimatePresence>
+                                ))
                             ) : (
                                 <Editable
                                     id="home.common.garden.image"
                                     type="image"
                                     defaultValue=""
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover relative z-10"
                                     label="Foto Parque"
                                 />
                             )}
