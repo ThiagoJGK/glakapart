@@ -26,7 +26,7 @@ const qwitcher = Qwitcher_Grypen({
 
 export const metadata: Metadata = {
   title: 'Glak Apart | Apartamentos turísticos en Urdinarrain, Entre Ríos',
-  description: 'Glak Apart: Apartamentos turísticos en Urdinarrain, Entre Ríos. Alojamiento rural con pileta, naturaleza, gastronomía regional y la mejor experiencia de descanso en el campo entrerriano.',
+  description: 'Apart Hotel con piscina en Urdinarrain, Entre Ríos ⭐ 4.9/5 en Google. WiFi, aire, cocina completa. Reservá directo.',
   keywords: 'Glak Apart, apartamentos Urdinarrain, alojamiento Urdinarrain, cabañas Entre Ríos, turismo rural Entre Ríos, apart hotel Urdinarrain, alojamiento turístico Urdinarrain, cabañas con pileta Entre Ríos, escapada rural Argentina',
   metadataBase: new URL('https://glakapart.com.ar'),
   icons: {
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     type: 'website',
     url: 'https://glakapart.com.ar',
     title: 'Glak Apart | Apartamentos turísticos en Urdinarrain, Entre Ríos',
-    description: 'Apartamentos turísticos en Urdinarrain, Entre Ríos. Alojamiento rural con pileta, naturaleza, gastronomía regional y descanso en el campo entrerriano.',
+    description: 'Apart Hotel con piscina en Urdinarrain, Entre Ríos ⭐ 4.9/5 en Google. WiFi, aire, cocina completa. Reservá directo.',
     siteName: 'Glak Apart',
     images: [{
       url: '/icon.svg',
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary',
     title: 'Glak Apart | Apartamentos turísticos en Urdinarrain, Entre Ríos',
-    description: 'Apartamentos turísticos en Urdinarrain, Entre Ríos. Alojamiento rural con pileta, naturaleza, gastronomía regional y descanso en el campo entrerriano.',
+    description: 'Apart Hotel con piscina en Urdinarrain, Entre Ríos ⭐ 4.9/5 en Google. WiFi, aire, cocina completa. Reservá directo.',
     images: ['/icon.svg'],
   },
   robots: {

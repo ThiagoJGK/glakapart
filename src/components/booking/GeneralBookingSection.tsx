@@ -2,7 +2,7 @@
 import React from 'react';
 import GeneralBookingForm from './GeneralBookingForm';
 import ScrollReveal from '../ui/ScrollReveal';
-import Reviews from '../home/Reviews';
+
 
 interface GeneralBookingSectionProps {
     id?: string;
@@ -37,15 +37,6 @@ const GeneralBookingSection: React.FC<GeneralBookingSectionProps> = ({ id }) => 
                         </ScrollReveal>
                     </div>
 
-                </div>
-
-                {/* Integrated Reviews Carousel */}
-                <div className="mt-12 border-t border-gray-200/50 pt-8">
-                    <div className="text-center mb-6">
-                        <span className="font-ui text-sage text-[10px] tracking-[0.2em] uppercase font-bold">Experiencias</span>
-                        <h3 className="font-script text-5xl md:text-7xl text-forest mt-2">Nuestros Huéspedes</h3>
-                    </div>
-                    <Reviews embedded />
                 </div>
             </div>
         </section>

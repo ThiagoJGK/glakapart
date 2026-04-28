@@ -182,3 +182,15 @@ body.maintenance-mode #chat-widget {
 .animate-slide-infinite:hover {
   animation-play-state: paused;
 }
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-50% - 1rem)); }
+}
+
+.animate-marquee {
+  animation: marquee-scroll 60s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

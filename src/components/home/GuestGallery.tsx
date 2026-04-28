@@ -1,8 +1,8 @@
 'use client';
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Editable from '../ui/Editable';
+import { Star, Quote, ExternalLink } from 'lucide-react';
 
-// Placeholder vertical images (9:16 portrait). Will be replaced by admin-uploaded guest photos.
 const DUMMY_GUESTS = [
     { id: 1, image: 'https://images.unsplash.com/photo-1544498308-410a6ccb01a1?auto=format&fit=crop&w=500&q=70' },
     { id: 2, image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=500&q=70' },
@@ -11,47 +11,156 @@ const DUMMY_GUESTS = [
     { id: 5, image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=500&q=70' },
     { id: 6, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=70' },
     { id: 7, image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=70' },
+    { id: 8, image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=500&q=70' },
+    { id: 9, image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=500&q=70' },
+    { id: 10, image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=70' },
+    { id: 11, image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=500&q=70' },
+];
+
+const reviews = [
+    {
+        id: 1,
+        name: "Mercedes Miranda",
+        date: "Hace 4 días",
+        rating: 5,
+        text: "Espectacular todo, si hubiera 10 estrellas para calificar las usaría sin dudas. Si buscan tranquilidad, es el lugar perfecto. Excelente atención de sus dueños... Ideal para desconectar de todo! Lo súper recomiendo."
+    },
+    {
+        id: 2,
+        name: "Ricardo Fritzler",
+        date: "Hace 2 semanas",
+        rating: 5,
+        text: "Muy lindo el apart hotel. Habitaciones cómodas, y muy acogedoras. Hermosa pileta para los días de calor. Los dueños muy amables y dispuestos. Recomiendo el lugar cuando pasen por Urdinarrain."
+    },
+    {
+        id: 3,
+        name: "Francisco Genero",
+        date: "Hace 3 semanas",
+        rating: 5,
+        text: "Atendidos por sus dueños. Super amables y explicativos. La pileta perfecta. Muchos lugares para sentarse en el patio. Las habitaciones muy lindas y nuevas."
+    },
+    {
+        id: 4,
+        name: "Soledad Galliusi",
+        date: "Hace 3 semanas",
+        rating: 5,
+        text: "Excelente todo! Muy amable Gladis y su marido! Lo recomiendo para un finde largo y si es verano mejor su hermosa pileta!"
+    },
+    {
+        id: 5,
+        name: "Matias Ryba",
+        date: "Hace 2 días",
+        rating: 5,
+        text: "La verdad que el apart es impecable, las habitaciones súper confortables y muy bien equipadas. Los espacios en común siempre en orden y limpios, la pileta hermosa."
+    },
+    {
+        id: 6,
+        name: "Juan Jose Lombardo",
+        date: "Hace 4 meses",
+        rating: 5,
+        text: "CALIDEZ EN SU MAYOR ESPLENDOR ☺️ además de no faltarle nada... te reciben con un dúo, Gladis y Adrián, que desarrollan una actuación que no tiene desperdicio 😂 Muy recomendable!"
+    },
+    {
+        id: 7,
+        name: "Daniel Trnka",
+        date: "Hace 5 meses",
+        rating: 5,
+        text: "Con la experiencia de haber conocido muchos alojamientos de pequeñas ciudades y pueblos del país puedo decir que Glak es uno de los mejores locales para visitar."
+    },
+    {
+        id: 8,
+        name: "Viviana De Melo",
+        date: "Hace 5 meses",
+        rating: 5,
+        text: "Glak apart es excelente. Las instalaciones son cómodas e impecables, y la atención brindada por los anfitriones, Gladys y Adrián, es insuperable. Se nota la pasión y el compromiso."
+    },
+    {
+        id: 9,
+        name: "Elsa Beatriz Moreda",
+        date: "Hace 5 meses",
+        rating: 5,
+        text: "Excelente ubicación del establecimiento y la atención de sus dueños Gladys y Adrián espectacular. Muy buen lugar, tranquilo y muy confortable. Pasamos muy lindos días."
+    },
+    {
+        id: 10,
+        name: "Viktor-zerocool",
+        date: "Hace 5 meses",
+        rating: 5,
+        text: "La hospitalidad y amabilidad de Adri es increíble. La casita que nos tocó, súper equipada, cómoda un lujo. Llegamos con frío y ya nos estaba esperando con la casa calentita."
+    },
+    {
+        id: 11,
+        name: "Ignacio Saip",
+        date: "Hace 6 meses",
+        rating: 5,
+        text: "Sin dudas es un lugar super recomendable, la atención de sus dueños es maravillosa y están pendientes de cada detalle. Hermoso lugar, hermosa ciudad para ir y disfrutar."
+    },
+    {
+        id: 12,
+        name: "Alfonsina Korell",
+        date: "Hace 4 meses",
+        rating: 5,
+        text: "Excelentes cabañas ideal para descansar y disfrutar. Muy buena recepción, confort y servicios. Muchas gracias recomendamos!!"
+    },
+    {
+        id: 13,
+        name: "Eduardo DI COSTANZO",
+        date: "Hace 4 meses",
+        rating: 5,
+        text: "Fuimos con mi Pareja el fin de semana, en busca de tranquilidad. Nos sorprendimos muy gratamente. Muy buenas instalaciones. Nos encantó la Ciudad."
+    },
+    {
+        id: 14,
+        name: "Rosi Torri",
+        date: "Hace 5 meses",
+        rating: 5,
+        text: "Excelente!!! No solo es hermoso como se ve en las fotos, es super cómodo! Atendido por sus propios dueños, super amables y cordiales."
+    },
+    {
+        id: 15,
+        name: "Sonia Micheli",
+        date: "Hace 8 meses",
+        rating: 5,
+        text: "Muy recomendable, hermoso lugar, instalaciones excelentes, muy cómodo, pileta, asador. Los anfitriones están atentos a cualquier necesidad e inquietud. Volveré sin duda!"
+    },
+    {
+        id: 16,
+        name: "Lucas Balverdi",
+        date: "Hace 1 semana",
+        rating: 5,
+        text: "Hermoso lugar. Los súper recomiendo 🥰 Habitación impecable y excelente atención."
+    }
 ];
 
 // --- Arc geometry constants ---
-const ARC_ANGLE_STEP = 22;    // degrees between each card
-const ARC_RADIUS = 600;       // radius of the virtual cylinder (px)
-const CARD_WIDTH_DESKTOP = 220;
+const ARC_ANGLE_STEP = 16;    // degrees between each card
+const ARC_RADIUS = 900;       // radius of the virtual cylinder (px)
+const CARD_WIDTH_DESKTOP = 200;
 const CARD_WIDTH_MOBILE = 140;
 
-/**
- * Calculates the 3D transform for a card in the concave arc.
- * idx: 0-based index of the card
- * total: total number of cards
- * The center card faces forward (rotateY=0), cards fan out symmetrically.
- */
 function getCardTransform(idx: number, total: number, isMobile: boolean) {
     const center = (total - 1) / 2;
-    const offset = idx - center; // negative = left, positive = right
+    const offset = idx - center;
     const angle = offset * ARC_ANGLE_STEP;
-    const radius = isMobile ? ARC_RADIUS * 0.55 : ARC_RADIUS;
+    const radius = isMobile ? ARC_RADIUS * 0.45 : ARC_RADIUS;
 
-    // Position on the arc: translateX from sin, translateZ from cos
     const x = Math.sin((angle * Math.PI) / 180) * radius;
-    const z = Math.cos((angle * Math.PI) / 180) * radius - radius; // shift so center z=0
+    const z = Math.cos((angle * Math.PI) / 180) * radius - radius;
 
-    // Opacity: center=1, edges fade
     const absOffset = Math.abs(offset);
     const opacity = Math.max(0.3, 1 - absOffset * 0.15);
-
-    // Scale: center=1, edges slightly smaller
     const scale = Math.max(0.75, 1 - absOffset * 0.04);
 
     return {
         transform: `translateX(${x}px) translateZ(${z}px) rotateY(${angle}deg) scale(${scale})`,
         opacity,
-        zIndex: total - Math.round(absOffset), // center on top
+        zIndex: total - Math.round(absOffset),
     };
 }
 
 const GuestGallery: React.FC = () => {
     const [isMobile, setIsMobile] = useState(false);
-    const [activeIndex, setActiveIndex] = useState(3); // center card initially
+    const [activeIndex, setActiveIndex] = useState(5); // center card initially
 
     useEffect(() => {
         const check = () => setIsMobile(window.innerWidth < 768);
@@ -60,7 +169,7 @@ const GuestGallery: React.FC = () => {
         return () => window.removeEventListener('resize', check);
     }, []);
 
-    // Slow auto-rotation: shift the "center" every few seconds
+    // Slow auto-rotation
     useEffect(() => {
         const timer = setInterval(() => {
             setActiveIndex((prev) => (prev + 1) % DUMMY_GUESTS.length);
@@ -68,26 +177,22 @@ const GuestGallery: React.FC = () => {
         return () => clearInterval(timer);
     }, []);
 
-    // Memoize transforms so they only recalc on activeIndex or resize
     const cards = useMemo(() => {
         const total = DUMMY_GUESTS.length;
         return DUMMY_GUESTS.map((guest, idx) => {
-            // Shift indices so activeIndex is always the center
             const shiftedIdx = ((idx - activeIndex + total) % total);
-            // Remap so center is at (total-1)/2
-            const displayIdx = shiftedIdx;
-            const style = getCardTransform(displayIdx, total, isMobile);
-            return { ...guest, style, displayIdx };
+            const style = getCardTransform(shiftedIdx, total, isMobile);
+            return { ...guest, style, displayIdx: shiftedIdx };
         });
     }, [activeIndex, isMobile]);
 
     const cardWidth = isMobile ? CARD_WIDTH_MOBILE : CARD_WIDTH_DESKTOP;
-    const cardHeight = cardWidth * (16 / 9); // 9:16 vertical
+    const cardHeight = cardWidth * (16 / 9);
 
     return (
         <section className="py-20 md:py-32 relative overflow-hidden bg-[#f4f1ea]">
             {/* Header */}
-            <div className="container mx-auto px-4 text-center mb-12 md:mb-20 relative z-20">
+            <div className="container mx-auto px-4 text-center mb-12 md:mb-16 relative z-20">
                 <Editable
                     id="home.guests.badge"
                     defaultValue="Experiencias Reales"
@@ -110,14 +215,13 @@ const GuestGallery: React.FC = () => {
 
             {/* 3D Arc Container */}
             <div
-                className="relative w-full flex items-center justify-center"
+                className="relative w-full flex items-center justify-center mb-8 md:mb-12"
                 style={{
                     perspective: '1200px',
                     perspectiveOrigin: '50% 50%',
-                    height: `${cardHeight + 80}px`,
+                    height: `${cardHeight + 40}px`,
                 }}
             >
-                {/* The arc scene */}
                 <div
                     className="relative"
                     style={{
@@ -155,7 +259,7 @@ const GuestGallery: React.FC = () => {
             </div>
 
             {/* Navigation dots */}
-            <div className="flex justify-center gap-2 mt-8 md:mt-12">
+            <div className="flex justify-center gap-2 mb-20 md:mb-28">
                 {DUMMY_GUESTS.map((_, idx) => (
                     <button
                         key={idx}
@@ -168,6 +272,74 @@ const GuestGallery: React.FC = () => {
                         aria-label={`Ver huésped ${idx + 1}`}
                     />
                 ))}
+            </div>
+
+            {/* Reviews Section Merged */}
+            <div className="w-full relative z-10">
+                <div className="text-center mb-12 px-4">
+                    <div className="flex justify-center gap-1 text-[#90c69e] text-3xl mb-2">
+                        {[1, 2, 3, 4, 5].map((s) => <Star key={s} fill="currentColor" />)}
+                    </div>
+                    <Editable
+                        id="home.reviews.subtitle"
+                        defaultValue="4.9/5 en Google Maps"
+                        className="text-[#10595a]/80 font-ui tracking-wider text-sm md:text-base font-bold block"
+                        label="Rating Text"
+                    />
+                </div>
+
+                {/* Marquee Container */}
+                <div className="relative w-full overflow-hidden">
+                    {/* Gradient Masks */}
+                    <div
+                        className="absolute top-0 left-0 w-24 md:w-40 h-full z-20 pointer-events-none"
+                        style={{ background: `linear-gradient(to right, #f4f1ea, transparent)` }}
+                    ></div>
+                    <div
+                        className="absolute top-0 right-0 w-24 md:w-40 h-full z-20 pointer-events-none"
+                        style={{ background: `linear-gradient(to left, #f4f1ea, transparent)` }}
+                    ></div>
+
+                    {/* CSS Marquee */}
+                    <div className="animate-marquee flex gap-8 px-8 w-max">
+                        {[...reviews, ...reviews].map((review, index) => (
+                            <div
+                                key={`${review.id}-${index}`}
+                                className="w-[300px] md:w-[400px] flex-shrink-0 bg-white rounded-3xl p-6 md:p-8 border border-[#10595a]/10 relative group hover:shadow-xl transition-all duration-300 shadow-sm"
+                            >
+                                <Quote className="absolute top-6 right-6 text-[#10595a]/10 w-8 h-8 md:w-10 md:h-10 group-hover:text-[#90c69e]/30 transition-colors" />
+
+                                <div className="flex items-center gap-4 mb-4 md:mb-6">
+                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#10595a] flex items-center justify-center text-white font-bold text-lg md:text-xl flex-shrink-0 shadow-md">
+                                        {review.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-[#10595a] font-ui tracking-wider font-bold text-xs md:text-sm truncate max-w-[150px] md:max-w-[200px]">{review.name}</h3>
+                                        <div className="flex text-[#10595a]">
+                                            {[1, 2, 3, 4, 5].map((s) => <Star key={s} size={10} fill="#10595a" />)}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p className="text-[#10595a]/80 font-light leading-relaxed italic text-xs md:text-sm line-clamp-4">
+                                    "{review.text}"
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="text-center mt-12 px-4 relative z-30">
+                    <a
+                        href="https://www.google.com/search?q=Glak+Apart+Urdinarrain"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-[#10595a] text-white px-8 py-4 rounded-full font-ui tracking-[0.15em] text-xs font-bold hover:bg-[#90c69e] hover:text-[#10595a] transition-all duration-300 group shadow-lg hover:shadow-xl"
+                    >
+                        LEER MÁS RESEÑAS EN GOOGLE
+                        <ExternalLink size={16} />
+                    </a>
+                </div>
             </div>
         </section>
     );

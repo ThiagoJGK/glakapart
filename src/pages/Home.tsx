@@ -5,8 +5,6 @@ import CommonSpaces from '@/components/home/CommonSpaces';
 import SectionExplore from '@/components/home/SectionExplore';
 import ScrollReveal from '@/components/ui/ScrollReveal';
 import DirectBookingBenefits from '@/components/DirectBookingBenefits';
-
-import Reviews from '@/components/home/Reviews';
 import GuestGallery from '@/components/home/GuestGallery';
 import FAQ from '@/components/home/FAQ';
 
@@ -31,10 +29,6 @@ const Home: React.FC = () => {
 
             <ScrollReveal delay={100}>
                 <SectionExplore />
-            </ScrollReveal>
-
-            <ScrollReveal delay={200}>
-                <Reviews />
             </ScrollReveal>
 
             <ScrollReveal delay={200}>

@@ -130,6 +130,12 @@ const Lugares: React.FC = () => {
                                         <p className="text-xs text-white/70">Momentos mágicos y únicos.</p>
                                     </div>
                                 </div>
+                                <div className="mt-8">
+                                    <Link href="/lugares/arenas-blancas" className="inline-flex items-center gap-3 bg-white text-forest px-8 py-4 rounded-full font-bold tracking-widest uppercase text-xs hover:bg-sage hover:text-white transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                        <span>Conocé más de Arenas Blancas</span>
+                                        <span className="text-xl">→</span>
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     </div>
