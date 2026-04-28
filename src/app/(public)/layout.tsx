@@ -47,7 +47,11 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         trackEvent('page_view', { path: pathname });
     }, [pathname]);
 
-    if (isMaintenance && !isChecking) {
+    if (isChecking) {
+        return null; // Let the global LoadingScreen handle this brief moment
+    }
+
+    if (isMaintenance) {
         return (
             <div className="min-h-screen flex flex-col relative">
                 <AdminDraftControls />
