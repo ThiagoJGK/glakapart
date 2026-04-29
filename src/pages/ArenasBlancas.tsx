@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 const ArenasBlancas: React.FC = () => {
     return (
-        <main className="relative z-30 pt-32 md:pt-48 pb-32 animate-fade-in group/main overflow-x-clip">
+        <main className="relative z-30 pt-48 md:pt-64 pb-32 animate-fade-in group/main overflow-x-clip">
             <h1 className="sr-only">Balneario Arenas Blancas en Urdinarrain - Naturaleza y Playa</h1>
             
             <div className="fixed inset-0 -z-20 w-full h-full bg-[#f4f1ea]">

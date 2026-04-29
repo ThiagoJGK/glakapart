@@ -29,6 +29,7 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
     const { isAdminMode } = useAdmin();
     const [content, setContent] = useState(defaultValue);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [imgLoaded, setImgLoaded] = useState(false);
     const { section, field } = parseId(id);
 
     // Initial Fetch
@@ -74,16 +75,32 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
             >
                 {isBackground ? (
                     content ? (
-                        <div
-                            className="w-full h-full bg-cover bg-center bg-fixed absolute inset-0 transition-opacity duration-500"
-                            style={{ backgroundImage: `url(${content})`, backgroundColor: '#10595a' }}
-                        ></div>
+                        <>
+                            {/* Hidden img to track loading state for background images */}
+                            <img src={content} onLoad={() => setImgLoaded(true)} className="hidden" alt="preload" />
+                            <div
+                                className={`w-full h-full bg-cover bg-center bg-fixed absolute inset-0 transition-opacity duration-1000 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                style={{ backgroundImage: `url(${content})`, backgroundColor: '#10595a' }}
+                            ></div>
+                            {/* Optional: Add a low quality placeholder or solid color behind while loading */}
+                            {!imgLoaded && <div className="absolute inset-0 bg-[#10595a] animate-pulse"></div>}
+                        </>
                     ) : (
                         <MissingImagePlaceholder id={id} label={label} className="absolute inset-0" />
                     )
                 ) : (
                     content ? (
-                        <img width={800} height={600} src={content} alt={label} className="w-full h-full object-cover" />
+                        <>
+                            <img 
+                                width={800} 
+                                height={600} 
+                                src={content} 
+                                alt={label} 
+                                onLoad={() => setImgLoaded(true)}
+                                className={`w-full h-full object-cover transition-opacity duration-1000 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} 
+                            />
+                            {!imgLoaded && <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>}
+                        </>
                     ) : (
                         <MissingImagePlaceholder id={id} label={label} />
                     )

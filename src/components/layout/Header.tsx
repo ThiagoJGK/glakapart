@@ -107,7 +107,8 @@ const Header: React.FC = () => {
 
     // Header styling
     const headerClasses = 'absolute top-0 left-0 w-full';
-    const useCustomHeader = currentPath === '/' || ['gastronomia', 'lugares', 'eventos', 'apartamentos'].some(path => currentPath.includes(path));
+    const mainPaths = ['/', '/gastronomia', '/lugares', '/eventos', '/apartamentos'];
+    const useCustomHeader = mainPaths.includes(currentPath);
 
     const scrollToReservas = () => {
         setIsMobileMenuOpen(false);
