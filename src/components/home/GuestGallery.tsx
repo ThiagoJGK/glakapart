@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Editable from '../ui/Editable';
 import { Star, Quote, ExternalLink } from 'lucide-react';
+import { getContent } from '@/services/content';
 
 const DUMMY_GUESTS = [
     { id: 1, image: 'https://images.unsplash.com/photo-1544498308-410a6ccb01a1?auto=format&fit=crop&w=500&q=70' },
@@ -161,6 +162,8 @@ function getCardTransform(idx: number, total: number, isMobile: boolean) {
 const GuestGallery: React.FC = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [activeIndex, setActiveIndex] = useState(5); // center card initially
+    const [guestGallery, setGuestGallery] = useState<string[]>([]);
+    const [loaded, setLoaded] = useState(false);
 
     useEffect(() => {
         const check = () => setIsMobile(window.innerWidth < 768);
@@ -169,22 +172,39 @@ const GuestGallery: React.FC = () => {
         return () => window.removeEventListener('resize', check);
     }, []);
 
+    useEffect(() => {
+        const fetchContent = async () => {
+            const data = await getContent('home');
+            if (data && data['home.guests.gallery']) {
+                setGuestGallery(data['home.guests.gallery']);
+            }
+            setLoaded(true);
+        };
+        fetchContent();
+    }, []);
+
+    const activeGuests = guestGallery.length > 0 
+        ? guestGallery.map((img, i) => ({ id: i, image: img })) 
+        : DUMMY_GUESTS;
+
     // Slow auto-rotation
     useEffect(() => {
+        if (!loaded || activeGuests.length === 0) return;
         const timer = setInterval(() => {
-            setActiveIndex((prev) => (prev + 1) % DUMMY_GUESTS.length);
+            setActiveIndex((prev) => (prev + 1) % activeGuests.length);
         }, 4000);
         return () => clearInterval(timer);
     }, []);
 
     const cards = useMemo(() => {
-        const total = DUMMY_GUESTS.length;
-        return DUMMY_GUESTS.map((guest, idx) => {
+        const total = activeGuests.length;
+        if (total === 0) return [];
+        return activeGuests.map((guest, idx) => {
             const shiftedIdx = ((idx - activeIndex + total) % total);
             const style = getCardTransform(shiftedIdx, total, isMobile);
             return { ...guest, style, displayIdx: shiftedIdx };
         });
-    }, [activeIndex, isMobile]);
+    }, [activeIndex, isMobile, activeGuests]);
 
     const cardWidth = isMobile ? CARD_WIDTH_MOBILE : CARD_WIDTH_DESKTOP;
     const cardHeight = cardWidth * (16 / 9);
@@ -242,7 +262,7 @@ const GuestGallery: React.FC = () => {
                                 zIndex: card.style.zIndex,
                                 transformStyle: 'preserve-3d',
                             }}
-                            onClick={() => setActiveIndex(DUMMY_GUESTS.findIndex(g => g.id === card.id))}
+                            onClick={() => setActiveIndex(activeGuests.findIndex(g => g.id === card.id))}
                         >
                             <div className="w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
                                 <img
@@ -258,21 +278,7 @@ const GuestGallery: React.FC = () => {
                 </div>
             </div>
 
-            {/* Navigation dots */}
-            <div className="flex justify-center gap-2 mb-20 md:mb-28">
-                {DUMMY_GUESTS.map((_, idx) => (
-                    <button
-                        key={idx}
-                        onClick={() => setActiveIndex(idx)}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                            idx === activeIndex
-                                ? 'bg-[#10595a] w-6'
-                                : 'bg-[#10595a]/20 hover:bg-[#10595a]/40'
-                        }`}
-                        aria-label={`Ver huésped ${idx + 1}`}
-                    />
-                ))}
-            </div>
+            {/* Navigation dots (Removed per plan step 6) */}
 
             {/* Reviews Section Merged */}
             <div className="w-full relative z-10">
@@ -285,6 +291,12 @@ const GuestGallery: React.FC = () => {
                         defaultValue="4.9/5 en Google Maps"
                         className="text-[#10595a]/80 font-ui tracking-wider text-sm md:text-base font-bold block"
                         label="Rating Text"
+                    />
+                    <Editable
+                        id="home.reviews.count"
+                        defaultValue="Más de 70 reseñas"
+                        className="text-[#10595a]/60 font-ui tracking-wider text-xs md:text-sm block mt-1"
+                        label="Cantidad de reseñas"
                     />
                 </div>
 

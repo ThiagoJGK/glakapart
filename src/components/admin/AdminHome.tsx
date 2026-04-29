@@ -20,7 +20,8 @@ const AdminHome: React.FC = () => {
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [poolGallery, setPoolGallery] = useState<string[]>([]);
     const [gardenGallery, setGardenGallery] = useState<string[]>([]);
-    const [galleryUploading, setGalleryUploading] = useState<'pool' | 'garden' | null>(null);
+    const [guestGallery, setGuestGallery] = useState<string[]>([]);
+    const [galleryUploading, setGalleryUploading] = useState<'pool' | 'garden' | 'guest' | null>(null);
 
     useEffect(() => {
         loadData();
@@ -34,6 +35,7 @@ const AdminHome: React.FC = () => {
                 if (data.promoVideoUrl) setPromoVideoUrl(data.promoVideoUrl);
                 if (data['common.pool.gallery']) setPoolGallery(data['common.pool.gallery']);
                 if (data['common.garden.gallery']) setGardenGallery(data['common.garden.gallery']);
+                if (data['home.guests.gallery']) setGuestGallery(data['home.guests.gallery']);
             }
         } catch (error) {
             console.error('Error loading home data:', error);
@@ -84,7 +86,7 @@ const AdminHome: React.FC = () => {
         }
     };
 
-    const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'pool' | 'garden') => {
+    const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'pool' | 'garden' | 'guest') => {
         if (e.target.files && e.target.files.length > 0) {
             setGalleryUploading(type);
             setUploadStatus('SUBIENDO IMÁGENES...');
@@ -94,15 +96,18 @@ const AdminHome: React.FC = () => {
                 const uploadPromises = files.map(file => uploadImage(file));
                 const uploadedUrls = await Promise.all(uploadPromises);
 
-                const currentGallery = type === 'pool' ? poolGallery : gardenGallery;
+                const currentGallery = type === 'pool' ? poolGallery : type === 'garden' ? gardenGallery : guestGallery;
                 const newGallery = [...currentGallery, ...uploadedUrls].filter((x: string) => x);
 
                 if (type === 'pool') {
                     setPoolGallery(newGallery);
                     await updateContent('home', 'common.pool.gallery', newGallery);
-                } else {
+                } else if (type === 'garden') {
                     setGardenGallery(newGallery);
                     await updateContent('home', 'common.garden.gallery', newGallery);
+                } else {
+                    setGuestGallery(newGallery);
+                    await updateContent('home', 'home.guests.gallery', newGallery);
                 }
 
                 setToast({ message: 'Imágenes añadidas a la galería.', type: 'success' });
@@ -117,18 +122,21 @@ const AdminHome: React.FC = () => {
         }
     };
 
-    const handleGalleryDelete = async (index: number, type: 'pool' | 'garden') => {
+    const handleGalleryDelete = async (index: number, type: 'pool' | 'garden' | 'guest') => {
         if (window.confirm('¿Eliminar esta imagen de la galería?')) {
             try {
-                const currentGallery = type === 'pool' ? poolGallery : gardenGallery;
+                const currentGallery = type === 'pool' ? poolGallery : type === 'garden' ? gardenGallery : guestGallery;
                 const newGallery = currentGallery.filter((_, i) => i !== index);
 
                 if (type === 'pool') {
                     setPoolGallery(newGallery);
                     await updateContent('home', 'common.pool.gallery', newGallery);
-                } else {
+                } else if (type === 'garden') {
                     setGardenGallery(newGallery);
                     await updateContent('home', 'common.garden.gallery', newGallery);
+                } else {
+                    setGuestGallery(newGallery);
+                    await updateContent('home', 'home.guests.gallery', newGallery);
                 }
 
                 setToast({ message: 'Imagen eliminada.', type: 'success' });
@@ -332,6 +340,41 @@ const AdminHome: React.FC = () => {
                         ))}
                         {gardenGallery.length === 0 && (
                             <div className="col-span-3 text-center py-8 text-xs text-gray-400">Sin imágenes extra. Actualmente usa la de Editable.</div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Guest Gallery */}
+                <div className="bg-gray-50 border border-gray-100 p-6 rounded-xl md:col-span-2">
+                    <div className="flex justify-between items-center mb-6">
+                        <label className="text-xs font-bold text-gray-500 tracking-widest uppercase">Galería de Huéspedes</label>
+                        <label className={`bg-[#10595a] text-white px-4 py-2 rounded-lg text-xs font-bold tracking-widest hover:bg-forest transition-colors cursor-pointer ${galleryUploading === 'guest' ? 'opacity-50 pointer-events-none' : ''}`}>
+                            {galleryUploading === 'guest' ? 'SUBIENDO...' : 'AÑADIR FOTOS'}
+                            <input
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => handleGalleryUpload(e, 'guest')}
+                                disabled={galleryUploading !== null}
+                            />
+                        </label>
+                    </div>
+
+                    <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                        {guestGallery.map((url, index) => (
+                            <div key={index} className="relative group aspect-square rounded overflow-hidden">
+                                <img width={800} height={600} src={url} alt={`Guest ${index}`} className="w-full h-full object-cover" />
+                                <button
+                                    onClick={() => handleGalleryDelete(index, 'guest')}
+                                    className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-bold text-xs"
+                                >
+                                    Eliminar
+                                </button>
+                            </div>
+                        ))}
+                        {guestGallery.length === 0 && (
+                            <div className="col-span-3 md:col-span-6 text-center py-8 text-xs text-gray-400">Sin imágenes. Se mostrará placeholder o nada.</div>
                         )}
                     </div>
                 </div>

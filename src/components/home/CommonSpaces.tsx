@@ -4,12 +4,7 @@ import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import Editable from '../ui/Editable';
 import { getContent } from '@/services/content';
 
-const DEFAULT_POOL_IMAGES = [
-    "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1563298723-dcfebaa392e3?auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1572331165267-854da2b10ccc?auto=format&fit=crop&q=80"
-];
+import { getContent } from '@/services/content';
 
 const CommonSpaces: React.FC = () => {
     const [poolGallery, setPoolGallery] = useState<string[]>([]);
@@ -35,24 +30,21 @@ const CommonSpaces: React.FC = () => {
         fetchGalleries();
     }, []);
 
-    // Auto-play for the pool gallery
-    const activePoolGallery = poolGallery.length > 0 ? poolGallery : DEFAULT_POOL_IMAGES;
-    
     useEffect(() => {
-        if (!galleriesLoaded || activePoolGallery.length <= 1) return;
+        if (!galleriesLoaded || poolGallery.length <= 1) return;
         const interval = setInterval(() => {
-            setPoolIndex((prev) => (prev + 1) % activePoolGallery.length);
+            setPoolIndex((prev) => (prev + 1) % poolGallery.length);
         }, 4000); // changes every 4 seconds
         return () => clearInterval(interval);
-    }, [galleriesLoaded, activePoolGallery.length]);
+    }, [galleriesLoaded, poolGallery.length]);
 
     const handleSwipe = (type: 'pool' | 'garden', direction: 1 | -1) => {
         if (type === 'pool') {
-            if (activePoolGallery.length <= 1) return;
+            if (poolGallery.length <= 1) return;
             setPoolIndex((prev) => {
                 let next = prev + direction;
-                if (next < 0) next = activePoolGallery.length - 1;
-                if (next >= activePoolGallery.length) next = 0;
+                if (next < 0) next = poolGallery.length - 1;
+                if (next >= poolGallery.length) next = 0;
                 return next;
             });
         } else {
@@ -96,17 +88,36 @@ const CommonSpaces: React.FC = () => {
 
                         {/* Image Gallery */}
                         <div className="h-[400px] lg:h-[600px] w-full lg:w-[55%] relative group/gallery isolate overflow-hidden bg-gray-100">
-                            {activePoolGallery.map((img, idx) => (
-                                <img
-                                    key={idx}
-                                    src={img}
-                                    alt={`Piscina ${idx + 1}`}
-                                    loading="lazy"
-                                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${
-                                        idx === poolIndex ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'
-                                    }`}
+                            {galleriesLoaded && poolGallery.length > 0 ? (
+                                poolGallery.map((img, idx) => {
+                                    const isActive = idx === poolIndex;
+                                    const isNext = idx === (poolIndex + 1) % poolGallery.length;
+                                    const isPrev = idx === (poolIndex - 1 + poolGallery.length) % poolGallery.length;
+                                    const shouldRender = poolGallery.length <= 3 || isActive || isNext || isPrev;
+
+                                    if (!shouldRender) return null;
+
+                                    return (
+                                        <img
+                                            key={idx}
+                                            src={img}
+                                            alt={`Piscina ${idx + 1}`}
+                                            loading={isActive || isNext ? "eager" : "lazy"}
+                                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out will-change-transform will-change-opacity ${
+                                                isActive ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'
+                                            }`}
+                                        />
+                                    );
+                                })
+                            ) : (
+                                <Editable
+                                    id="home.common.pool.image"
+                                    type="image"
+                                    defaultValue=""
+                                    className="w-full h-full object-cover relative z-10"
+                                    label="Foto Piscina"
                                 />
-                            ))}
+                            )}
                             
                             {/* Inner Shadow for better text/button contrast */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 opacity-0 group-hover/gallery:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
@@ -117,26 +128,26 @@ const CommonSpaces: React.FC = () => {
                                 ÚNICO CON PISCINA
                             </div>
 
-                            {activePoolGallery.length > 1 && (
-                                <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover/gallery:opacity-100 transition-opacity z-10">
+                            {poolGallery.length > 1 && (
+                                <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover/gallery:opacity-100 transition-opacity z-10 pointer-events-none">
                                     <button 
                                         onClick={(e) => { e.preventDefault(); handleSwipe('pool', -1); }}
-                                        className="p-3 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90"
+                                        className="p-3 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90 pointer-events-auto"
                                     >
                                         <ChevronLeft size={24} />
                                     </button>
                                     <button 
                                         onClick={(e) => { e.preventDefault(); handleSwipe('pool', 1); }}
-                                        className="p-3 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90"
+                                        className="p-3 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90 pointer-events-auto"
                                     >
                                         <ChevronRight size={24} />
                                     </button>
                                 </div>
                             )}
 
-                            {activePoolGallery.length > 1 && (
+                            {poolGallery.length > 1 && (
                                 <div className="absolute bottom-6 left-0 w-full flex justify-center gap-2 z-10">
-                                    {activePoolGallery.map((_, i) => (
+                                    {poolGallery.map((_, i) => (
                                         <div 
                                             key={i} 
                                             className={`h-1.5 rounded-full transition-all duration-500 ${i === poolIndex ? 'w-8 bg-white' : 'w-2 bg-white/50'}`}
@@ -174,17 +185,26 @@ const CommonSpaces: React.FC = () => {
                         {/* Image Gallery */}
                         <div className="h-[350px] lg:h-[500px] w-full lg:w-[45%] relative group/gallery isolate overflow-hidden bg-[#f4f1ea]">
                             {galleriesLoaded && gardenGallery.length > 0 ? (
-                                gardenGallery.map((img, idx) => (
-                                    <img
-                                        key={idx}
-                                        src={img}
-                                        alt={`Parque ${idx + 1}`}
-                                        loading="lazy"
-                                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${
-                                            idx === gardenIndex ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'
-                                        }`}
-                                    />
-                                ))
+                                gardenGallery.map((img, idx) => {
+                                    const isActive = idx === gardenIndex;
+                                    const isNext = idx === (gardenIndex + 1) % gardenGallery.length;
+                                    const isPrev = idx === (gardenIndex - 1 + gardenGallery.length) % gardenGallery.length;
+                                    const shouldRender = gardenGallery.length <= 3 || isActive || isNext || isPrev;
+
+                                    if (!shouldRender) return null;
+
+                                    return (
+                                        <img
+                                            key={idx}
+                                            src={img}
+                                            alt={`Parque ${idx + 1}`}
+                                            loading={isActive || isNext ? "eager" : "lazy"}
+                                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out will-change-transform will-change-opacity ${
+                                                isActive ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'
+                                            }`}
+                                        />
+                                    );
+                                })
                             ) : (
                                 <Editable
                                     id="home.common.garden.image"
@@ -199,16 +219,16 @@ const CommonSpaces: React.FC = () => {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover/gallery:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
                             {gardenGallery.length > 1 && (
-                                <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover/gallery:opacity-100 transition-opacity z-10">
+                                <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover/gallery:opacity-100 transition-opacity z-10 pointer-events-none">
                                     <button 
                                         onClick={(e) => { e.preventDefault(); handleSwipe('garden', -1); }}
-                                        className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90"
+                                        className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90 pointer-events-auto"
                                     >
                                         <ChevronLeft size={20} />
                                     </button>
                                     <button 
                                         onClick={(e) => { e.preventDefault(); handleSwipe('garden', 1); }}
-                                        className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90"
+                                        className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90 pointer-events-auto"
                                     >
                                         <ChevronRight size={20} />
                                     </button>

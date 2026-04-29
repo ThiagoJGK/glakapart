@@ -107,7 +107,7 @@ const Header: React.FC = () => {
 
     // Header styling
     const headerClasses = 'absolute top-0 left-0 w-full';
-    const mainPaths = ['/', '/gastronomia', '/lugares', '/eventos', '/apartamentos'];
+    const mainPaths = ['/', '/gastronomia', '/lugares', '/eventos', '/apartamentos', '/lugares/arenas-blancas'];
     const useCustomHeader = mainPaths.includes(currentPath);
 
     const scrollToReservas = () => {

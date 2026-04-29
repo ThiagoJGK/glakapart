@@ -38,26 +38,9 @@ function expandRanges(ranges: BookedRange[]): Date[] {
  * Caches results in memory for 30 minutes.
  */
 export async function getBookedDates(): Promise<Date[]> {
-    const now = Date.now();
-
-    // Return cached if fresh
-    if (cachedDates && (now - lastFetch) < CACHE_DURATION) {
-        return cachedDates;
-    }
-
-    try {
-        const res = await fetch('/api/availability');
-        if (!res.ok) throw new Error(`API error: ${res.status}`);
-
-        const data = await res.json();
-        cachedDates = expandRanges(data.ranges || []);
-        lastFetch = now;
-
-        return cachedDates;
-    } catch (error) {
-        console.warn('Failed to fetch availability:', error);
-        return cachedDates || []; // Return stale cache or empty
-    }
+    // Return empty array to keep the calendar fully available
+    // Previous logic was fetching from /api/availability which connected to Booking.com
+    return [];
 }
 
 

@@ -9,11 +9,13 @@ import FloatingBookingButton from '@/components/events/FloatingBookingButton';
 import { trackEvent } from '@/services/analytics';
 import { getContent } from '@/services/content';
 import MaintenanceScreen from '@/components/common/MaintenanceScreen';
+import { useAdmin } from '@/context/AdminContext';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const [isMaintenance, setIsMaintenance] = useState(false);
     const [isChecking, setIsChecking] = useState(true);
+    const { isAdmin } = useAdmin();
 
     useEffect(() => {
         const checkMaintenance = async () => {
@@ -47,7 +49,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         trackEvent('page_view', { path: pathname });
     }, [pathname]);
 
-    if (isMaintenance) {
+    // If maintenance is active, AND the user is not an admin, show maintenance screen.
+    if (isMaintenance && !isAdmin) {
         return (
             <div className="min-h-screen flex flex-col relative">
                 <AdminDraftControls />
@@ -56,8 +59,14 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         );
     }
 
+    // If maintenance is active but user IS admin, render normally with a warning banner.
     return (
         <div className="min-h-screen flex flex-col relative opacity-0 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            {isMaintenance && isAdmin && (
+                <div className="bg-red-500 text-white text-xs font-bold text-center py-1 tracking-widest z-50 fixed top-0 w-full animate-pulse">
+                    SITIO EN MANTENIMIENTO (VISIBLE SOLO PARA ADMIN)
+                </div>
+            )}
             <Header />
             <AdminDraftControls />
             {children}
