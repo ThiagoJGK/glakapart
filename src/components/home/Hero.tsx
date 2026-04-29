@@ -289,8 +289,8 @@ const Hero: React.FC = () => {
                                 <div className="absolute inset-0 bg-white/20 rounded-[3rem] transform translate-x-8 translate-y-8 -z-20 rotate-3"></div>
 
                                 <div className="absolute bottom-6 right-6 flex gap-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <button onClick={(e) => { e.stopPropagation(); prevSlide(); }} className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-colors border border-white/30"><ChevronLeft size={20} /></button>
-                                    <button onClick={(e) => { e.stopPropagation(); nextSlide(); }} className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-colors border border-white/30"><ChevronRight size={20} /></button>
+                                    <button aria-label="Ver slide anterior" onClick={(e) => { e.stopPropagation(); prevSlide(); }} className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-colors border border-white/30"><ChevronLeft size={20} /></button>
+                                    <button aria-label="Ver slide siguiente" onClick={(e) => { e.stopPropagation(); nextSlide(); }} className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-colors border border-white/30"><ChevronRight size={20} /></button>
                                 </div>
                             </div>
                         </div>

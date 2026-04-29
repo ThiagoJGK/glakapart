@@ -5,17 +5,11 @@ import { Star, Quote, ExternalLink } from 'lucide-react';
 import { getContent } from '@/services/content';
 
 const DUMMY_GUESTS = [
-    { id: 1, image: 'https://images.unsplash.com/photo-1544498308-410a6ccb01a1?auto=format&fit=crop&w=500&q=70' },
-    { id: 2, image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=500&q=70' },
-    { id: 3, image: 'https://images.unsplash.com/photo-1506836467174-27f1042aa48c?auto=format&fit=crop&w=500&q=70' },
-    { id: 4, image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=70' },
-    { id: 5, image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=500&q=70' },
-    { id: 6, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=70' },
-    { id: 7, image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=70' },
-    { id: 8, image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=500&q=70' },
-    { id: 9, image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=500&q=70' },
-    { id: 10, image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=70' },
-    { id: 11, image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=500&q=70' },
+    { id: 1, image: '' },
+    { id: 2, image: '' },
+    { id: 3, image: '' },
+    { id: 4, image: '' },
+    { id: 5, image: '' }
 ];
 
 const reviews = [
@@ -251,9 +245,9 @@ const GuestGallery: React.FC = () => {
                     }}
                 >
                     {cards.map((card) => (
-                        <div
-                            key={card.id}
-                            className="absolute top-0 left-0 transition-all duration-700 ease-out cursor-pointer"
+                            <div
+                                key={card.id}
+                                className="absolute top-0 left-0 transition-[transform,opacity] duration-700 ease-out cursor-pointer"
                             style={{
                                 width: `${cardWidth}px`,
                                 height: `${cardHeight}px`,
@@ -264,14 +258,20 @@ const GuestGallery: React.FC = () => {
                             }}
                             onClick={() => setActiveIndex(activeGuests.findIndex(g => g.id === card.id))}
                         >
-                            <div className="w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
-                                <img
-                                    src={card.image}
-                                    alt="Huésped de Glak Apart"
-                                    className="w-full h-full object-cover"
-                                    loading="lazy"
-                                    draggable={false}
-                                />
+                            <div className="w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl bg-[#10595a]/10 flex items-center justify-center">
+                                {card.image ? (
+                                    <img
+                                        src={card.image}
+                                        alt="Huésped de Glak Apart"
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                        draggable={false}
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center text-[#10595a]/30">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}

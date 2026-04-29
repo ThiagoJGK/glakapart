@@ -215,6 +215,9 @@ const Header: React.FC = () => {
 
     return (
         <header className={headerClasses}>
+            {currentBgUrl && (
+                <link rel="preload" as="image" href={currentBgUrl} fetchPriority="high" />
+            )}
             {/* SVG Definitions for Clip Paths (Invisible) */}
             <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
                 <defs>
@@ -277,7 +280,7 @@ const Header: React.FC = () => {
                 <div className="lg:hidden w-8"></div>
 
                 {/* Logo Section - Uses Blurred BG Image for Frost Effect */}
-                <Link href="/" className={`flex flex-col items-center cursor-pointer group hover:opacity-90 transition-opacity duration-300 relative pointer-events-auto z-[46] ${isMobileMenuOpen ? 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto' : 'opacity-100'}`}>
+                <Link href="/" aria-label="Ir al inicio" className={`flex flex-col items-center cursor-pointer group hover:opacity-90 transition-opacity duration-300 relative pointer-events-auto z-[46] ${isMobileMenuOpen ? 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto' : 'opacity-100'}`}>
                     <div
                         className="rounded-full p-1 md:p-2 shadow-2xl flex items-center justify-center overflow-hidden border border-white/10 relative"
                     >

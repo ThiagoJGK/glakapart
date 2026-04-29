@@ -64,12 +64,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://firestore.googleapis.com" />
+        <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+        <link rel="preconnect" href="https://feeds.behold.so" />
+        <link rel="dns-prefetch" href="https://feeds.behold.so" />
+      </head>
       <body className={`${jost.variable} ${montserrat.variable} ${qwitcher.variable}`}>
         <Providers>
           {children}
           <ChatWidget />
         </Providers>
-        <Script id="schema-lodging" type="application/ld+json" strategy="afterInteractive">
+        <Script id="schema-lodging" type="application/ld+json" strategy="lazyOnload">
           {`
             {
               "@context": "https://schema.org",

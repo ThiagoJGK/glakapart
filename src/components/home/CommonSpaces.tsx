@@ -4,8 +4,6 @@ import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import Editable from '../ui/Editable';
 import { getContent } from '@/services/content';
 
-import { getContent } from '@/services/content';
-
 const CommonSpaces: React.FC = () => {
     const [poolGallery, setPoolGallery] = useState<string[]>([]);
     const [gardenGallery, setGardenGallery] = useState<string[]>([]);
@@ -102,6 +100,8 @@ const CommonSpaces: React.FC = () => {
                                             key={idx}
                                             src={img}
                                             alt={`Piscina ${idx + 1}`}
+                                            width="800"
+                                            height="600"
                                             loading={isActive || isNext ? "eager" : "lazy"}
                                             className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out will-change-transform will-change-opacity ${
                                                 isActive ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'
@@ -131,12 +131,14 @@ const CommonSpaces: React.FC = () => {
                             {poolGallery.length > 1 && (
                                 <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover/gallery:opacity-100 transition-opacity z-10 pointer-events-none">
                                     <button 
+                                        aria-label="Imagen anterior de la piscina"
                                         onClick={(e) => { e.preventDefault(); handleSwipe('pool', -1); }}
                                         className="p-3 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90 pointer-events-auto"
                                     >
                                         <ChevronLeft size={24} />
                                     </button>
                                     <button 
+                                        aria-label="Siguiente imagen de la piscina"
                                         onClick={(e) => { e.preventDefault(); handleSwipe('pool', 1); }}
                                         className="p-3 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90 pointer-events-auto"
                                     >
@@ -198,6 +200,8 @@ const CommonSpaces: React.FC = () => {
                                             key={idx}
                                             src={img}
                                             alt={`Parque ${idx + 1}`}
+                                            width="800"
+                                            height="600"
                                             loading={isActive || isNext ? "eager" : "lazy"}
                                             className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out will-change-transform will-change-opacity ${
                                                 isActive ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'
@@ -221,12 +225,14 @@ const CommonSpaces: React.FC = () => {
                             {gardenGallery.length > 1 && (
                                 <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover/gallery:opacity-100 transition-opacity z-10 pointer-events-none">
                                     <button 
+                                        aria-label="Imagen anterior del parque"
                                         onClick={(e) => { e.preventDefault(); handleSwipe('garden', -1); }}
                                         className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90 pointer-events-auto"
                                     >
                                         <ChevronLeft size={20} />
                                     </button>
                                     <button 
+                                        aria-label="Siguiente imagen del parque"
                                         onClick={(e) => { e.preventDefault(); handleSwipe('garden', 1); }}
                                         className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur transition-all active:scale-90 pointer-events-auto"
                                     >

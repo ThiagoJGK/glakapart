@@ -95,10 +95,10 @@ const ApartmentsGrid: React.FC = () => {
                 {/* MOBILE: Coverflow Carousel */}
                 <div className="md:hidden relative h-[500px] w-full flex items-center justify-center">
                     {/* Navigation Buttons */}
-                    <button onClick={prevSlide} className="absolute left-2 z-30 bg-white/10 backdrop-blur-md p-3 rounded-full text-white hover:bg-white/20">
+                    <button onClick={prevSlide} aria-label="Ver apartamento anterior" className="absolute left-2 z-30 bg-white/10 backdrop-blur-md p-3 rounded-full text-white hover:bg-white/20">
                         <ChevronLeft size={24} />
                     </button>
-                    <button onClick={nextSlide} className="absolute right-2 z-30 bg-white/10 backdrop-blur-md p-3 rounded-full text-white hover:bg-white/20">
+                    <button onClick={nextSlide} aria-label="Ver apartamento siguiente" className="absolute right-2 z-30 bg-white/10 backdrop-blur-md p-3 rounded-full text-white hover:bg-white/20">
                         <ChevronRight size={24} />
                     </button>
 
@@ -110,7 +110,7 @@ const ApartmentsGrid: React.FC = () => {
                             return (
                                 <div
                                     key={apt.id}
-                                    className={`absolute top-0 w-full h-full transition-all duration-500 ease-out shadow-2xl rounded-[30px] overflow-hidden ${styles}`}
+                                    className={`absolute top-0 w-full h-full transition-[transform,opacity] duration-500 ease-out shadow-2xl rounded-[30px] overflow-hidden ${styles}`}
                                     onClick={() => { if (isActive) { trackEvent('apartment_click', { apartment: apt.id, source: 'mobile_carousel' }); router.push(`/apartamentos/${apt.id}`); } else { index === (activeIndex + 1) % 3 ? nextSlide() : prevSlide(); } }}
                                 >
                                     {/* Image */}

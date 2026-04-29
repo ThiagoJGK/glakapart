@@ -50,7 +50,7 @@ export default function MaintenanceScreen() {
             <div 
                 className="absolute inset-0 z-0 scale-105"
                 style={{
-                    backgroundImage: `url('${bgUrl || 'https://images.unsplash.com/photo-1542314831-c6a4d14d885f?auto=format&fit=crop&q=80'}')`,
+                    backgroundImage: bgUrl ? `url('${bgUrl}')` : undefined,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     filter: 'blur(8px) brightness(0.4)',
