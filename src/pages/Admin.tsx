@@ -8,6 +8,7 @@ import AdminBranding from '@/components/admin/AdminBranding';
 import AdminEvents from '@/components/admin/AdminEvents';
 import AdminFAQ from '@/components/admin/AdminFAQ';
 import AdminHome from '@/components/admin/AdminHome';
+import AdminCommonSpaces from '@/components/admin/AdminCommonSpaces';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminApartments from '@/components/admin/AdminApartments';
 import AdminSeasons from '@/components/admin/AdminSeasons';
@@ -22,10 +23,11 @@ const ALLOWED_EMAILS = [
 
 const TAB_TITLES: Record<string, string> = {
     dashboard: 'Panel Principal',
+    apartments: 'Gestión de Apartamentos',
+    'common-spaces': 'Áreas y Huéspedes',
     home: 'Página de Inicio',
-    events: 'Gestión de Eventos',
-    seasons: 'Fotos de Estaciones',
-    apartments: 'Galería de Apartamentos',
+    events: 'Eventos y Experiencias',
+    seasons: 'Galerías por Estación',
     faq: 'Preguntas Frecuentes',
     seo: 'SEO & Open Graph',
     settings: 'Configuración General',
@@ -150,36 +152,39 @@ const Admin: React.FC = () => {
             </button>
 
             <div className="px-8 py-2 mt-6 mb-1">
-                <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Catálogos Visuales</p>
+                <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Propiedad & Instalaciones</p>
             </div>
             <button onClick={() => handleTabChange('apartments')} className={navButtonClass('apartments')}>
                 APARTAMENTOS
             </button>
-            <button onClick={() => handleTabChange('events')} className={navButtonClass('events')}>
-                EVENTOS
-            </button>
-            <button onClick={() => handleTabChange('seasons')} className={navButtonClass('seasons')}>
-                ESTACIONES
+            <button onClick={() => handleTabChange('common-spaces')} className={navButtonClass('common-spaces')}>
+                ÁREAS COMUNES
             </button>
 
             <div className="px-8 py-2 mt-6 mb-1">
-                <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Textos de Pantalla</p>
+                <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Contenido Web</p>
             </div>
             <button onClick={() => handleTabChange('home')} className={navButtonClass('home')}>
-                INICIO
+                PÁGINA DE INICIO
+            </button>
+            <button onClick={() => handleTabChange('events')} className={navButtonClass('events')}>
+                EVENTOS & EXP
+            </button>
+            <button onClick={() => handleTabChange('seasons')} className={navButtonClass('seasons')}>
+                ESTACIONES
             </button>
             <button onClick={() => handleTabChange('faq')} className={navButtonClass('faq')}>
                 PREGUNTAS FRECUENTES
             </button>
 
             <div className="px-8 py-2 mt-6 mb-1">
-                <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Ajustes del Sitio</p>
+                <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Configuración & Marketing</p>
             </div>
+            <button onClick={() => handleTabChange('settings')} className={navButtonClass('settings')}>
+                AJUSTES GENERALES
+            </button>
             <button onClick={() => handleTabChange('seo')} className={navButtonClass('seo')}>
                 SEO / OPEN GRAPH
-            </button>
-            <button onClick={() => handleTabChange('settings')} className={navButtonClass('settings')}>
-                CONFIGURACIÓN
             </button>
 
             <div className="h-px bg-white/10 mx-8 my-6"></div>
@@ -252,18 +257,7 @@ const Admin: React.FC = () => {
                     {/* Dashboard */}
                     {activeTab === 'dashboard' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                            <div
-                                onClick={handleQuickEdit}
-                                className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
-                            >
-                                <div className="w-12 h-12 md:w-14 md:h-14 bg-sage/10 text-sage rounded-full flex items-center justify-center mb-4 md:mb-6 group-hover:bg-sage group-hover:text-white transition-colors">
-                                    <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                                </div>
-                                <h3 className="font-ui text-base md:text-lg tracking-widest mb-2">Edición Visual</h3>
-                                <p className="text-sm text-gray-500 leading-relaxed">Edita el contenido del sitio web navegando como un usuario real.</p>
-                            </div>
-
-                            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group col-span-1 lg:col-span-3">
+                            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group col-span-1 md:col-span-2 lg:col-span-3">
                                 <AdminStats />
                             </div>
                         </div>
@@ -271,6 +265,7 @@ const Admin: React.FC = () => {
 
                     {activeTab === 'home' && <AdminHome />}
                     {activeTab === 'apartments' && <AdminApartments />}
+                    {activeTab === 'common-spaces' && <AdminCommonSpaces />}
                     {activeTab === 'events' && <AdminEvents />}
                     {activeTab === 'seasons' && <AdminSeasons />}
                     {activeTab === 'faq' && <AdminFAQ />}

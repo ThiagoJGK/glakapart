@@ -15,14 +15,6 @@ const AdminBranding: React.FC = () => {
     const [primaryColor, setPrimaryColor] = useState('#10595a');
     const [secondaryColor, setSecondaryColor] = useState('#819488');
     
-    // Header Images State
-    const [headerSettings, setHeaderSettings] = useState<Record<string, string>>({});
-    const [activeSection, setActiveSection] = useState<'home' | 'gastronomia' | 'lugares' | 'eventos' | 'apartamentos'>('home');
-    
-    // Social / Links State
-    const [instagramUrl, setInstagramUrl] = useState('');
-    const [facebookUrl, setFacebookUrl] = useState('');
-    const [whatsappNumber, setWhatsappNumber] = useState('');
     const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
 
     // Chatbot State
@@ -52,23 +44,7 @@ const AdminBranding: React.FC = () => {
                 setFaviconUrl(settingsData.faviconUrl || '');
                 setPrimaryColor(settingsData.primaryColor || '#10595a');
                 setSecondaryColor(settingsData.secondaryColor || '#819488');
-                setInstagramUrl(settingsData.instagramUrl || '');
-                setFacebookUrl(settingsData.facebookUrl || '');
-                setWhatsappNumber(settingsData.whatsappNumber || '');
                 setMaintenanceEnabled(settingsData.maintenanceEnabled || false);
-
-                const newSettings: any = {};
-                ['home', 'gastronomia', 'lugares', 'eventos', 'apartamentos'].forEach(sec => {
-                    newSettings[`header_${sec}_bg`] = settingsData[`header_${sec}_bg`] || '';
-                    newSettings[`header_${sec}_blur`] = settingsData[`header_${sec}_blur`] || '';
-                });
-
-                if (!newSettings['header_home_bg'] && settingsData.headerBgUrl) {
-                    newSettings['header_home_bg'] = settingsData.headerBgUrl;
-                    newSettings['header_home_blur'] = settingsData.headerBgBlurredUrl;
-                }
-
-                setHeaderSettings(newSettings);
             }
             
             if (chatbotData) {
@@ -91,13 +67,9 @@ const AdminBranding: React.FC = () => {
                 updateContent('settings', 'faviconUrl', faviconUrl),
                 updateContent('settings', 'primaryColor', primaryColor),
                 updateContent('settings', 'secondaryColor', secondaryColor),
-                updateContent('settings', 'instagramUrl', instagramUrl),
-                updateContent('settings', 'facebookUrl', facebookUrl),
-                updateContent('settings', 'whatsappNumber', whatsappNumber),
                 updateContent('settings', 'maintenanceEnabled', maintenanceEnabled),
                 updateContent('chatbot', 'enabled', chatbotEnabled),
-                updateContent('chatbot', 'systemPrompt', chatbotPrompt),
-                ...Object.entries(headerSettings).map(([key, value]) => updateContent('settings', key, value))
+                updateContent('chatbot', 'systemPrompt', chatbotPrompt)
             ];
 
             await Promise.all(updates);
@@ -129,37 +101,7 @@ const AdminBranding: React.FC = () => {
         }
     };
 
-    const handleHeaderUpload = async (e: React.ChangeEvent<HTMLInputElement>, section: string) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setLoading(true);
-            try {
-                const originalUrl = await uploadImage(file, (status) => {
-                    setUploadStatus(status === 'optimizing' ? 'OPTIMIZANDO FONDO...' : 'SUBIENDO IMAGEN...');
-                });
 
-                setUploadStatus('GENERANDO FONDO BLUR...');
-                const blurredFile = await generateBlurredImage(file);
-                const blurredUrl = await uploadImage(blurredFile, (status) => {
-                    setUploadStatus(status === 'optimizing' ? 'OPTIMIZANDO BLUR...' : 'SUBIENDO BLUR...');
-                });
-
-                setHeaderSettings(prev => ({
-                    ...prev,
-                    [`header_${section}_bg`]: originalUrl,
-                    [`header_${section}_blur`]: blurredUrl
-                }));
-
-                setToast({ message: 'Imágenes subidas correctamente', type: 'success' });
-            } catch (error) {
-                console.error(error);
-                setToast({ message: 'Error al procesar imágenes', type: 'error' });
-            } finally {
-                setLoading(false);
-                setUploadStatus('');
-            }
-        }
-    };
 
     return (
         <div className="bg-white p-4 md:p-8 rounded-2xl shadow-sm border border-gray-100 max-w-5xl relative">
@@ -238,108 +180,7 @@ const AdminBranding: React.FC = () => {
                     </div>
                 </section>
 
-                {/* 2. HEADER IMAGES */}
-                <section>
-                    <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-3">
-                        <ImageIcon className="w-5 h-5 text-sage" />
-                        <h4 className="font-bold text-gray-700 uppercase tracking-widest text-sm">Fondos de Cabecera</h4>
-                    </div>
 
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl overflow-hidden">
-                        <div className="flex flex-wrap overflow-x-auto border-b border-gray-200 bg-white">
-                            {[
-                                { id: 'home', label: 'INICIO' },
-                                { id: 'gastronomia', label: 'GASTRONOMÍA' },
-                                { id: 'lugares', label: 'LUGARES' },
-                                { id: 'eventos', label: 'EVENTOS' },
-                                { id: 'apartamentos', label: 'APARTAMENTOS' }
-                            ].map(tab => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveSection(tab.id as any)}
-                                    className={`px-5 py-3 text-xs font-bold tracking-widest whitespace-nowrap transition-colors border-b-2 ${activeSection === tab.id
-                                        ? 'border-forest text-forest bg-forest/5'
-                                        : 'border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    {tab.label}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="p-6">
-                            <label className="cursor-pointer inline-flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-lg text-xs font-bold text-forest hover:bg-gray-50 transition-colors mb-6 shadow-sm">
-                                <ImageIcon size={14} /> SUBIR NUEVA IMAGEN
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => handleHeaderUpload(e, activeSection)}
-                                    className="hidden"
-                                />
-                            </label>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Original</span>
-                                    {headerSettings[`header_${activeSection}_bg`] ? (
-                                        <img src={headerSettings[`header_${activeSection}_bg`]} alt="Original" className="w-full h-32 object-cover rounded-xl shadow-sm border border-gray-200" />
-                                    ) : (
-                                        <div className="w-full h-32 bg-gray-200 rounded-xl flex items-center justify-center text-xs font-ui tracking-widest uppercase text-gray-400">Sin imagen</div>
-                                    )}
-                                </div>
-                                <div>
-                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Desenfocada (Blur)</span>
-                                    {headerSettings[`header_${activeSection}_blur`] ? (
-                                        <img src={headerSettings[`header_${activeSection}_blur`]} alt="Blur" className="w-full h-32 object-cover rounded-xl shadow-sm border border-gray-200" />
-                                    ) : (
-                                        <div className="w-full h-32 bg-gray-200 rounded-xl flex items-center justify-center text-xs font-ui tracking-widest uppercase text-gray-400">Sin imagen</div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* 3. SOCIAL MEDIA & LINKS */}
-                <section>
-                    <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-3">
-                        <LinkIcon className="w-5 h-5 text-sage" />
-                        <h4 className="font-bold text-gray-700 uppercase tracking-widest text-sm">Redes y Contacto</h4>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
-                            <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">WhatsApp (URL wa.me)</label>
-                            <input
-                                type="url"
-                                value={whatsappNumber}
-                                onChange={(e) => setWhatsappNumber(e.target.value)}
-                                placeholder="https://wa.me/..."
-                                className="w-full border border-gray-200 p-3 text-sm rounded-lg focus:border-forest focus:outline-none bg-white"
-                            />
-                        </div>
-                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
-                            <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Instagram URL</label>
-                            <input
-                                type="url"
-                                value={instagramUrl}
-                                onChange={(e) => setInstagramUrl(e.target.value)}
-                                placeholder="https://instagram.com/..."
-                                className="w-full border border-gray-200 p-3 text-sm rounded-lg focus:border-forest focus:outline-none bg-white"
-                            />
-                        </div>
-                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
-                            <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Facebook URL</label>
-                            <input
-                                type="url"
-                                value={facebookUrl}
-                                onChange={(e) => setFacebookUrl(e.target.value)}
-                                placeholder="https://facebook.com/..."
-                                className="w-full border border-gray-200 p-3 text-sm rounded-lg focus:border-forest focus:outline-none bg-white"
-                            />
-                        </div>
-                    </div>
-                </section>
 
                 {/* 4. MANTENIMIENTO */}
                 <section>
@@ -359,7 +200,18 @@ const AdminBranding: React.FC = () => {
                                     type="checkbox"
                                     className="sr-only peer"
                                     checked={maintenanceEnabled}
-                                    onChange={(e) => setMaintenanceEnabled(e.target.checked)}
+                                    onChange={async (e) => {
+                                        const newState = e.target.checked;
+                                        setMaintenanceEnabled(newState);
+                                        try {
+                                            await updateContent('settings', 'maintenanceEnabled', newState);
+                                            window.dispatchEvent(new Event('GLAK_CONTENT_UPDATE'));
+                                            setToast({ message: `Mantenimiento ${newState ? 'activado' : 'desactivado'}`, type: 'success' });
+                                        } catch(error) {
+                                            setMaintenanceEnabled(!newState);
+                                            setToast({ message: 'Error al actualizar', type: 'error' });
+                                        }
+                                    }}
                                 />
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
                             </label>

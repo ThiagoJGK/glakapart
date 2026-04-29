@@ -14,28 +14,73 @@ const SLIDES_INFO = [
 
 const AdminHome: React.FC = () => {
     const [images, setImages] = useState<Record<string, string>>({});
-    const [promoVideoUrl, setPromoVideoUrl] = useState<string>('');
+    const [headerSettings, setHeaderSettings] = useState<Record<string, string>>({});
+    const [activeSection, setActiveSection] = useState<'home' | 'gastronomia' | 'lugares' | 'eventos' | 'apartamentos'>('home');
     const [loading, setLoading] = useState<number | null>(null); // Index of slide loading
     const [uploadStatus, setUploadStatus] = useState<string>(''); // Progress detail MSG
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-    const [poolGallery, setPoolGallery] = useState<string[]>([]);
-    const [gardenGallery, setGardenGallery] = useState<string[]>([]);
-    const [guestGallery, setGuestGallery] = useState<string[]>([]);
-    const [galleryUploading, setGalleryUploading] = useState<'pool' | 'garden' | 'guest' | null>(null);
 
     useEffect(() => {
         loadData();
     }, []);
 
+    const handleHeaderUpload = async (e: React.ChangeEvent<HTMLInputElement>, section: string) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setLoading(-1); // Use -1 or any flag for header upload loading
+            try {
+                const originalUrl = await uploadImage(file, (status) => {
+                    setUploadStatus(status === 'optimizing' ? 'OPTIMIZANDO FONDO...' : 'SUBIENDO IMAGEN...');
+                });
+
+                setUploadStatus('GENERANDO FONDO BLUR...');
+                const blurredFile = await generateBlurredImage(file);
+                const blurredUrl = await uploadImage(blurredFile, (status) => {
+                    setUploadStatus(status === 'optimizing' ? 'OPTIMIZANDO BLUR...' : 'SUBIENDO BLUR...');
+                });
+
+                setHeaderSettings(prev => ({
+                    ...prev,
+                    [`header_${section}_bg`]: originalUrl,
+                    [`header_${section}_blur`]: blurredUrl
+                }));
+
+                await updateContent('settings', `header_${section}_bg`, originalUrl);
+                await updateContent('settings', `header_${section}_blur`, blurredUrl);
+
+                setToast({ message: 'Imágenes subidas correctamente', type: 'success' });
+            } catch (error) {
+                console.error(error);
+                setToast({ message: 'Error al procesar imágenes', type: 'error' });
+            } finally {
+                setLoading(null);
+                setUploadStatus('');
+            }
+        }
+    };
+
     const loadData = async () => {
         try {
-            const data = await getContent('home');
+            const [data, settingsData] = await Promise.all([
+                getContent('home'),
+                getContent('settings')
+            ]);
+            
             if (data) {
                 setImages(data);
-                if (data.promoVideoUrl) setPromoVideoUrl(data.promoVideoUrl);
-                if (data['common.pool.gallery']) setPoolGallery(data['common.pool.gallery']);
-                if (data['common.garden.gallery']) setGardenGallery(data['common.garden.gallery']);
-                if (data['home.guests.gallery']) setGuestGallery(data['home.guests.gallery']);
+            }
+            if (settingsData) {
+                const newSettings: any = {};
+                ['home', 'gastronomia', 'lugares', 'eventos', 'apartamentos'].forEach(sec => {
+                    newSettings[`header_${sec}_bg`] = settingsData[`header_${sec}_bg`] || '';
+                    newSettings[`header_${sec}_blur`] = settingsData[`header_${sec}_blur`] || '';
+                });
+
+                if (!newSettings['header_home_bg'] && settingsData.headerBgUrl) {
+                    newSettings['header_home_bg'] = settingsData.headerBgUrl;
+                    newSettings['header_home_blur'] = settingsData.headerBgBlurredUrl;
+                }
+                setHeaderSettings(newSettings);
             }
         } catch (error) {
             console.error('Error loading home data:', error);
@@ -86,67 +131,7 @@ const AdminHome: React.FC = () => {
         }
     };
 
-    const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'pool' | 'garden' | 'guest') => {
-        if (e.target.files && e.target.files.length > 0) {
-            setGalleryUploading(type);
-            setUploadStatus('SUBIENDO IMÁGENES...');
-            
-            try {
-                const files = Array.from(e.target.files);
-                const uploadPromises = files.map(file => uploadImage(file));
-                const uploadedUrls = await Promise.all(uploadPromises);
-
-                const currentGallery = type === 'pool' ? poolGallery : type === 'garden' ? gardenGallery : guestGallery;
-                const newGallery = [...currentGallery, ...uploadedUrls].filter((x: string) => x);
-
-                if (type === 'pool') {
-                    setPoolGallery(newGallery);
-                    await updateContent('home', 'common.pool.gallery', newGallery);
-                } else if (type === 'garden') {
-                    setGardenGallery(newGallery);
-                    await updateContent('home', 'common.garden.gallery', newGallery);
-                } else {
-                    setGuestGallery(newGallery);
-                    await updateContent('home', 'home.guests.gallery', newGallery);
-                }
-
-                setToast({ message: 'Imágenes añadidas a la galería.', type: 'success' });
-                window.dispatchEvent(new Event('GLAK_CONTENT_UPDATE'));
-            } catch (error) {
-                console.error(error);
-                setToast({ message: 'Error al subir imágenes', type: 'error' });
-            } finally {
-                setGalleryUploading(null);
-                setUploadStatus('');
-            }
-        }
-    };
-
-    const handleGalleryDelete = async (index: number, type: 'pool' | 'garden' | 'guest') => {
-        if (window.confirm('¿Eliminar esta imagen de la galería?')) {
-            try {
-                const currentGallery = type === 'pool' ? poolGallery : type === 'garden' ? gardenGallery : guestGallery;
-                const newGallery = currentGallery.filter((_, i) => i !== index);
-
-                if (type === 'pool') {
-                    setPoolGallery(newGallery);
-                    await updateContent('home', 'common.pool.gallery', newGallery);
-                } else if (type === 'garden') {
-                    setGardenGallery(newGallery);
-                    await updateContent('home', 'common.garden.gallery', newGallery);
-                } else {
-                    setGuestGallery(newGallery);
-                    await updateContent('home', 'home.guests.gallery', newGallery);
-                }
-
-                setToast({ message: 'Imagen eliminada.', type: 'success' });
-                window.dispatchEvent(new Event('GLAK_CONTENT_UPDATE'));
-            } catch (error) {
-                console.error(error);
-                setToast({ message: 'Error al eliminar imagen', type: 'error' });
-            }
-        }
-    };
+    // Galleries removed to AdminCommonSpaces.tsx
 
     return (
         <div className="bg-white p-4 md:p-8 rounded-sm shadow-sm border border-gray-100 max-w-5xl">
@@ -164,42 +149,7 @@ const AdminHome: React.FC = () => {
                 <p className="text-gray-400 text-xs mt-2">Gestiona las imágenes del carrusel principal y el video promocional de la experiencia.</p>
             </div>
 
-            <div className="mb-10 bg-gray-50 border border-gray-100 p-6 rounded-xl">
-                <div className="flex justify-between items-center mb-4">
-                    <label className="text-xs font-bold text-gray-500 tracking-widest">ENLACE VIDEO PROMOCIONAL (YOUTUBE / VIMEO)</label>
-                    <span className="bg-sage/10 text-sage text-[10px] px-2 py-1 rounded font-bold">OPCIONAL</span>
-                </div>
-                <div className="flex gap-4">
-                    <input
-                        type="url"
-                        value={promoVideoUrl}
-                        onChange={(e) => setPromoVideoUrl(e.target.value)}
-                        placeholder="Ej: https://www.youtube.com/watch?v=..."
-                        className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-forest text-gray-700"
-                    />
-                    <button
-                        onClick={async () => {
-                            await updateContent('home', 'promoVideoUrl', promoVideoUrl);
-                            setToast({ message: 'Video guardado', type: 'success' });
-                        }}
-                        className="bg-forest text-white px-6 py-2 rounded-lg text-xs font-bold tracking-widest hover:bg-forest/90 transition-colors"
-                    >
-                        GUARDAR ENLACE
-                    </button>
-                    <button
-                        onClick={async () => {
-                            setPromoVideoUrl('');
-                            await updateContent('home', 'promoVideoUrl', '');
-                            setToast({ message: 'Video ocultado', type: 'success' });
-                        }}
-                        className="bg-gray-200 text-gray-600 px-6 py-2 rounded-lg text-xs font-bold tracking-widest hover:bg-gray-300 transition-colors"
-                        title="Borrar y Ocultar Video"
-                    >
-                        X
-                    </button>
-                </div>
-                <p className="text-[10px] text-gray-400 mt-2">Al dejar en blanco, el botón "Ver Video" se oculta en la web. Pegar enlace público. Se incrustará en la landing page usando un reproductor liviano.</p>
-            </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {SLIDES_INFO.map((slide) => {
@@ -266,119 +216,68 @@ const AdminHome: React.FC = () => {
                 })}
             </div>
 
-            {/* --- EXTRAS: Common Spaces Galleries --- */}
-            <div className="mt-16 mb-8 border-t border-gray-100 pt-16">
-                <h3 className="font-ui tracking-widest text-sm text-sage mb-2">SECCIÓN: ESPACIOS PARA COMPARTIR</h3>
-                <h2 className="text-2xl font-script text-forest">Galerías de Fotos</h2>
-                <p className="text-gray-400 text-xs mt-2">Sube múltiples imágenes para crear un carrusel deslizable en cada tarjeta (Piscina / Parque).</p>
+            <div className="mt-12 mb-8 border-t border-gray-100 pt-8">
+                <h2 className="text-xl md:text-2xl font-script text-forest">Fondos de Cabecera</h2>
+                <p className="text-gray-400 text-xs mt-2 leading-relaxed">Gestiona las imágenes de cabecera de cada sección del sitio.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                {/* Pool Gallery */}
-                <div className="bg-gray-50 border border-gray-100 p-6 rounded-xl">
-                    <div className="flex justify-between items-center mb-6">
-                        <label className="text-xs font-bold text-gray-500 tracking-widest uppercase">Piscina y Solarium</label>
-                        <label className={`bg-[#10595a] text-white px-4 py-2 rounded-lg text-xs font-bold tracking-widest hover:bg-forest transition-colors cursor-pointer ${galleryUploading === 'pool' ? 'opacity-50 pointer-events-none' : ''}`}>
-                            {galleryUploading === 'pool' ? 'SUBIENDO...' : 'AÑADIR FOTOS'}
-                            <input
-                                type="file"
-                                multiple
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => handleGalleryUpload(e, 'pool')}
-                                disabled={galleryUploading !== null}
-                            />
-                        </label>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-3">
-                        {poolGallery.map((url, index) => (
-                            <div key={index} className="relative group aspect-square rounded overflow-hidden">
-                                <img width={800} height={600} src={url} alt={`Pool ${index}`} className="w-full h-full object-cover" />
-                                <button
-                                    onClick={() => handleGalleryDelete(index, 'pool')}
-                                    className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-bold text-xs"
-                                >
-                                    Eliminar
-                                </button>
-                            </div>
-                        ))}
-                        {poolGallery.length === 0 && (
-                            <div className="col-span-3 text-center py-8 text-xs text-gray-400">Sin imágenes extra. Actualmente usa la de Editable.</div>
-                        )}
-                    </div>
+            <div className="bg-gray-50 border border-gray-100 rounded-xl overflow-hidden shadow-sm">
+                <div className="flex overflow-x-auto hide-scrollbar border-b border-gray-200 bg-white snap-x">
+                    {[
+                        { id: 'home', label: 'INICIO' },
+                        { id: 'gastronomia', label: 'GASTRONOMÍA' },
+                        { id: 'lugares', label: 'LUGARES' },
+                        { id: 'eventos', label: 'EVENTOS' },
+                        { id: 'apartamentos', label: 'APARTAMENTOS' }
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveSection(tab.id as any)}
+                            className={`px-4 py-3 md:px-5 md:py-4 text-[10px] md:text-xs font-bold tracking-widest whitespace-nowrap transition-colors border-b-2 snap-start shrink-0 ${activeSection === tab.id
+                                ? 'border-forest text-forest bg-forest/5'
+                                : 'border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                                }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
                 </div>
 
-                {/* Garden Gallery */}
-                <div className="bg-gray-50 border border-gray-100 p-6 rounded-xl">
-                    <div className="flex justify-between items-center mb-6">
-                        <label className="text-xs font-bold text-gray-500 tracking-widest uppercase">Parque y Asadores</label>
-                        <label className={`bg-[#10595a] text-white px-4 py-2 rounded-lg text-xs font-bold tracking-widest hover:bg-forest transition-colors cursor-pointer ${galleryUploading === 'garden' ? 'opacity-50 pointer-events-none' : ''}`}>
-                            {galleryUploading === 'garden' ? 'SUBIENDO...' : 'AÑADIR FOTOS'}
-                            <input
-                                type="file"
-                                multiple
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => handleGalleryUpload(e, 'garden')}
-                                disabled={galleryUploading !== null}
-                            />
-                        </label>
-                    </div>
+                <div className="p-4 md:p-6">
+                    <label className="cursor-pointer inline-flex items-center justify-center w-full md:w-auto gap-2 bg-white border border-gray-200 px-6 py-3 rounded-lg text-xs font-bold text-forest hover:bg-gray-50 transition-colors mb-6 shadow-sm">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        SUBIR NUEVA IMAGEN
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleHeaderUpload(e, activeSection)}
+                            className="hidden"
+                            disabled={loading !== null}
+                        />
+                    </label>
 
-                    <div className="grid grid-cols-3 gap-3">
-                        {gardenGallery.map((url, index) => (
-                            <div key={index} className="relative group aspect-square rounded overflow-hidden">
-                                <img width={800} height={600} src={url} alt={`Garden ${index}`} className="w-full h-full object-cover" />
-                                <button
-                                    onClick={() => handleGalleryDelete(index, 'garden')}
-                                    className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-bold text-xs"
-                                >
-                                    Eliminar
-                                </button>
-                            </div>
-                        ))}
-                        {gardenGallery.length === 0 && (
-                            <div className="col-span-3 text-center py-8 text-xs text-gray-400">Sin imágenes extra. Actualmente usa la de Editable.</div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Guest Gallery */}
-                <div className="bg-gray-50 border border-gray-100 p-6 rounded-xl md:col-span-2">
-                    <div className="flex justify-between items-center mb-6">
-                        <label className="text-xs font-bold text-gray-500 tracking-widest uppercase">Galería de Huéspedes</label>
-                        <label className={`bg-[#10595a] text-white px-4 py-2 rounded-lg text-xs font-bold tracking-widest hover:bg-forest transition-colors cursor-pointer ${galleryUploading === 'guest' ? 'opacity-50 pointer-events-none' : ''}`}>
-                            {galleryUploading === 'guest' ? 'SUBIENDO...' : 'AÑADIR FOTOS'}
-                            <input
-                                type="file"
-                                multiple
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => handleGalleryUpload(e, 'guest')}
-                                disabled={galleryUploading !== null}
-                            />
-                        </label>
-                    </div>
-
-                    <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-                        {guestGallery.map((url, index) => (
-                            <div key={index} className="relative group aspect-square rounded overflow-hidden">
-                                <img width={800} height={600} src={url} alt={`Guest ${index}`} className="w-full h-full object-cover" />
-                                <button
-                                    onClick={() => handleGalleryDelete(index, 'guest')}
-                                    className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-bold text-xs"
-                                >
-                                    Eliminar
-                                </button>
-                            </div>
-                        ))}
-                        {guestGallery.length === 0 && (
-                            <div className="col-span-3 md:col-span-6 text-center py-8 text-xs text-gray-400">Sin imágenes. Se mostrará placeholder o nada.</div>
-                        )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2 px-1">Original</span>
+                            {headerSettings[`header_${activeSection}_bg`] ? (
+                                <img src={headerSettings[`header_${activeSection}_bg`]} alt="Original" className="w-full h-32 md:h-40 object-cover rounded-lg shadow-sm" />
+                            ) : (
+                                <div className="w-full h-32 md:h-40 bg-gray-100 rounded-lg flex items-center justify-center text-[10px] font-bold tracking-widest uppercase text-gray-400">Sin imagen</div>
+                            )}
+                        </div>
+                        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2 px-1">Desenfocada (Blur)</span>
+                            {headerSettings[`header_${activeSection}_blur`] ? (
+                                <img src={headerSettings[`header_${activeSection}_blur`]} alt="Blur" className="w-full h-32 md:h-40 object-cover rounded-lg shadow-sm" />
+                            ) : (
+                                <div className="w-full h-32 md:h-40 bg-gray-100 rounded-lg flex items-center justify-center text-[10px] font-bold tracking-widest uppercase text-gray-400">Sin imagen</div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* Extra spaces moved to AdminCommonSpaces */}
 
         </div>
     );

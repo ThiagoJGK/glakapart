@@ -188,7 +188,7 @@ const GuestGallery: React.FC = () => {
             setActiveIndex((prev) => (prev + 1) % activeGuests.length);
         }, 4000);
         return () => clearInterval(timer);
-    }, []);
+    }, [loaded, activeGuests.length]);
 
     const cards = useMemo(() => {
         const total = activeGuests.length;

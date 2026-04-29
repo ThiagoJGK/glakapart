@@ -9,7 +9,6 @@ import { apartmentData, ApartmentKey } from '@/data/apartments';
 const AdminApartments: React.FC = () => {
     const [selectedApt, setSelectedApt] = useState<ApartmentKey>('nacarado');
     const [gallery, setGallery] = useState<string[]>([]);
-    const [tourUrl, setTourUrl] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -25,11 +24,6 @@ const AdminApartments: React.FC = () => {
                 setGallery(data.gallery);
             } else {
                 setGallery(apartmentData[selectedApt].images.filter((x: string) => x)); // Fallback
-            }
-            if (data?.tour360Url) {
-                setTourUrl(data.tour360Url);
-            } else {
-                setTourUrl('');
             }
         } catch (error) {
             console.error('Error loading gallery:', error);
@@ -125,14 +119,14 @@ const AdminApartments: React.FC = () => {
             </div>
 
             {/* Apartment Selector */}
-            <div className="flex gap-2 overflow-x-auto pb-6 mb-6 border-b border-gray-100">
+            <div className="flex flex-wrap gap-2 pb-6 mb-6 border-b border-gray-100">
                 {Object.keys(apartmentData).map((key) => (
                     <button
                         key={key}
                         onClick={() => setSelectedApt(key as ApartmentKey)}
-                        className={`px-6 py-3 rounded-lg text-xs font-bold tracking-widest whitespace-nowrap transition-colors ${selectedApt === key
+                        className={`flex-1 min-w-[120px] px-4 py-3 rounded-lg text-[10px] sm:text-xs font-bold tracking-widest transition-colors shadow-sm ${selectedApt === key
                             ? 'bg-[#10595a] text-white'
-                            : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                            : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
                             }`}
                     >
                         {apartmentData[key as ApartmentKey].name.toUpperCase()}
@@ -141,45 +135,6 @@ const AdminApartments: React.FC = () => {
             </div>
 
             <div className={`transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                {/* Tour 360 Setup */}
-                <div className="mb-10 bg-gray-50 border border-gray-100 p-6 rounded-xl">
-                    <div className="flex justify-between items-center mb-4">
-                        <label className="text-xs font-bold text-gray-500 tracking-widest">TOUR VIRTUAL 360º (YOUTUBE/KUULA/MATTERPORT)</label>
-                        <span className="bg-sage/10 text-sage text-[10px] px-2 py-1 rounded font-bold">OPCIONAL</span>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <input
-                            type="url"
-                            value={tourUrl}
-                            onChange={(e) => setTourUrl(e.target.value)}
-                            placeholder="Ej: https://kuula.co/share/..."
-                            className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#10595a] text-gray-700"
-                        />
-                        <button
-                            onClick={async () => {
-                                await updateContent(`apartment_${selectedApt}`, 'tour360Url', tourUrl);
-                                setToast({ message: 'Tour guardado', type: 'success' });
-                            }}
-                            className="bg-[#10595a] text-white px-8 py-3 rounded-lg text-xs font-bold tracking-widest hover:bg-[#0c4445] transition-colors whitespace-nowrap shadow-sm"
-                        >
-                            GUARDAR URL
-                        </button>
-                        <button
-                            onClick={async () => {
-                                setTourUrl('');
-                                await updateContent(`apartment_${selectedApt}`, 'tour360Url', '');
-                                setToast({ message: 'Tour ocultado', type: 'success' });
-                            }}
-                            className="bg-gray-200 text-gray-600 px-6 py-3 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-colors shadow-sm"
-                            title="Borrar y Ocultar Tour"
-                        >
-                            <X size={20} />
-                        </button>
-                    </div>
-                    <p className="text-[10px] text-gray-400 mt-3">
-                        Pegar la URL pública del visor. Si lo dejas en blanco, el botón no aparecerá en la web del departamento.
-                    </p>
-                </div>
 
                 {/* Info Text */}
                 <p className="text-xs text-sage mb-6 font-bold flex items-center gap-2">
@@ -220,34 +175,32 @@ const AdminApartments: React.FC = () => {
                             </div>
 
                             {/* Hover Actions */}
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
-                                {index !== 0 && (
-                                    <button
-                                        onClick={() => moveUp(index)}
-                                        className="bg-white text-forest p-1.5 rounded-full hover:bg-forest hover:text-white transition-colors shadow-sm"
-                                        title="Mover arriba"
-                                    >
-                                        <ChevronUp size={20} />
-                                    </button>
-                                )}
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
+                                <button
+                                    onClick={() => moveUp(index)}
+                                    disabled={index === 0}
+                                    className={`p-2 rounded-full shadow-sm transition-colors ${index === 0 ? 'bg-white/20 text-white/50 cursor-not-allowed' : 'bg-white text-forest hover:bg-forest hover:text-white'}`}
+                                    title="Mover foto a la izquierda"
+                                >
+                                    <ChevronUp size={18} className="-rotate-90" />
+                                </button>
 
                                 <button
                                     onClick={() => removeImage(index)}
-                                    className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                                    className="bg-red-500 text-white p-2.5 rounded-full hover:bg-red-600 transition-colors shadow-lg"
                                     title="Eliminar foto"
                                 >
                                     <Trash2 size={20} />
                                 </button>
 
-                                {index !== gallery.length - 1 && (
-                                    <button
-                                        onClick={() => moveDown(index)}
-                                        className="bg-white text-forest p-1.5 rounded-full hover:bg-forest hover:text-white transition-colors shadow-sm"
-                                        title="Mover abajo"
-                                    >
-                                        <ChevronDown size={20} />
-                                    </button>
-                                )}
+                                <button
+                                    onClick={() => moveDown(index)}
+                                    disabled={index === gallery.length - 1}
+                                    className={`p-2 rounded-full shadow-sm transition-colors ${index === gallery.length - 1 ? 'bg-white/20 text-white/50 cursor-not-allowed' : 'bg-white text-forest hover:bg-forest hover:text-white'}`}
+                                    title="Mover foto a la derecha"
+                                >
+                                    <ChevronDown size={18} className="-rotate-90" />
+                                </button>
                             </div>
                         </div>
                     ))}
