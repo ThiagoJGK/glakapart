@@ -103,23 +103,23 @@ const Hero: React.FC = () => {
     // --- RENDER HELPERS ---
 
     const renderBadges = (isMobile = false) => (
-        <div className={`bg-[#90c69e] shadow-2xl rounded-3xl transform transition-transform hover:scale-[1.02] flex flex-col items-center justify-center overflow-hidden ${isMobile ? 'px-8 py-5 mx-auto' : 'px-6 py-4 md:px-12 md:py-6'}`}>
+        <div className={`transform transition-transform hover:scale-[1.02] flex flex-col items-center justify-center ${isMobile ? 'px-8 py-2 mx-auto' : 'px-2 py-4'}`}>
             <Editable
                 id={`hero.slide${currentSlide}.badgeTitle1`}
                 defaultValue={slides[currentSlide].badge1}
-                className={`font-ui text-black font-light tracking-widest block text-center ${isMobile ? 'text-lg' : 'text-lg md:text-3xl lg:text-4xl'}`}
+                className={`font-ui text-white/95 font-light tracking-widest block text-center ${isMobile ? 'text-xs md:text-sm' : 'text-sm md:text-xl lg:text-2xl'}`}
                 label="Título 1"
             />
             <Editable
                 id={`hero.slide${currentSlide}.badgeTitle2`}
                 defaultValue={slides[currentSlide].badge2}
-                className={`font-script text-black block text-center ${isMobile ? 'text-5xl leading-tight pt-1' : 'text-4xl md:text-7xl lg:text-9xl leading-tight md:my-1'}`}
+                className={`font-script text-[#E6C687] block text-center ${isMobile ? 'text-4xl md:text-5xl leading-none pt-1 pb-1' : 'text-5xl md:text-7xl lg:text-8xl leading-none md:my-1'}`}
                 label="Título Script"
             />
             <Editable
                 id={`hero.slide${currentSlide}.badgeTitle3`}
                 defaultValue={slides[currentSlide].badge3}
-                className={`font-ui text-black font-light tracking-[0.2em] block text-center ${isMobile ? 'text-sm' : 'text-xs md:text-2xl lg:text-3xl'}`}
+                className={`font-ui text-white/85 font-light tracking-[0.25em] block text-center ${isMobile ? 'text-[10px] md:text-xs' : 'text-xs md:text-sm lg:text-base'}`}
                 label="Título 3"
             />
         </div>
@@ -130,11 +130,11 @@ const Hero: React.FC = () => {
             <Editable
                 id={`hero.slide${currentSlide}.mainTitle`}
                 defaultValue={slides[currentSlide].mainTitle}
-                className={`font-script text-forest block leading-none ${isMobile ? 'text-6xl md:text-7xl mt-4 pb-2' : 'text-3xl md:text-4xl'} `}
+                className={`font-script text-forest block leading-none ${isMobile ? 'text-5xl md:text-6xl mt-4 pb-2' : 'text-5xl md:text-6xl'} `}
                 label="Título Principal"
             />
 
-            <div className={isMobile ? 'max-w-xs mx-auto' : 'max-w-sm'}>
+            <div className={isMobile ? 'max-w-xs mx-auto' : 'max-w-md'}>
                 <Editable
                     id={`hero.slide${currentSlide}.description`}
                     type="textarea"
@@ -171,74 +171,106 @@ const Hero: React.FC = () => {
             {/* SEO: Hidden H1 for crawlers */}
             <h1 className="sr-only">Glak Apart — Apartamentos turísticos en Urdinarrain, Entre Ríos</h1>
 
-            {/* --- MOBILE LAYOUT (VERTICAL FLOW) --- */}
-            {/* Added pt-44 (was pt-36) to push content below logo as requested */}
-            <div className="lg:hidden relative z-10 min-h-screen flex flex-col pt-44">
-                {/* 1. Badges Section (Upper-Mid) */}
-                <div className="relative z-20 w-full flex justify-center pb-8">
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={currentSlide}
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            className="text-center"
-                        >
-                            {renderBadges(true)}
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
-
-                {/* 2. White Card Container (Slides Up) */}
-                <div className="flex-1 w-[90%] mx-auto bg-[#f4f1ea] rounded-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.2)] relative z-30 mt-auto overflow-hidden">
-                    <AnimatePresence mode="wait">
+            {/* --- MOBILE LAYOUT (VERTICAL FLOW WITH IMAGE BACKGROUND CARD) --- */}
+            <div className="lg:hidden relative z-10 min-h-[85vh] flex flex-col pt-32">
+                <div className="relative z-10 w-[92%] mx-auto min-h-[75vh] flex flex-col rounded-[2.5rem] overflow-hidden border-[8px] border-white shadow-2xl bg-black/10 relative">
+                    {/* Background Image Slider */}
+                    <AnimatePresence initial={false} mode="popLayout">
                         <motion.div
                             key={currentSlide}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="flex flex-col h-full"
+                            className="absolute inset-0 w-full h-full"
                         >
-                            {/* Image Part of Card */}
-                            {/* Changed aspect-video to a fixed taller height to prevent cutting off */}
-                            <div className="w-full h-[40vh] min-h-[300px] max-h-[380px] relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gray-200 animate-pulse"></div> {/* Placeholder */}
-                                <Editable
-                                    id={`home.heroImage.${currentSlide}`}
-                                    type="image"
-                                    defaultValue={slides[currentSlide].image}
-                                    className="w-full h-full object-cover"
-                                    label="Imagen Principal"
-                                    withBlur={true}
-                                />
-                                {/* Gradient to blend image into text part - Modified to use fully opaque base color to avoid beige tone mismatches */}
-                                <div className="absolute bottom-0 left-0 w-full h-12 bg-[#f4f1ea]"></div>
-                                {/* Smoother step above it */}
-                                <div className="absolute bottom-12 left-0 w-full h-24 bg-gradient-to-t from-[#f4f1ea] to-transparent"></div>
-                            </div>
-
-                            {/* Content Part of Card */}
-                            <div className="relative pt-0">
-                                {renderTextContent(true)}
-                            </div>
+                            <Editable
+                                id={`home.heroImage.${currentSlide}`}
+                                type="image"
+                                defaultValue={slides[currentSlide].image}
+                                className="w-full h-full object-cover"
+                                label="Imagen Principal"
+                                withBlur={true}
+                            />
                         </motion.div>
                     </AnimatePresence>
-                </div>
 
-                {/* Review Badge - Mobile */}
-                <div className="relative w-[90%] mx-auto -mt-2 flex justify-end pr-4 z-[100]">
-                    {renderReviewBadge(true)}
+                    {/* Vertical bottom-up gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-10"></div>
+
+                    {/* Content Overlayed on Gradient */}
+                    <div className="relative z-20 flex flex-col justify-end flex-1 p-6 pb-8 text-center mt-auto">
+                        {/* The text badge container sits cleanly at the bottom-center over the gradient */}
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentSlide}
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ duration: 0.5 }}
+                                className="w-full mb-3"
+                            >
+                                {renderBadges(true)}
+                            </motion.div>
+                        </AnimatePresence>
+
+                        {/* Main Title & Description & CTA */}
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentSlide}
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ duration: 0.5 }}
+                                className="w-full space-y-4"
+                            >
+                                <Editable
+                                    id={`hero.slide${currentSlide}.mainTitle`}
+                                    defaultValue={slides[currentSlide].mainTitle}
+                                    className="font-script text-[#E6C687] block text-4xl md:text-5xl leading-none"
+                                    label="Título Principal"
+                                />
+                                
+                                <div className="max-w-xs mx-auto">
+                                    <Editable
+                                        id={`hero.slide${currentSlide}.description`}
+                                        type="textarea"
+                                        defaultValue={slides[currentSlide].description}
+                                        className="text-white/95 font-light leading-relaxed block text-sm"
+                                        label="Descripción"
+                                    />
+                                </div>
+
+                                <div className="pt-2 flex justify-center gap-3">
+                                    <button
+                                        onClick={scrollToApartments}
+                                        className="bg-[#10595a] text-white hover:bg-[#0a3839] rounded-full w-full max-w-[200px] text-xs py-3 px-8 transition-transform hover:-translate-y-0.5 font-ui tracking-widest uppercase shadow-md"
+                                    >
+                                        RESERVAR
+                                    </button>
+                                    {promoVideoUrl && (
+                                        <button
+                                            onClick={() => setShowVideo(true)}
+                                            className="bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-full w-full max-w-[200px] flex items-center justify-center gap-2 text-xs py-3 px-4 transition-transform hover:-translate-y-0.5 shadow-md"
+                                        >
+                                            <Play size={12} className="fill-current" />
+                                            VER EXPERIENCIA
+                                        </button>
+                                    )}
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
                 </div>
             </div>
 
 
-            {/* --- DESKTOP LAYOUT (PRESERVED) --- */}
+            {/* --- DESKTOP LAYOUT --- */}
             <div className="hidden lg:block container mx-auto px-6 md:px-10 pt-32 md:pt-48 relative z-10">
-                <div className="flex flex-col lg:flex-row items-start gap-12">
+                <div className="flex flex-col lg:flex-row items-center gap-12">
 
                     {/* Left Side: Brand Identity */}
-                    <div className="w-full lg:w-2/5 mt-12 md:mt-32 relative z-30 min-h-[400px]">
+                    <div className="w-full lg:w-2/5 mt-12 md:mt-20 relative z-30 min-h-[400px]">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentSlide}
@@ -248,13 +280,10 @@ const Hero: React.FC = () => {
                                 transition={{ duration: 0.8, ease: "easeInOut" }}
                                 className="absolute inset-0"
                             >
-                                {/* Brand Titles */}
-                                <div className="mb-10 relative z-50 flex flex-col items-start space-y-4 lg:mr-[-100px]">
-                                    {renderBadges(false)}
-                                </div>
-
                                 {/* Description */}
-                                {renderTextContent(false)}
+                                <div className="mt-8">
+                                    {renderTextContent(false)}
+                                </div>
                             </motion.div>
                         </AnimatePresence>
                     </div>
@@ -283,6 +312,14 @@ const Hero: React.FC = () => {
                                             label="Imagen Principal"
                                             withBlur={true}
                                         />
+
+                                        {/* Subtle, elegant left-to-right gradient overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-transparent pointer-events-none z-10"></div>
+
+                                        {/* Badge container floats overlayed on the left side of the hero image frame */}
+                                        <div className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 z-20 max-w-[80%] md:max-w-[70%]">
+                                            {renderBadges(false)}
+                                        </div>
                                     </motion.div>
                                 </AnimatePresence>
                                 <div className="absolute inset-0 bg-white/50 rounded-[3rem] transform translate-x-4 translate-y-4 -z-10 rotate-2"></div>
