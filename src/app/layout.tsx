@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Jost, Montserrat, Qwitcher_Grypen } from 'next/font/google';
+import { Jost, Montserrat, Great_Vibes } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import Script from 'next/script';
@@ -18,10 +18,10 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
 });
 
-const qwitcher = Qwitcher_Grypen({
+const greatVibes = Great_Vibes({
   subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-qwitcher',
+  weight: ['400'],
+  variable: '--font-great-vibes',
 });
 
 export const metadata: Metadata = {
@@ -72,7 +72,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://feeds.behold.so" />
         <link rel="dns-prefetch" href="https://feeds.behold.so" />
       </head>
-      <body className={`${jost.variable} ${montserrat.variable} ${qwitcher.variable}`}>
+      <body className={`${jost.variable} ${montserrat.variable} ${greatVibes.variable}`}>
         <Providers>
           {children}
           <ChatWidget />
