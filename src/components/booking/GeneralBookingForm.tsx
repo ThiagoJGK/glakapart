@@ -10,6 +10,11 @@ import { trackEvent } from '@/services/analytics';
 import { getBookedDates } from '@/services/availability';
 
 const GeneralBookingForm: React.FC = () => {
+    const todayForModifiers = React.useMemo(() => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }, []);
     const [range, setRange] = useState<DateRange | undefined>();
     const [adults, setAdults] = useState(2);
     const [children, setChildren] = useState(0);
@@ -40,7 +45,7 @@ const GeneralBookingForm: React.FC = () => {
     
 *Fechas*: Del ${checkIn} al ${checkOut}
 *Huéspedes*: ${adults} Adultos, ${children} Niños
-*Consulta*: ${message || 'Quisiera saber disponibilidad y precios.'}
+*Consulta*: ${message || 'Quisiera consultar sobre una reserva y precios.'}
 
 Espero su respuesta, gracias!`;
 
@@ -183,6 +188,36 @@ Espero su respuesta, gracias!`;
             cursor: not-allowed !important;
         }
 
+        /* ---- PAST DAYS ---- */
+        .rdp-day.day-past,
+        .rdp-day[data-disabled].day-past {
+            text-decoration: none !important;
+            opacity: 0.35 !important;
+        }
+        .rdp-day.day-past button,
+        .rdp-day.day-past .rdp-day_button,
+        .rdp-day[data-disabled].day-past button,
+        .rdp-day[data-disabled].day-past .rdp-day_button {
+            text-decoration: none !important;
+            color: #a0a0a0 !important; /* Premium soft grey */
+        }
+
+        /* ---- BOOKED DAYS ---- */
+        .rdp-day.day-booked,
+        .rdp-day[data-disabled].day-booked {
+            background-color: #d4a373 !important; /* Elegant muted terracotta/sand */
+            border-radius: 50% !important;
+            opacity: 0.75 !important;
+            text-decoration: none !important;
+        }
+        .rdp-day.day-booked button,
+        .rdp-day.day-booked .rdp-day_button,
+        .rdp-day[data-disabled].day-booked button,
+        .rdp-day[data-disabled].day-booked .rdp-day_button {
+            color: #ffffff !important;
+            text-decoration: none !important;
+        }
+
         /* ---- TD WRAPPERS: half-bar behind start/end circles ---- */
         /* In v9 .rdp-day IS the <td>, so use .rdp-range_start on same element */
         .rdp-day[data-range-start]:not([data-range-end]) {
@@ -250,7 +285,7 @@ Espero su respuesta, gracias!`;
                 {/* Subtle Grain or Pattern can be added here if needed */}
                 <div className="text-center mb-4 md:mb-6">
                     <p className="text-[10px] uppercase tracking-[0.3em] font-light text-white/60 mb-1 md:mb-2">Selecciona tus fechas</p>
-                    <h3 className="font-script text-3xl md:text-5xl text-white">Disponibilidad</h3>
+                    <h3 className="font-script text-2xl md:text-4xl text-white">Reserva tu estadía</h3>
                 </div>
 
                 <div className="booking-calendar-wrapper w-full flex justify-center booking-calendar-dark scale-90 md:scale-95 origin-top">
@@ -269,6 +304,14 @@ Espero su respuesta, gracias!`;
                             { before: new Date() },
                             ...bookedDates
                         ]}
+                        modifiers={{
+                            booked: bookedDates,
+                            past: { before: todayForModifiers }
+                        }}
+                        modifiersClassNames={{
+                            booked: 'day-booked',
+                            past: 'day-past'
+                        }}
                     />
                 </div>
 
@@ -278,8 +321,8 @@ Espero su respuesta, gracias!`;
                         <span>Selección</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-white/20"></span>
-                        <span>Ocupado</span>
+                        <span className="w-2 h-2 rounded-full bg-[#d4a373]"></span>
+                        <span>Reservado</span>
                     </div>
                 </div>
             </div>
