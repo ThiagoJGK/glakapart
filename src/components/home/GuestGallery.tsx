@@ -149,7 +149,7 @@ function getCardTransform(idx: number, total: number, isMobile: boolean) {
     return {
         transform: `translateX(${x}px) translateZ(${z}px) rotateY(${angle}deg) scale(${scale})`,
         opacity,
-        zIndex: total - Math.round(absOffset),
+        zIndex: Math.round(total - absOffset),
     };
 }
 
