@@ -7,7 +7,12 @@ const Lugares: React.FC = () => {
     return (
         <main className="relative z-30 pt-64 md:pt-[480px] pb-32 animate-fade-in group/main overflow-x-clip">
             {/* SEO: Semantic H1 */}
-            <h1 className="sr-only">Lugares para visitar en Urdinarrain — Turismo, naturaleza y aventura | Glak Apart</h1>
+            <Editable
+                id="lugares.seo.h1"
+                defaultValue="Lugares para visitar en Urdinarrain — Turismo, naturaleza y aventura | Glak Apart"
+                className="sr-only"
+                label="SEO H1"
+            />
             {/* Fixed Editable Background */}
             <div className="fixed inset-0 -z-20 w-full h-full">
                 <Editable
@@ -46,9 +51,13 @@ const Lugares: React.FC = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                     <div className="absolute bottom-10 left-0 w-full text-center px-4">
-                        <p className="text-white/90 text-xl font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-                            "Urdinarrain combina la vida rural con experiencias auténticas. Donde el silbato del tren marcó el inicio de una historia de progreso e identidad."
-                        </p>
+                        <Editable
+                            id="lugares.hero.description"
+                            type="textarea"
+                            defaultValue='"Urdinarrain combina la vida rural con experiencias auténticas. Donde el silbato del tren marcó el inicio de una historia de progreso e identidad."'
+                            className="text-white/90 text-xl font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md block font-sans"
+                            label="Descripción Hero"
+                        />
                     </div>
                 </div>
 
@@ -59,7 +68,7 @@ const Lugares: React.FC = () => {
                             <span className="text-2xl group-hover:scale-110 transition-transform">
                                 {i === 0 ? '🌿' : i === 1 ? '🍷' : i === 2 ? '🚲' : i === 3 ? '🎉' : '🏛️'}
                             </span>
-                            {item}
+                            <Editable id={`lugares.nav.item.${i}`} defaultValue={item} className="inline font-bold" label={`Filtro ${item}`} />
                         </a>
                     ))}
                 </div>
@@ -111,28 +120,28 @@ const Lugares: React.FC = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="bg-white/10 p-5 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
                                         <div className="text-2xl mb-2">🏕️</div>
-                                        <h4 className="font-bold text-sm mb-1">CAMPING</h4>
-                                        <p className="text-xs text-white/70">Ideal para acampar bajo las estrellas.</p>
+                                        <Editable id="lugares.nature.feat1.title" defaultValue="CAMPING" className="font-bold text-sm mb-1 block" label="Camping Título" />
+                                        <Editable id="lugares.nature.feat1.desc" defaultValue="Ideal para acampar bajo las estrellas." className="text-xs text-white/70 block font-light" label="Camping Detalle" />
                                     </div>
                                     <div className="bg-white/10 p-5 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
                                         <div className="text-2xl mb-2">🎣</div>
-                                        <h4 className="font-bold text-sm mb-1">PESCA</h4>
-                                        <p className="text-xs text-white/70">Zonas habilitadas en el río.</p>
+                                        <Editable id="lugares.nature.feat2.title" defaultValue="PESCA" className="font-bold text-sm mb-1 block" label="Pesca Título" />
+                                        <Editable id="lugares.nature.feat2.desc" defaultValue="Zonas habilitadas en el río." className="text-xs text-white/70 block font-light" label="Pesca Detalle" />
                                     </div>
                                     <div className="bg-white/10 p-5 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
                                         <div className="text-2xl mb-2">🦅</div>
-                                        <h4 className="font-bold text-sm mb-1">ECOTURISMO</h4>
-                                        <p className="text-xs text-white/70">Senderismo en selva en galería.</p>
+                                        <Editable id="lugares.nature.feat3.title" defaultValue="ECOTURISMO" className="font-bold text-sm mb-1 block" label="Ecoturismo Título" />
+                                        <Editable id="lugares.nature.feat3.desc" defaultValue="Senderismo en selva en galería." className="text-xs text-white/70 block font-light" label="Ecoturismo Detalle" />
                                     </div>
                                     <div className="bg-white/10 p-5 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
                                         <div className="text-2xl mb-2">🌅</div>
-                                        <h4 className="font-bold text-sm mb-1">ATARDECERES</h4>
-                                        <p className="text-xs text-white/70">Momentos mágicos y únicos.</p>
+                                        <Editable id="lugares.nature.feat4.title" defaultValue="ATARDECERES" className="font-bold text-sm mb-1 block" label="Atardeceres Título" />
+                                        <Editable id="lugares.nature.feat4.desc" defaultValue="Momentos mágicos y únicos." className="text-xs text-white/70 block font-light" label="Atardeceres Detalle" />
                                     </div>
                                 </div>
                                 <div className="mt-8">
                                     <Link href="/lugares/arenas-blancas" className="inline-flex items-center gap-3 bg-white text-forest px-8 py-4 rounded-full font-bold tracking-widest uppercase text-xs hover:bg-sage hover:text-white transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                                        <span>Conocé más de Arenas Blancas</span>
+                                        <span><Editable id="lugares.nature.linkText" defaultValue="Conocé más de Arenas Blancas" className="inline" label="Texto Enlace" /></span>
                                         <span className="text-xl">→</span>
                                     </Link>
                                 </div>
@@ -163,7 +172,7 @@ const Lugares: React.FC = () => {
                                 label="Descripción Sabores"
                             />
                             <Link href="/gastronomia" className="inline-flex items-center gap-3 bg-forest text-white px-8 py-4 rounded-full font-bold tracking-widest uppercase text-xs hover:bg-sage transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                                <span>Ver Ruta Gastronómica</span>
+                                <span><Editable id="lugares.sabores.linkText" defaultValue="Ver Ruta Gastronómica" className="inline" label="Texto Enlace" /></span>
                                 <span className="text-xl">→</span>
                             </Link>
                         </div>
@@ -336,7 +345,7 @@ const Lugares: React.FC = () => {
                             </div>
                         </div>
                         <div className="text-center mt-10">
-                            <Link href="/eventos" className="text-[#e8d5b5] font-bold tracking-widest text-sm hover:text-white transition-colors border-b border-[#e8d5b5] pb-1">VER CALENDARIO COMPLETO</Link>
+                            <Link href="/eventos" className="text-[#e8d5b5] font-bold tracking-widest text-sm hover:text-white transition-colors border-b border-[#e8d5b5] pb-1"><Editable id="lugares.eventos.linkText" defaultValue="VER CALENDARIO COMPLETO" className="inline" label="Texto Enlace" /></Link>
                         </div>
                     </div>
                 </section>
@@ -484,9 +493,13 @@ const Lugares: React.FC = () => {
 
                 {/* Final Call to Action */}
                 <div className="text-center pb-20">
-                    <p className="font-script text-5xl md:text-6xl text-stone-500 max-w-4xl mx-auto italic mb-10 px-4 leading-normal">
-                        "Un modelo de desarrollo que armoniza el respeto por su patrimonio con una vocación productiva moderna."
-                    </p>
+                    <Editable
+                        id="lugares.history.quote"
+                        type="textarea"
+                        defaultValue='"Un modelo de desarrollo que armoniza el respeto por su patrimonio con una vocación productiva moderna."'
+                        className="font-script text-5xl md:text-6xl text-stone-500 max-w-4xl mx-auto italic mb-10 px-4 leading-normal block text-center"
+                        label="Cita Final"
+                    />
                 </div>
 
             </div>

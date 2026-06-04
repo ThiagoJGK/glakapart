@@ -165,8 +165,12 @@ const SectionExplore: React.FC = () => {
 
                                 <div className="relative p-8 flex flex-col items-center text-center h-full justify-center min-h-[220px]">
                                     <sec.icon className="w-12 h-12 text-white/95 mb-6 transition-transform duration-500" />
-                                    <h3 className="font-script text-3xl text-white mb-2">{sec.title}</h3>
-                                    <p className="text-white/80 text-sm font-light leading-relaxed max-w-[200px]">{sec.desc}</p>
+                                    <h3 className="font-script text-3xl text-white mb-2">
+                                        <Editable id={`home.explore.title${i + 1}`} defaultValue={sec.title} className="inline" label={`Título Item ${i + 1}`} />
+                                    </h3>
+                                    <p className="text-white/80 text-sm font-light leading-relaxed max-w-[200px]">
+                                        <Editable id={`home.explore.desc${i + 1}`} type="textarea" defaultValue={sec.desc} className="inline font-light" label={`Descripción Item ${i + 1}`} />
+                                    </p>
 
                                     {/* Arrow indicator */}
                                     <div className="mt-6 flex items-center gap-1 text-white/60 group-hover:text-white transition-all duration-300">

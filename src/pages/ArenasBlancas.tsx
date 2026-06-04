@@ -5,7 +5,12 @@ import Link from 'next/link';
 const ArenasBlancas: React.FC = () => {
     return (
         <main className="relative z-30 pt-52 md:pt-[480px] pb-32 animate-fade-in group/main overflow-x-clip">
-            <h1 className="sr-only">Balneario Arenas Blancas en Urdinarrain - Naturaleza y Playa</h1>
+            <Editable
+                id="arenasblancas.seo.h1"
+                defaultValue="Balneario Arenas Blancas en Urdinarrain - Playas, río y naturaleza"
+                className="sr-only"
+                label="SEO H1"
+            />
             
             <div className="fixed inset-0 -z-20 w-full h-full bg-[#f4f1ea]">
                 <Editable
@@ -20,7 +25,7 @@ const ArenasBlancas: React.FC = () => {
                 {/* Hero / Header */}
                 <div className="text-center mb-16 md:mb-24">
                     <Link href="/lugares" className="inline-flex items-center gap-2 text-forest/70 hover:text-forest font-bold text-sm tracking-widest uppercase mb-8 transition-colors">
-                        <span>←</span> Volver a Lugares
+                        <span>←</span> <Editable id="arenasblancas.backLink" defaultValue="Volver a Lugares" className="inline" label="Enlace Atrás" />
                     </Link>
                     <div className="relative inline-block mb-6">
                         <Editable
@@ -112,22 +117,22 @@ const ArenasBlancas: React.FC = () => {
                                 <div className="flex items-start gap-4">
                                     <span className="text-2xl mt-1">📍</span>
                                     <div>
-                                        <h4 className="font-bold mb-1">Ubicación</h4>
-                                        <p className="text-white/80 text-sm">A 20 km de Urdinarrain por camino de ripio.</p>
+                                        <Editable id="arenasblancas.services.item1" defaultValue="Ubicación" className="font-bold mb-1 block" label="Ubicación Título" />
+                                        <Editable id="arenasblancas.services.item2" defaultValue="A 20 km de Urdinarrain por camino de ripio." className="text-white/80 text-sm block font-light" label="Ubicación Detalle" />
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
                                     <span className="text-2xl mt-1">🗓️</span>
                                     <div>
-                                        <h4 className="font-bold mb-1">Temporada</h4>
-                                        <p className="text-white/80 text-sm">Abierto todo el año, ideal de Diciembre a Marzo.</p>
+                                        <Editable id="arenasblancas.services.item3" defaultValue="Temporada" className="font-bold mb-1 block" label="Temporada Título" />
+                                        <Editable id="arenasblancas.services.item4" defaultValue="Abierto todo el año, ideal de Diciembre a Marzo." className="text-white/80 text-sm block font-light" label="Temporada Detalle" />
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
                                     <span className="text-2xl mt-1">🚗</span>
                                     <div>
-                                        <h4 className="font-bold mb-1">Acceso</h4>
-                                        <p className="text-white/80 text-sm">Se abona una entrada accesible por vehículo/persona en temporada alta.</p>
+                                        <Editable id="arenasblancas.services.item5" defaultValue="Acceso" className="font-bold mb-1 block" label="Acceso Título" />
+                                        <Editable id="arenasblancas.services.item6" defaultValue="Se abona una entrada accesible por vehículo/persona en temporada alta." className="text-white/80 text-sm block font-light" label="Acceso Detalle" />
                                     </div>
                                 </div>
                             </div>
@@ -171,7 +176,7 @@ const ArenasBlancas: React.FC = () => {
                         label="Desc CTA"
                     />
                     <Link href="/" className="inline-block relative z-10 bg-forest text-white px-10 py-4 rounded-full font-bold tracking-widest uppercase text-sm hover:bg-sage transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                        Reservá tu Estadía
+                        <Editable id="arenasblancas.cta.btnText" defaultValue="Reservá tu Estadía" className="inline" label="Botón Reserva" />
                     </Link>
                 </div>
             </div>

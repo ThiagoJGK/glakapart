@@ -81,7 +81,7 @@ const CommonSpaces: React.FC = () => {
                         {/* Unique Badge for Desktop */}
                         <div className="hidden lg:flex absolute top-10 right-10 bg-gradient-to-r from-sage to-forest text-white text-xs font-ui font-bold px-6 py-3 rounded-full shadow-lg z-20 items-center gap-2 transform rotate-2 hover:rotate-0 transition-transform">
                             <Star size={14} className="fill-current" />
-                            ÚNICO ALOJAMIENTO CON PISCINA
+                            <Editable id="home.common.pool.badge" defaultValue="ÚNICO ALOJAMIENTO CON PISCINA" className="inline" label="Badge Piscina" />
                         </div>
 
                         {/* Image Gallery */}
@@ -125,7 +125,7 @@ const CommonSpaces: React.FC = () => {
                             {/* Mobile Unique Badge */}
                             <div className="absolute top-4 left-4 lg:hidden bg-gradient-to-r from-sage to-forest text-white text-[10px] font-ui font-bold px-4 py-2 rounded-full shadow-md z-20 flex items-center gap-1.5">
                                 <Star size={12} className="fill-current" />
-                                ÚNICO CON PISCINA
+                                <Editable id="home.common.pool.badge.mobile" defaultValue="ÚNICO CON PISCINA" className="inline" label="Badge Piscina Móvil" />
                             </div>
 
                             {poolGallery.length > 1 && (
@@ -162,7 +162,7 @@ const CommonSpaces: React.FC = () => {
                         {/* Content */}
                         <div className="p-8 lg:p-16 space-y-6 lg:w-[45%] flex flex-col justify-center bg-white z-10">
                             <div className="flex flex-col gap-4">
-                                <h3 className="font-ui text-xs font-bold text-sage tracking-[0.2em] uppercase">Exclusividad & Relax</h3>
+                                <Editable id="home.common.pool.subbadge" defaultValue="Exclusividad & Relax" className="font-ui text-xs font-bold text-sage tracking-[0.2em] uppercase block" label="Subtítulo Piscina" />
                                 <Editable id="home.common.pool.title" defaultValue="Nuestra Piscina" className="font-script text-6xl md:text-7xl text-forest block" label="Título Piscina" />
                             </div>
                             <Editable
@@ -256,7 +256,7 @@ const CommonSpaces: React.FC = () => {
                         {/* Content */}
                         <div className="p-8 lg:p-16 space-y-6 lg:w-[55%] flex flex-col justify-center bg-[#f9faf9] z-10">
                             <div className="flex flex-col gap-2">
-                                <h3 className="font-ui text-xs font-bold text-sage tracking-widest uppercase">Aire Libre</h3>
+                                <Editable id="home.common.garden.subbadge" defaultValue="Aire Libre" className="font-ui text-xs font-bold text-sage tracking-widest uppercase block" label="Subtítulo Parque" />
                                 <Editable id="home.common.garden.title" defaultValue="Parque y Asadores" className="font-script text-5xl md:text-6xl text-forest block" label="Título Parque" />
                             </div>
                             <Editable

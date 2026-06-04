@@ -6,7 +6,12 @@ const Gastronomia: React.FC = () => {
     return (
         <main className="relative z-30 pt-64 md:pt-[480px] pb-32 animate-fade-in group/main">
             {/* SEO: Semantic H1 */}
-            <h1 className="sr-only">Gastronomía en Urdinarrain — Ruta de sabores, Entre Ríos | Glak Apart</h1>
+            <Editable
+                id="gastronomia.seo.h1"
+                defaultValue="Gastronomía en Urdinarrain — Ruta de sabores, Entre Ríos | Glak Apart"
+                className="sr-only"
+                label="SEO H1"
+            />
             {/* Fixed Editable Background */}
             <div className="fixed inset-0 -z-20 w-full h-full">
                 <Editable
@@ -47,16 +52,25 @@ const Gastronomia: React.FC = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                     <div className="absolute bottom-10 left-0 w-full text-center px-4">
-                        <p className="text-white/90 text-lg font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md">
-                            "Una identidad culinaria forjada entre la pampa criolla y la herencia de los alemanes del Volga. Un modelo de 'kilómetro cero' donde la historia se saborea."
-                        </p>
+                        <Editable
+                            id="gastronomia.hero.description"
+                            type="textarea"
+                            defaultValue='"Una identidad culinaria forjada entre la pampa criolla y la herencia de los alemanes del Volga. Un modelo de &apos;kilómetro cero&apos; donde la historia se saborea."'
+                            className="text-white/90 text-lg font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md block font-sans"
+                            label="Descripción Hero"
+                        />
                     </div>
                 </div>
 
                 {/* HISTORICAL CONTEXT */}
                 <ScrollReveal>
                     <div className="max-w-4xl mx-auto text-center mb-32 space-y-8">
-                        <h3 className="text-5xl md:text-6xl font-script text-forest">Génesis Histórica</h3>
+                        <Editable
+                            id="gastronomia.history.title"
+                            defaultValue="Génesis Histórica"
+                            className="text-5xl md:text-6xl font-script text-forest block"
+                            label="Título Génesis Histórica"
+                        />
                         <div className="prose prose-lg mx-auto text-gray-600 leading-relaxed">
                             <Editable
                                 id="gastronomia.history"
@@ -100,15 +114,15 @@ const Gastronomia: React.FC = () => {
                                     <div className="flex gap-4 items-start">
                                         <span className="text-2xl mt-1">🪵</span>
                                         <div>
-                                            <h5 className="font-bold text-forest text-sm">HORNO A LEÑA</h5>
-                                            <p className="text-xs text-gray-600">Alimentado con espinillo o ñandubay para un aroma único.</p>
+                                            <Editable id="gastronomia.ceferino.feat1.title" defaultValue="HORNO A LEÑA" className="font-bold text-forest text-sm block" label="Ceferino Feat 1 Título" />
+                                            <Editable id="gastronomia.ceferino.feat1.desc" defaultValue="Alimentado con espinillo o ñandubay para un aroma unique." className="text-xs text-gray-600 block" label="Ceferino Feat 1 Desc" />
                                         </div>
                                     </div>
                                     <div className="flex gap-4 items-start">
                                         <span className="text-2xl mt-1">🍯</span>
                                         <div>
-                                            <h5 className="font-bold text-forest text-sm">ESPECIALIDADES</h5>
-                                            <p className="text-xs text-gray-600">Ochenta Golpes, Galletitas de Miel y Pan Dulce.</p>
+                                            <Editable id="gastronomia.ceferino.feat2.title" defaultValue="ESPECIALIDADES" className="font-bold text-forest text-sm block" label="Ceferino Feat 2 Título" />
+                                            <Editable id="gastronomia.ceferino.feat2.desc" defaultValue="Ochenta Golpes, Galletitas de Miel y Pan Dulce." className="text-xs text-gray-600 block" label="Ceferino Feat 2 Desc" />
                                         </div>
                                     </div>
                                 </div>
@@ -129,7 +143,12 @@ const Gastronomia: React.FC = () => {
                 {/* 2. LA PEQUEÑA & LOS BAYOS (Productores) */}
                 <section id="productores">
                     <div className="flex items-end gap-6 mb-12 border-b border-sage/20 pb-6 justify-end text-right">
-                        <h3 className="text-3xl md:text-5xl font-ui font-black text-forest relative z-10 break-words">PRODUCTORES PREMIADOS</h3>
+                        <Editable
+                            id="gastronomia.productores.title"
+                            defaultValue="PRODUCTORES PREMIADOS"
+                            className="text-3xl md:text-5xl font-ui font-black text-forest relative z-10 break-words block"
+                            label="Título Productores"
+                        />
                         {/* Number removed */}
                     </div>
 
@@ -208,9 +227,9 @@ const Gastronomia: React.FC = () => {
                                     label="Descripción Finca"
                                 />
                                 <div className="flex justify-end gap-3 flex-wrap">
-                                    <span className="px-4 py-2 bg-gray-50 rounded-lg text-xs font-bold text-forest border border-gray-100">MARSELAN</span>
-                                    <span className="px-4 py-2 bg-gray-50 rounded-lg text-xs font-bold text-forest border border-gray-100">CHARDONNAY</span>
-                                    <span className="px-4 py-2 bg-gray-50 rounded-lg text-xs font-bold text-forest border border-gray-100">ESPUMANTES</span>
+                                    <Editable id="gastronomia.finca.feat1" defaultValue="MARSELAN" className="px-4 py-2 bg-gray-50 rounded-lg text-xs font-bold text-forest border border-gray-100 block" label="Finca Item 1" />
+                                    <Editable id="gastronomia.finca.feat2" defaultValue="CHARDONNAY" className="px-4 py-2 bg-gray-50 rounded-lg text-xs font-bold text-forest border border-gray-100 block" label="Finca Item 2" />
+                                    <Editable id="gastronomia.finca.feat3" defaultValue="ESPUMANTES" className="px-4 py-2 bg-gray-50 rounded-lg text-xs font-bold text-forest border border-gray-100 block" label="Finca Item 3" />
                                 </div>
                             </div>
                         </div>
@@ -245,16 +264,16 @@ const Gastronomia: React.FC = () => {
                         <div className="grid md:grid-cols-3 gap-6 relative z-10">
 
                             <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
-                                <h4 className="font-bold text-[#e8d5b5] mb-2 font-ui tracking-widest text-sm">SNITSUP</h4>
-                                <p className="text-xs text-white/80 leading-5">Sopa dulce de orejones y crema. Tradición de Semana Santa.</p>
+                                <Editable id="gastronomia.snitsup.title" defaultValue="SNITSUP" className="font-bold text-[#e8d5b5] mb-2 font-ui tracking-widest text-sm block" label="Snitsup Título" />
+                                <Editable id="gastronomia.snitsup.desc" defaultValue="Sopa dulce de orejones y crema. Tradición de Semana Santa." className="text-xs text-white/80 leading-5 block font-light" label="Snitsup Descripción" />
                             </div>
                             <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
-                                <h4 className="font-bold text-[#e8d5b5] mb-2 font-ui tracking-widest text-sm">KREPPEL</h4>
-                                <p className="text-xs text-white/80 leading-5">La torta frita alemana, infaltable en las meriendas de campo.</p>
+                                <Editable id="gastronomia.kreppel.title" defaultValue="KREPPEL" className="font-bold text-[#e8d5b5] mb-2 font-ui tracking-widest text-sm block" label="Kreppel Título" />
+                                <Editable id="gastronomia.kreppel.desc" defaultValue="La torta frita alemana, infaltable en las meriendas de campo." className="text-xs text-white/80 leading-5 block font-light" label="Kreppel Descripción" />
                             </div>
                             <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
-                                <h4 className="font-bold text-[#e8d5b5] mb-2 font-ui tracking-widest text-sm">CHUCRUT</h4>
-                                <p className="text-xs text-white/80 leading-5">Col fermentada, acompañamiento ideal para carnes y embutidos de cerdo.</p>
+                                <Editable id="gastronomia.chucrut.title" defaultValue="CHUCRUT" className="font-bold text-[#e8d5b5] mb-2 font-ui tracking-widest text-sm block" label="Chucrut Título" />
+                                <Editable id="gastronomia.chucrut.desc" defaultValue="Col fermentada, acompañamiento ideal para carnes y embutidos de cerdo." className="text-xs text-white/80 leading-5 block font-light" label="Chucrut Descripción" />
                             </div>
                         </div>
                     </div>
@@ -281,42 +300,42 @@ const Gastronomia: React.FC = () => {
                         {/* Paradores & Restaurantes */}
                         <div className="space-y-8">
                             <h4 className="flex items-center gap-3 font-bold text-forest text-xl border-b border-gray-200 pb-2">
-                                <span>🍽️</span> Paradores y Bodegones
+                                <span>🍽️</span> <Editable id="gastronomia.paradores.title" defaultValue="Paradores y Bodegones" className="inline" label="Título Paradores" />
                             </h4>
                             <div className="space-y-6">
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-50 flex justify-between items-start gap-4">
-                                    <div>
-                                        <h5 className="font-bold text-forest">El Parador Centro</h5>
-                                        <p className="text-xs text-gray-400 font-bold tracking-widest mb-2">AV. LIBERTAD 555</p>
-                                        <p className="text-sm text-gray-600">Alta calificación (9.2/10). Platos abundantes y cocina regional auténtica.</p>
+                                    <div className="flex-1">
+                                        <Editable id="gastronomia.place1.name" defaultValue="El Parador Centro" className="font-bold text-forest block" label="Parador 1 Nombre" />
+                                        <Editable id="gastronomia.place1.address" defaultValue="AV. LIBERTAD 555" className="text-xs text-gray-400 font-bold tracking-widest mb-2 block" label="Parador 1 Dirección" />
+                                        <Editable id="gastronomia.place1.desc" defaultValue="Alta calificación (9.2/10). Platos abundantes y cocina regional auténtica." className="text-sm text-gray-600 block" label="Parador 1 Descripción" />
                                     </div>
-                                    <a href="tel:344615560343" className="text-sage text-xl opacity-50 hover:opacity-100">📞</a>
+                                    <a href="tel:344615560343" className="text-sage text-xl opacity-50 hover:opacity-100 shrink-0">📞</a>
                                 </div>
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-50 flex justify-between items-start gap-4">
-                                    <div>
-                                        <h5 className="font-bold text-forest">Oporto Birrería</h5>
-                                        <p className="text-xs text-gray-400 font-bold tracking-widest mb-2">PATRIARCA 413</p>
-                                        <p className="text-sm text-gray-600">Cerveza artesanal, tapeo contemporáneo y finger food. Ambiente joven.</p>
+                                    <div className="flex-1">
+                                        <Editable id="gastronomia.place2.name" defaultValue="Oporto Birrería" className="font-bold text-forest block" label="Parador 2 Nombre" />
+                                        <Editable id="gastronomia.place2.address" defaultValue="PATRIARCA 413" className="text-xs text-gray-400 font-bold tracking-widest mb-2 block" label="Parador 2 Dirección" />
+                                        <Editable id="gastronomia.place2.desc" defaultValue="Cerveza artesanal, tapeo contemporáneo y finger food. Ambiente joven." className="text-sm text-gray-600 block" label="Parador 2 Descripción" />
                                     </div>
-                                    <a href="tel:3446353971" className="text-sage text-xl opacity-50 hover:opacity-100">📞</a>
+                                    <a href="tel:3446353971" className="text-sage text-xl opacity-50 hover:opacity-100 shrink-0">📞</a>
                                 </div>
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-50 flex justify-between items-start gap-4">
-                                    <div>
-                                        <h5 className="font-bold text-forest">La Tapera</h5>
-                                        <p className="text-xs text-gray-400 font-bold tracking-widest mb-2">PERÓN Y 3 DE FEBRERO</p>
-                                        <p className="text-sm text-gray-600">Bodegón rústico con cocina casera.</p>
+                                    <div className="flex-1">
+                                        <Editable id="gastronomia.place3.name" defaultValue="La Tapera" className="font-bold text-forest block" label="Parador 3 Nombre" />
+                                        <Editable id="gastronomia.place3.address" defaultValue="PERÓN Y 3 DE FEBRERO" className="text-xs text-gray-400 font-bold tracking-widest mb-2 block" label="Parador 3 Dirección" />
+                                        <Editable id="gastronomia.place3.desc" defaultValue="Bodegón rústico con cocina casera." className="text-sm text-gray-600 block" label="Parador 3 Descripción" />
                                     </div>
-                                    <a href="tel:344615618663" className="text-sage text-xl opacity-50 hover:opacity-100">📞</a>
+                                    <a href="tel:344615618663" className="text-sage text-xl opacity-50 hover:opacity-100 shrink-0">📞</a>
                                 </div>
                                 {/* Condensed List */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="bg-gray-50 p-4 rounded-xl">
-                                        <h6 className="font-bold text-sm text-forest">El Quincho</h6>
-                                        <p className="text-[10px] text-gray-500">Parrilla Tradicional</p>
+                                        <Editable id="gastronomia.place4.name" defaultValue="El Quincho" className="font-bold text-sm text-forest block" label="Parador 4 Nombre" />
+                                        <Editable id="gastronomia.place4.type" defaultValue="Parrilla Tradicional" className="text-[10px] text-gray-500 block" label="Parador 4 Tipo" />
                                     </div>
                                     <div className="bg-gray-50 p-4 rounded-xl">
-                                        <h6 className="font-bold text-sm text-forest">Acuario Pub</h6>
-                                        <p className="text-[10px] text-gray-500">Resto-bar & Coctelería</p>
+                                        <Editable id="gastronomia.place5.name" defaultValue="Acuario Pub" className="font-bold text-sm text-forest block" label="Parador 5 Nombre" />
+                                        <Editable id="gastronomia.place5.type" defaultValue="Resto-bar & Coctelería" className="text-[10px] text-gray-500 block" label="Parador 5 Tipo" />
                                     </div>
                                 </div>
                             </div>
@@ -325,33 +344,33 @@ const Gastronomia: React.FC = () => {
                         {/* Pizzerias & Rotiserias */}
                         <div className="space-y-8">
                             <h4 className="flex items-center gap-3 font-bold text-forest text-xl border-b border-gray-200 pb-2">
-                                <span>🍕</span> Pizzerías y Al Paso
+                                <span>🍕</span> <Editable id="gastronomia.pizzerias.title" defaultValue="Pizzerías y Al Paso" className="inline" label="Título Pizzerías" />
                             </h4>
                             <div className="space-y-6">
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-50 flex justify-between items-start gap-4">
-                                    <div>
-                                        <h5 className="font-bold text-forest">Pizzería Piamonte</h5>
-                                        <p className="text-xs text-gray-400 font-bold tracking-widest mb-2">3 DE FEBRERO Y PERÓN</p>
-                                        <p className="text-sm text-gray-600">Pizzas artesanales a la piedra con quesos locales.</p>
+                                    <div className="flex-1">
+                                        <Editable id="gastronomia.pizza1.name" defaultValue="Pizzería Piamonte" className="font-bold text-forest block" label="Pizzería 1 Nombre" />
+                                        <Editable id="gastronomia.pizza1.address" defaultValue="3 DE FEBRERO Y PERÓN" className="text-xs text-gray-400 font-bold tracking-widest mb-2 block" label="Pizzería 1 Dirección" />
+                                        <Editable id="gastronomia.pizza1.desc" defaultValue="Pizzas artesanales a la piedra con quesos locales." className="text-sm text-gray-600 block" label="Pizzería 1 Descripción" />
                                     </div>
-                                    <a href="tel:3446204025" className="text-sage text-xl opacity-50 hover:opacity-100">📞</a>
+                                    <a href="tel:3446204025" className="text-sage text-xl opacity-50 hover:opacity-100 shrink-0">📞</a>
                                 </div>
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-50 flex justify-between items-start gap-4">
-                                    <div>
-                                        <h5 className="font-bold text-forest">La Farola</h5>
-                                        <p className="text-xs text-gray-400 font-bold tracking-widest mb-2">PATRIARCA 1431</p>
-                                        <p className="text-sm text-gray-600">Pizzas, empanadas y minutas de calidad.</p>
+                                    <div className="flex-1">
+                                        <Editable id="gastronomia.pizza2.name" defaultValue="La Farola" className="font-bold text-forest block" label="Pizzería 2 Nombre" />
+                                        <Editable id="gastronomia.pizza2.address" defaultValue="PATRIARCA 1431" className="text-xs text-gray-400 font-bold tracking-widest mb-2 block" label="Pizzería 2 Dirección" />
+                                        <Editable id="gastronomia.pizza2.desc" defaultValue="Pizzas, empanadas y minutas de calidad." className="text-sm text-gray-600 block" label="Pizzería 2 Descripción" />
                                     </div>
-                                    <a href="tel:3446582124" className="text-sage text-xl opacity-50 hover:opacity-100">📞</a>
+                                    <a href="tel:3446582124" className="text-sage text-xl opacity-50 hover:opacity-100 shrink-0">📞</a>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="bg-gray-50 p-4 rounded-xl">
-                                        <h6 className="font-bold text-sm text-forest">Rotisería Al Toque</h6>
-                                        <p className="text-[10px] text-gray-500">Comida casera para llevar</p>
+                                        <Editable id="gastronomia.pizza3.name" defaultValue="Rotisería Al Toque" className="font-bold text-sm text-forest block" label="Rotisería 3 Nombre" />
+                                        <Editable id="gastronomia.pizza3.type" defaultValue="Comida casera para llevar" className="text-[10px] text-gray-500 block" label="Rotisería 3 Tipo" />
                                     </div>
                                     <div className="bg-gray-50 p-4 rounded-xl">
-                                        <h6 className="font-bold text-sm text-forest">Morfi</h6>
-                                        <p className="text-[10px] text-gray-500">Comidas Rápidas</p>
+                                        <Editable id="gastronomia.pizza4.name" defaultValue="Morfi" className="font-bold text-sm text-forest block" label="Pizza 4 Nombre" />
+                                        <Editable id="gastronomia.pizza4.type" defaultValue="Comidas Rápidas" className="text-[10px] text-gray-500 block" label="Pizza 4 Tipo" />
                                     </div>
                                 </div>
                             </div>
@@ -359,10 +378,8 @@ const Gastronomia: React.FC = () => {
                             {/* Regional Products Highlight */}
                             <div className="mt-8 bg-[#e8d5b5]/30 p-8 rounded-3xl border border-[#e8d5b5] relative overflow-hidden">
                                 <div className="absolute right-0 top-0 text-6xl opacity-10">🍯</div>
-                                <h5 className="font-script text-5xl md:text-6xl text-forest mb-2">Para llevar a casa</h5>
-                                <p className="text-sm text-gray-700 mb-4">
-                                    No te vayas sin visitar <strong>"Oto Cuche"</strong> o las ferias de emprendedores. Salame ahumado, miel multifloral, escabeches de ciervo y licores artesanales son los souvenirs perfectos.
-                                </p>
+                                <Editable id="gastronomia.regional.title" defaultValue="Para llevar a casa" className="font-script text-5xl md:text-6xl text-forest mb-2 block" label="Título Regalos" />
+                                <Editable id="gastronomia.regional.desc" type="textarea" defaultValue="No te vayas sin visitar &lt;strong&gt;&quot;Oto Cuche&quot;&lt;/strong&gt; o las ferias de emprendedores. Salame ahumado, miel multifloral, escabeches de ciervo y licores artesanales son los souvenirs perfectos." className="text-sm text-gray-700 block font-light leading-relaxed" label="Descripción Regalos" />
                             </div>
                         </div>
                     </div>
@@ -382,22 +399,22 @@ const Gastronomia: React.FC = () => {
                                 <li className="flex gap-4">
                                     <span className="text-2xl">🚜</span>
                                     <div>
-                                        <h5 className="font-bold text-gray-800 text-sm md:text-base">Circuito Aldeas Alemanas</h5>
-                                        <p className="text-xs md:text-sm text-gray-500">Visita a familias productoras de conservas.</p>
+                                        <Editable id="gastronomia.circuit1.title" defaultValue="Circuito Aldeas Alemanas" className="font-bold text-gray-800 text-sm md:text-base block" label="Circuito 1 Título" />
+                                        <Editable id="gastronomia.circuit1.desc" defaultValue="Visita a familias productoras de conservas." className="text-xs md:text-sm text-gray-500 block font-light" label="Circuito 1 Descripción" />
                                     </div>
                                 </li>
                                 <li className="flex gap-4">
                                     <span className="text-2xl">🍷</span>
                                     <div>
-                                        <h5 className="font-bold text-gray-800 text-sm md:text-base">Ruta de los Badenes y Los Bayos</h5>
-                                        <p className="text-xs md:text-sm text-gray-500">Degustación de vinos y paisajes de nuez pecán.</p>
+                                        <Editable id="gastronomia.circuit2.title" defaultValue="Ruta de los Badenes y Los Bayos" className="font-bold text-gray-800 text-sm md:text-base block" label="Circuito 2 Título" />
+                                        <Editable id="gastronomia.circuit2.desc" defaultValue="Degustación de vinos y paisajes de nuez pecán." className="text-xs md:text-sm text-gray-500 block font-light" label="Circuito 2 Descripción" />
                                     </div>
                                 </li>
                                 <li className="flex gap-4">
                                     <span className="text-2xl">⛪</span>
                                     <div>
-                                        <h5 className="font-bold text-gray-800 text-sm md:text-base">Circuito de la Fe y Sabores</h5>
-                                        <p className="text-xs md:text-sm text-gray-500">10 iglesias y paradas en panaderías históricas.</p>
+                                        <Editable id="gastronomia.circuit3.title" defaultValue="Circuito de la Fe y Sabores" className="font-bold text-gray-800 text-sm md:text-base block" label="Circuito 3 Título" />
+                                        <Editable id="gastronomia.circuit3.desc" defaultValue="10 iglesias y paradas en panaderías históricas." className="text-xs md:text-sm text-gray-500 block font-light" label="Circuito 3 Descripción" />
                                     </div>
                                 </li>
                             </ul>

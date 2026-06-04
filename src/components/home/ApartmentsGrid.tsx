@@ -127,9 +127,9 @@ const ApartmentsGrid: React.FC = () => {
 
                                     {/* Content - Only visible fully on Active */}
                                     <div className={`absolute bottom-0 left-0 w-full p-8 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-                                        <h3 className="font-script text-5xl text-white mb-2">{apt.title}</h3>
+                                        <Editable id={`apartment.${apt.id}.name`} defaultValue={apt.title} className="font-script text-5xl text-white mb-2 block" label="Nombre" />
                                         <div className="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full mb-3">
-                                            <span className="text-[10px] font-ui font-bold text-white tracking-wider">{apt.pax}</span>
+                                            <Editable id={`apartment.${apt.id}.capacity`} defaultValue={apt.pax} className="text-[10px] font-ui font-bold text-white tracking-wider block" label="Capacidad" />
                                         </div>
                                         <button className="font-ui text-[10px] tracking-widest text-white border-b border-white pb-1 block mt-2">
                                             VER DETALLES
@@ -162,16 +162,14 @@ const ApartmentsGrid: React.FC = () => {
 
                             <div className="absolute bottom-0 left-0 w-full p-10 z-10 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                                 <div className="mb-4">
-                                    <h3 className="font-script text-white text-7xl block mb-2">{apt.title}</h3>
+                                    <Editable id={`apartment.${apt.id}.name`} defaultValue={apt.title} className="font-script text-white text-7xl block mb-2" label="Nombre" />
                                     <div className="inline-block bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                        <span className="text-[10px] font-ui font-bold text-white tracking-wider">{apt.pax}</span>
+                                        <Editable id={`apartment.${apt.id}.capacity`} defaultValue={apt.pax} className="text-[10px] font-ui font-bold text-white tracking-wider block" label="Capacidad" />
                                     </div>
                                 </div>
 
                                 <div className="space-y-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 h-0 group-hover:h-auto overflow-hidden">
-                                    <p className="text-sm leading-relaxed text-white/90 font-light block line-clamp-3">
-                                        {apt.desc}
-                                    </p>
+                                    <Editable id={`apartment.${apt.id}.description`} type="textarea" defaultValue={apt.desc} className="text-sm leading-relaxed text-white/90 font-light block line-clamp-3" label="Descripción" />
                                     <button className="font-ui text-[10px] tracking-widest text-white border-b border-white pb-1 hover:text-sage hover:border-sage transition-all mt-4">
                                         VER DETALLES
                                     </button>

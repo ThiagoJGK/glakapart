@@ -33,7 +33,7 @@ const Location: React.FC = () => {
                             />
                             <div className="w-16 h-px bg-sage/30 mx-auto lg:mx-0 mb-6"></div>
                             <Editable
-                                id="home.location.desc"
+                                id="home.location.subtitle"
                                 type="textarea"
                                 defaultValue="Estamos ubicados en el corazón de <strong>Urdinarrain</strong>, una zona tranquila ideal para descansar. A pasos de todo lo que necesitás, pero con la privacidad y el silencio que buscás para tu estadía."
                                 className="font-light text-gray-600 text-lg leading-relaxed block text-center lg:text-left"
@@ -45,8 +45,8 @@ const Location: React.FC = () => {
                             <div className="flex flex-col md:flex-row items-center justify-center lg:justify-start gap-4 text-gray-500 font-light text-center lg:text-left">
                                 <span className="p-3 bg-sage/10 rounded-full text-sage text-xl">📍</span>
                                 <div>
-                                    <p className="uppercase text-[10px] md:text-xs tracking-widest font-bold text-[#10595a]">Dirección</p>
-                                    <p className="text-lg">Salta 435, Urdinarrain</p>
+                                    <Editable id="home.location.addressLabel" defaultValue="Dirección" className="uppercase text-[10px] md:text-xs tracking-widest font-bold text-[#10595a] block" label="Etiqueta Dirección" />
+                                    <Editable id="home.location.address" defaultValue="Salta 435, Urdinarrain" className="text-lg block" label="Dirección Física" />
                                 </div>
                             </div>
                         </div>
@@ -60,7 +60,7 @@ const Location: React.FC = () => {
                             >
                                 {/* Note: Ideally specific Google Maps link, using generic search link fallback in iframe for now */}
                                 <button className="px-8 py-4 border bg-[#10595a] text-white hover:bg-forest transition-all duration-300 rounded-full font-ui text-xs font-bold tracking-widest uppercase">
-                                    CÓMO LLEGAR
+                                    <Editable id="home.location.btnText" defaultValue="CÓMO LLEGAR" className="inline" label="Botón Mapa" />
                                 </button>
                             </a>
                         </div>
@@ -85,7 +85,7 @@ const Location: React.FC = () => {
 
                             {/* Floating Badge */}
                             <div className="absolute -bottom-6 -left-6 bg-forest text-white py-4 px-8 rounded-tr-3xl rounded-bl-3xl shadow-lg shadow-forest/20 hidden md:block">
-                                <p className="font-ui text-xs tracking-[0.2em] uppercase font-bold">Entre Ríos</p>
+                                <Editable id="home.location.polaroidBadge" defaultValue="Entre Ríos" className="font-ui text-xs tracking-[0.2em] uppercase font-bold block text-white" label="Badge Polaroid" />
                             </div>
                         </div>
                     </div>

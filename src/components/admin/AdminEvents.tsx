@@ -9,6 +9,7 @@ import { es } from 'date-fns/locale';
 import { CalendarHeart, Play, Image as ImageIcon, Star, Trash2 } from 'lucide-react';
 import { uploadImage } from '@/services/images';
 import 'react-day-picker/style.css';
+import GalleryManager from './GalleryManager';
 
 const SEASON_OPTIONS = ['Verano', 'Otoño', 'Invierno', 'Primavera', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
@@ -168,41 +169,16 @@ const AdminEvents: React.FC = () => {
                                 />
                             </div>
 
-                            {/* Images Section */}
+                            {/* Images Section using unified GalleryManager */}
                             <div className="mt-6 border-t border-gray-100 pt-4">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Imágenes del Evento</label>
-                                <input
-                                    type="file"
-                                    multiple
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                    className="hidden"
-                                    id="event-image-upload"
+                                <GalleryManager
+                                    images={currentEvent.images || []}
+                                    onChange={(newImages) => setCurrentEvent(prev => ({ ...prev, images: newImages }))}
+                                    coverImage={currentEvent.coverImage}
+                                    onCoverChange={(newCover) => setCurrentEvent(prev => ({ ...prev, coverImage: newCover }))}
+                                    title="Imágenes del Evento"
+                                    description="Carga y reordena fotos para este evento. Marca con estrella la que será la portada."
                                 />
-                                <label htmlFor="event-image-upload" className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm cursor-pointer hover:bg-gray-50 text-gray-600 transition-colors">
-                                    <ImageIcon size={16} /> {uploadingImage ? 'Subiendo...' : 'Agregar Imágenes...'}
-                                </label>
-                                
-                                {currentEvent.images && currentEvent.images.length > 0 && (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-4">
-                                        {currentEvent.images.map(img => (
-                                            <div key={img} className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${currentEvent.coverImage === img ? 'border-sage shadow-md' : 'border-transparent'}`}>
-                                                <img src={img} alt="Event" className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
-                                                    <button onClick={(e) => { e.preventDefault(); setCover(img); }} className={`p-1.5 rounded-full ${currentEvent.coverImage === img ? 'bg-sage text-white' : 'bg-white text-gray-600 hover:text-sage'}`} title="Marcar como Portada">
-                                                        <Star size={14} fill={currentEvent.coverImage === img ? "currentColor" : "none"} />
-                                                    </button>
-                                                    <button onClick={(e) => { e.preventDefault(); removeImage(img); }} className="p-1.5 bg-white text-red-500 hover:bg-red-50 rounded-full" title="Eliminar">
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                </div>
-                                                {currentEvent.coverImage === img && (
-                                                    <div className="absolute top-1 left-1 bg-sage text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">PORTADA</div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
                         </div>
 

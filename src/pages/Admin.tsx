@@ -7,13 +7,23 @@ import { auth } from '@/services/firebase';
 import AdminBranding from '@/components/admin/AdminBranding';
 import AdminEvents from '@/components/admin/AdminEvents';
 import AdminFAQ from '@/components/admin/AdminFAQ';
-import AdminHome from '@/components/admin/AdminHome';
-import AdminCommonSpaces from '@/components/admin/AdminCommonSpaces';
+import AdminImages from '@/components/admin/AdminImages';
+import AdminTexts from '@/components/admin/AdminTexts';
 import AdminStats from '@/components/admin/AdminStats';
-import AdminApartments from '@/components/admin/AdminApartments';
-import AdminSeasons from '@/components/admin/AdminSeasons';
 import AdminSEO from '@/components/admin/AdminSEO';
 import { Logo } from '@/components/layout/Logo';
+import { 
+    LayoutDashboard, 
+    Zap, 
+    Image as ImageIcon, 
+    FileText, 
+    Calendar, 
+    HelpCircle, 
+    Settings, 
+    Globe, 
+    LogOut,
+    Lock
+} from 'lucide-react';
 
 const ALLOWED_EMAILS = [
     'thiagojgk@gmail.com',
@@ -23,11 +33,9 @@ const ALLOWED_EMAILS = [
 
 const TAB_TITLES: Record<string, string> = {
     dashboard: 'Panel Principal',
-    apartments: 'Gestión de Apartamentos',
-    'common-spaces': 'Áreas y Huéspedes',
-    home: 'Página de Inicio',
+    'images-manager': 'Gestión de Imágenes',
+    'texts-manager': 'Gestión de Textos',
     events: 'Eventos y Experiencias',
-    seasons: 'Galerías por Estación',
     faq: 'Preguntas Frecuentes',
     seo: 'SEO & Open Graph',
     settings: 'Configuración General',
@@ -134,56 +142,62 @@ const Admin: React.FC = () => {
     };
 
     const navButtonClass = (tab: string) =>
-        `w-full text-left px-8 py-3 text-xs tracking-widest hover:bg-white/5 transition-colors ${activeTab === tab ? 'bg-white/10 border-r-4 border-sage' : ''}`;
+        `w-full flex items-center gap-3 px-8 py-3 text-[11px] font-bold tracking-widest text-white/70 hover:text-white hover:bg-white/5 transition-all ${
+            activeTab === tab 
+                ? 'bg-white/10 text-white border-r-4 border-sage' 
+                : ''
+        }`;
 
     const NavContent = () => (
         <>
             <div className="px-8 py-2 mt-4 mb-1">
-                <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Vista General</p>
+                <p className="text-[9px] font-extrabold text-sage/70 tracking-widest uppercase">Vista General</p>
             </div>
             <button onClick={() => handleTabChange('dashboard')} className={navButtonClass('dashboard')}>
+                <LayoutDashboard size={14} className={activeTab === 'dashboard' ? 'text-sage' : 'text-white/40'} />
                 PANEL PRINCIPAL
             </button>
             <button
                 onClick={() => { handleQuickEdit(); setMobileMenuOpen(false); }}
-                className="w-full text-left px-8 py-3 text-xs tracking-widest hover:bg-sage/20 transition-colors text-sage font-bold flex items-center gap-2"
+                className="w-full flex items-center gap-3 px-8 py-3 text-[11px] font-bold tracking-widest text-sage hover:bg-sage/10 transition-colors"
             >
-                <span>⚡</span> EDICIÓN RÁPIDA
+                <Zap size={14} className="text-sage" />
+                EDICIÓN RÁPIDA
             </button>
 
             <div className="px-8 py-2 mt-6 mb-1">
-                <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Propiedad & Instalaciones</p>
+                <p className="text-[9px] font-extrabold text-sage/70 tracking-widest uppercase">Gestores Consolidados</p>
             </div>
-            <button onClick={() => handleTabChange('apartments')} className={navButtonClass('apartments')}>
-                APARTAMENTOS
+            <button onClick={() => handleTabChange('images-manager')} className={navButtonClass('images-manager')}>
+                <ImageIcon size={14} className={activeTab === 'images-manager' ? 'text-sage' : 'text-white/40'} />
+                GESTIÓN DE IMÁGENES
             </button>
-            <button onClick={() => handleTabChange('common-spaces')} className={navButtonClass('common-spaces')}>
-                ÁREAS COMUNES
+            <button onClick={() => handleTabChange('texts-manager')} className={navButtonClass('texts-manager')}>
+                <FileText size={14} className={activeTab === 'texts-manager' ? 'text-sage' : 'text-white/40'} />
+                GESTIÓN DE TEXTOS
             </button>
 
             <div className="px-8 py-2 mt-6 mb-1">
-                <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Contenido Web</p>
+                <p className="text-[9px] font-extrabold text-sage/70 tracking-widest uppercase">Contenido Especial</p>
             </div>
-            <button onClick={() => handleTabChange('home')} className={navButtonClass('home')}>
-                PÁGINA DE INICIO
-            </button>
             <button onClick={() => handleTabChange('events')} className={navButtonClass('events')}>
+                <Calendar size={14} className={activeTab === 'events' ? 'text-sage' : 'text-white/40'} />
                 EVENTOS & EXP
             </button>
-            <button onClick={() => handleTabChange('seasons')} className={navButtonClass('seasons')}>
-                ESTACIONES
-            </button>
             <button onClick={() => handleTabChange('faq')} className={navButtonClass('faq')}>
+                <HelpCircle size={14} className={activeTab === 'faq' ? 'text-sage' : 'text-white/40'} />
                 PREGUNTAS FRECUENTES
             </button>
 
             <div className="px-8 py-2 mt-6 mb-1">
-                <p className="text-[10px] font-bold text-sage/70 tracking-widest uppercase">Configuración & Marketing</p>
+                <p className="text-[9px] font-extrabold text-sage/70 tracking-widest uppercase">Configuración & Marketing</p>
             </div>
             <button onClick={() => handleTabChange('settings')} className={navButtonClass('settings')}>
+                <Settings size={14} className={activeTab === 'settings' ? 'text-sage' : 'text-white/40'} />
                 AJUSTES GENERALES
             </button>
             <button onClick={() => handleTabChange('seo')} className={navButtonClass('seo')}>
+                <Globe size={14} className={activeTab === 'seo' ? 'text-sage' : 'text-white/40'} />
                 SEO / OPEN GRAPH
             </button>
 
@@ -191,12 +205,13 @@ const Admin: React.FC = () => {
 
             {/* User info + logout */}
             <div className="px-8 pb-2">
-                <p className="text-[10px] text-white/40 truncate">{user?.email}</p>
+                <p className="text-[9px] text-white/40 truncate">{user?.email}</p>
             </div>
             <button
                 onClick={handleLogout}
-                className="w-full text-left px-8 py-3 text-xs tracking-widest hover:bg-red-500/20 transition-colors text-red-300"
+                className="w-full flex items-center gap-3 px-8 py-3 text-[11px] font-bold tracking-widest text-red-300/80 hover:text-red-300 hover:bg-red-500/10 transition-colors"
             >
+                <LogOut size={14} className="text-red-300/60" />
                 CERRAR SESIÓN
             </button>
         </>
@@ -263,11 +278,9 @@ const Admin: React.FC = () => {
                         </div>
                     )}
 
-                    {activeTab === 'home' && <AdminHome />}
-                    {activeTab === 'apartments' && <AdminApartments />}
-                    {activeTab === 'common-spaces' && <AdminCommonSpaces />}
+                    {activeTab === 'images-manager' && <AdminImages />}
+                    {activeTab === 'texts-manager' && <AdminTexts />}
                     {activeTab === 'events' && <AdminEvents />}
-                    {activeTab === 'seasons' && <AdminSeasons />}
                     {activeTab === 'faq' && <AdminFAQ />}
                     {activeTab === 'seo' && <AdminSEO />}
                     {activeTab === 'settings' && <AdminBranding />}

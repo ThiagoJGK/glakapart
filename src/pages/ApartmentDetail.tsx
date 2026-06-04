@@ -43,7 +43,12 @@ const ApartmentDetail: React.FC = () => {
 
     if (!apt) return (
         <div className="min-h-screen flex items-center justify-center">
-            <p>Apartamento no encontrado. <button onClick={() => router.push('/')} className="text-sage underline">Volver</button></p>
+            <div className="text-center">
+                <Editable id="apartment.error.title" defaultValue="Apartamento no encontrado." className="text-lg text-gray-700 mb-4 block" label="Mensaje de Error" />
+                <button onClick={() => router.push('/')} className="text-sage underline">
+                    <Editable id="apartment.error.back" defaultValue="Volver al Inicio" className="inline" label="Botón Volver" />
+                </button>
+            </div>
         </div>
     );
 
@@ -157,7 +162,7 @@ const ApartmentDetail: React.FC = () => {
 
                         <ScrollReveal delay={200}>
                             <div className="bg-white/80 backdrop-blur-xl p-10 rounded-[2.5rem] shadow-xl border border-white/50">
-                                <h3 className="font-ui tracking-[0.2em] text-[#10595a] text-sm font-bold mb-10 text-center uppercase">Comodidades</h3>
+                                <Editable id="apartment.details.featuresTitle" defaultValue="Comodidades" className="font-ui tracking-[0.2em] text-[#10595a] text-sm font-bold mb-10 text-center uppercase block" label="Título Comodidades" />
                                 <ul className="grid grid-cols-2 gap-y-6 gap-x-8">
                                     {[0, 1, 2, 3, 4, 5].map((i) => (
                                         <li key={i} className="flex items-center gap-4 text-sm text-gray-600 group">
@@ -182,7 +187,7 @@ const ApartmentDetail: React.FC = () => {
                 {/* Artistic Photo Slider Redesign */}
                 <div className="mb-24 overflow-hidden relative">
                     <ScrollReveal>
-                        <h3 className="font-script text-6xl text-center mb-16 text-[#10595a]">Galería Visual</h3>
+                        <Editable id="apartment.details.galleryTitle" defaultValue="Galería Visual" className="font-script text-6xl text-center mb-16 text-[#10595a] block" label="Título Galería" />
                     </ScrollReveal>
 
                     {displayGallery.length > 0 && (
@@ -263,7 +268,7 @@ const ApartmentDetail: React.FC = () => {
             <div className="mt-12 relative z-20 container mx-auto px-6 md:px-10">
                 <div className="bg-white rounded-[3rem] py-12 px-10 shadow-xl border border-white/50">
                     <div className="text-center">
-                        <p className="font-ui text-xs tracking-[0.3em] text-[#10595a] mb-12 opacity-60 uppercase font-bold">Seguir Explorando</p>
+                        <Editable id="apartment.details.exploreTitle" defaultValue="Seguir Explorando" className="font-ui text-xs tracking-[0.3em] text-[#10595a] mb-12 opacity-60 uppercase font-bold block" label="Título Explorar" />
                         <div className="flex flex-col md:flex-row justify-center gap-8 md:gap-20 items-center">
                             {Object.keys(apartmentData).map((k) => (
                                 k !== id && (

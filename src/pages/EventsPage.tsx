@@ -93,7 +93,12 @@ const EventsPage: React.FC = () => {
     return (
         <main className="min-h-screen pt-52 md:pt-[480px] pb-20 relative z-30 overflow-hidden selection:bg-[#90c69e] selection:text-white">
             {/* SEO: Semantic H1 */}
-            <h1 className="sr-only">Eventos y actividades en Urdinarrain — Glak Apart</h1>
+            <Editable
+                id="events.seo.h1"
+                defaultValue="Eventos y actividades en Urdinarrain — Glak Apart"
+                className="sr-only"
+                label="SEO H1"
+            />
 
             <div className="container mx-auto px-4 md:px-6 relative z-10">
                 {/* Header - Friendly & Organic */}
@@ -130,7 +135,7 @@ const EventsPage: React.FC = () => {
                             </div>
 
                             <div className="text-center mb-8 mt-2">
-                                <span className="font-ui text-xs font-bold text-[#10595a] tracking-[0.3em] uppercase border-b-2 border-[#90c69e]/30 pb-2">AGENDA DE EVENTOS</span>
+                                <Editable id="events.calendar.badge" defaultValue="AGENDA DE EVENTOS" className="font-ui text-xs font-bold text-[#10595a] tracking-[0.3em] uppercase border-b-2 border-[#90c69e]/30 pb-2 block w-fit mx-auto" label="Etiqueta Calendario" />
                             </div>
 
                             <div className="text-[#10595a] flex-grow flex items-center justify-center">
@@ -143,7 +148,7 @@ const EventsPage: React.FC = () => {
                             </div>
 
                             <div className="text-center mt-8">
-                                <p className="font-script text-[#10595a]/60 text-5xl md:text-6xl animate-pulse-slow">¡Hacé click en una fecha!</p>
+                                <Editable id="events.calendar.hint" defaultValue="¡Hacé click en una fecha!" className="font-script text-[#10595a]/60 text-5xl md:text-6xl animate-pulse-slow block" label="Pista Calendario" />
                             </div>
                         </div>
                     </div>
@@ -190,7 +195,7 @@ const EventsPage: React.FC = () => {
                                                 onClick={() => document.getElementById('reservas')?.scrollIntoView({ behavior: 'smooth' })}
                                                 className="bg-gradient-to-r from-[#10595a] to-[#157173] text-white px-8 py-3.5 rounded-2xl font-bold tracking-widest text-xs uppercase hover:shadow-[0_10px_30px_-10px_rgba(16,89,90,0.4)] hover:-translate-y-1 transition-all duration-300 w-full md:w-auto overflow-hidden relative group mt-auto"
                                             >
-                                                <span className="relative z-10">¡Me sumo!</span>
+                                                <span className="relative z-10"><Editable id="events.detail.btnText" defaultValue="¡Me sumo!" className="inline" label="Botón Registrarse" /></span>
                                                 <div className="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
                                             </button>
                                         </div>
@@ -203,12 +208,12 @@ const EventsPage: React.FC = () => {
                                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#e8d5b5]/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
                                 <div className="text-8xl mb-8 transform group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 drop-shadow-md">🌿</div>
-                                <h3 className="font-script text-6xl text-[#10595a] mb-6 drop-shadow-sm">Día de Relax</h3>
+                                <Editable id="events.relax.title" defaultValue="Día de Relax" className="font-script text-6xl text-[#10595a] mb-6 drop-shadow-md block" label="Título Vacío" />
                                 <div className="w-16 h-1 bg-[#e8d5b5] rounded-full mb-6"></div>
-                                <p className="text-[#10595a]/80 text-lg font-medium max-w-sm mx-auto leading-relaxed">
-                                    No hay eventos programados para esta fecha.
-                                    <br /><span className="text-[#90c69e] font-bold mt-2 block text-xl">¡Desconectá y disfrutá!</span>
-                                </p>
+                                <div className="text-[#10595a]/80 text-lg font-medium max-w-sm mx-auto leading-relaxed">
+                                    <Editable id="events.relax.desc" defaultValue="No hay eventos programados para esta fecha." className="block" label="Descripción Vacío" />
+                                    <Editable id="events.relax.highlight" defaultValue="¡Desconectá y disfrutá!" className="text-[#90c69e] font-bold mt-2 block text-xl" label="Destacado Vacío" />
+                                </div>
                             </div>
                         )}
                     </div>
