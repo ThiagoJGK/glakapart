@@ -168,9 +168,9 @@ const SectionExplore: React.FC = () => {
                                     <h3 className="font-script text-3xl text-white mb-2">
                                         <Editable id={`home.explore.title${i + 1}`} defaultValue={sec.title} className="inline" label={`Título Item ${i + 1}`} />
                                     </h3>
-                                    <p className="text-white/80 text-sm font-light leading-relaxed max-w-[200px]">
+                                    <div className="text-white/80 text-sm font-light leading-relaxed max-w-[200px]">
                                         <Editable id={`home.explore.desc${i + 1}`} type="textarea" defaultValue={sec.desc} className="inline font-light" label={`Descripción Item ${i + 1}`} />
-                                    </p>
+                                    </div>
 
                                     {/* Arrow indicator */}
                                     <div className="mt-6 flex items-center gap-1 text-white/60 group-hover:text-white transition-all duration-300">

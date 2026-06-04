@@ -145,9 +145,9 @@ const DirectBookingBenefits: React.FC = () => {
                                 <h3 className="text-xl font-bold text-[#10595a] group-hover:text-white mb-4 transition-colors duration-300">
                                     <Editable id={`home.benefits.item${index + 1}.title`} defaultValue={benefit.title} className="inline" label={`Título Item ${index + 1}`} />
                                 </h3>
-                                <p className="text-gray-600 group-hover:text-white/80 font-light text-sm leading-relaxed transition-colors duration-300">
+                                <div className="text-gray-600 group-hover:text-white/80 font-light text-sm leading-relaxed transition-colors duration-300">
                                     <Editable id={`home.benefits.item${index + 1}.desc`} type="textarea" defaultValue={benefit.description} className="inline font-light" label={`Descripción Item ${index + 1}`} />
-                                </p>
+                                </div>
                             </motion.div>
                         </ScrollReveal>
                     ))}

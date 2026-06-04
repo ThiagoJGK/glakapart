@@ -110,16 +110,7 @@ const Admin: React.FC = () => {
     const router = useRouter();
 
     if (authLoading) {
-        return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <div className="text-center flex flex-col items-center">
-                    <div className="h-32 mb-10 flex items-center justify-center animate-pulse opacity-50 cursor-pointer" onClick={() => router.push('/')}>
-                        <Logo className="w-auto h-full max-w-[400px]" />
-                    </div>
-                    <p className="text-xs text-gray-400 tracking-widest">CARGANDO...</p>
-                </div>
-            </div>
-        );
+        return null;
     }
 
     // Show login if not authenticated or not in allowlist
