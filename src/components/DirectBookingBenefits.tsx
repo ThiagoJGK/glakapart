@@ -28,9 +28,9 @@ const AnimatedShield = () => (
                 idle: { pathLength: 1, scale: 1, opacity: 1 },
                 hover: { 
                     pathLength: [0, 1], 
-                    scale: [0, 1.2, 1],
+                    scale: [0, 1],
                     opacity: [0, 1, 1],
-                    transition: { duration: 0.5, delay: 0.4, type: "spring" } 
+                    transition: { duration: 0.5, delay: 0.4, type: "spring", bounce: 0.4 } 
                 }
             }}
         />

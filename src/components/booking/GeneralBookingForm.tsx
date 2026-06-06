@@ -7,7 +7,6 @@ import 'react-day-picker/style.css';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { trackEvent } from '@/services/analytics';
-import { getBookedDates } from '@/services/availability';
 
 const GeneralBookingForm: React.FC = () => {
     const todayForModifiers = React.useMemo(() => {
@@ -19,12 +18,10 @@ const GeneralBookingForm: React.FC = () => {
     const [adults, setAdults] = useState(2);
     const [children, setChildren] = useState(0);
     const [message, setMessage] = useState('');
-    const [bookedDates, setBookedDates] = useState<Date[]>([]);
     const [showDetails, setShowDetails] = useState(false);
     const [isDesktop, setIsDesktop] = useState(false);
 
     useEffect(() => {
-        getBookedDates().then(setBookedDates).catch(console.warn);
         trackEvent('booking_form_open');
         setIsDesktop(window.innerWidth >= 768);
     }, []);
@@ -62,15 +59,12 @@ Espero su respuesta, gracias!`;
         /* Root - fixed dimensions to prevent resizing on month change */
         .rdp-root {
             --rdp-accent-color: #9dd1a6;
-            --rdp-accent-background-color: #9dd1a6;
-            --rdp-range_start-color: #9dd1a6;
-            --rdp-range_end-color: #9dd1a6;
-            --rdp-range_middle-color: rgba(157, 209, 166, 0.25);
-            --rdp-range_middle-background-color: rgba(157, 209, 166, 0.25);
+            --rdp-accent-background-color: rgba(157, 209, 166, 0.15);
             --rdp-selected-border: none;
             --rdp-outside-opacity: 0.3;
             --rdp-day-height: 34px;
             --rdp-day-width: 34px;
+            --track-height: 26px; /* 26px track & button on mobile */
             margin: 0;
         }
 
@@ -86,6 +80,7 @@ Espero su respuesta, gracias!`;
             .rdp-root {
                 --rdp-day-height: 40px;
                 --rdp-day-width: 40px;
+                --track-height: 32px; /* 32px track & button on desktop */
             }
             .rdp-month, .rdp-months {
                 min-height: 340px;
@@ -106,6 +101,12 @@ Espero su respuesta, gracias!`;
         .rdp-button_next,
         .rdp-nav button {
             color: #9dd1a6 !important;
+            transition: all 0.2s ease;
+        }
+        .rdp-button_previous:hover,
+        .rdp-button_next:hover {
+            opacity: 0.8;
+            transform: scale(1.1);
         }
         .rdp-button_previous svg,
         .rdp-button_next svg,
@@ -126,152 +127,172 @@ Espero su respuesta, gracias!`;
             opacity: 0.8;
         }
 
-        /* All day cells - base circular shape */
+        /* All day cells - table-cell display to prevent layout collapse */
         .rdp-day {
             color: #ffffff;
             font-size: 0.95rem;
+            padding: 0 !important;
+            position: relative;
+            display: table-cell !important;
+            text-align: center !important;
+            vertical-align: middle !important;
+            width: var(--rdp-day-width);
+            height: var(--rdp-day-height);
         }
 
-        /* ---- SELECTED start & end (green circles) ---- */
-        .rdp-day[data-selected] {
-            background-color: #9dd1a6 !important;
-            color: #10595a !important;
-            font-weight: 900 !important;
+        /* Interactive Day Buttons */
+        .rdp-day_button {
+            color: #ffffff;
+            width: var(--track-height) !important;
+            height: var(--track-height) !important;
             border-radius: 50% !important;
-            outline: none !important;
-            border: none !important;
-        }
-        .rdp-day[data-selected] button,
-        .rdp-day[data-selected] .rdp-day_button {
-            color: #10595a !important;
-            font-weight: 900 !important;
-            outline: none !important;
-            border: none !important;
-        }
-
-        /* ---- RANGE START (circle) ---- */
-        .rdp-day[data-range-start] {
-            border-radius: 50% !important;
-            background-color: #9dd1a6 !important;
+            transition: all 0.2s ease;
+            font-weight: 400;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: relative;
+            z-index: 1;
+            margin: auto !important;
+            box-sizing: border-box !important;
         }
 
-        /* ---- RANGE END (darker circle to differentiate) ---- */
-        .rdp-day[data-range-end] {
-            border-radius: 50% !important;
-            background-color: #7ec48e !important;
-        }
-
-        /* ---- RANGE MIDDLE day (rectangular connected bar) ---- */
-        .rdp-day[data-range-middle] {
-            background-color: rgba(157, 209, 166, 0.3) !important;
-            color: #ffffff !important;
-            font-weight: 400 !important;
-            border-radius: 0 !important;
-        }
-        .rdp-day[data-range-middle] button,
-        .rdp-day[data-range-middle] .rdp-day_button {
-            color: #ffffff !important;
-            background: transparent !important;
-            border-radius: 0 !important;
-        }
-
-        /* ---- DISABLED / BOOKED DAYS ---- */
-        .rdp-day[data-disabled] {
-            opacity: 0.3 !important;
-            text-decoration: line-through !important;
-            cursor: not-allowed !important;
-            pointer-events: none !important;
-        }
-        .rdp-day[data-disabled] button,
-        .rdp-day[data-disabled] .rdp-day_button {
-            color: #ffffff50 !important;
-            cursor: not-allowed !important;
-        }
-
-        /* ---- PAST DAYS ---- */
-        .rdp-day.day-past,
-        .rdp-day[data-disabled].day-past {
-            text-decoration: none !important;
-            opacity: 0.35 !important;
-        }
-        .rdp-day.day-past button,
-        .rdp-day.day-past .rdp-day_button,
-        .rdp-day[data-disabled].day-past button,
-        .rdp-day[data-disabled].day-past .rdp-day_button {
-            text-decoration: none !important;
-            color: #a0a0a0 !important; /* Premium soft grey */
-        }
-
-        /* ---- BOOKED DAYS ---- */
-        .rdp-day.day-booked,
-        .rdp-day[data-disabled].day-booked {
-            background-color: #d4a373 !important; /* Elegant muted terracotta/sand */
-            border-radius: 50% !important;
-            opacity: 0.75 !important;
-            text-decoration: none !important;
-        }
-        .rdp-day.day-booked button,
-        .rdp-day.day-booked .rdp-day_button,
-        .rdp-day[data-disabled].day-booked button,
-        .rdp-day[data-disabled].day-booked .rdp-day_button {
-            color: #ffffff !important;
-            text-decoration: none !important;
-        }
-
-        /* ---- TD WRAPPERS: half-bar behind start/end circles ---- */
-        /* In v9 .rdp-day IS the <td>, so use .rdp-range_start on same element */
-        .rdp-day[data-range-start]:not([data-range-end]) {
-            background: linear-gradient(to right, transparent 50%, rgba(157, 209, 166, 0.3) 50%) !important;
-        }
-        .rdp-day[data-range-start]:not([data-range-end]) .rdp-day_button {
-            background-color: #9dd1a6 !important;
-            border-radius: 50% !important;
-        }
-        .rdp-day[data-range-end]:not([data-range-start]) {
-            background: linear-gradient(to left, transparent 50%, rgba(157, 209, 166, 0.3) 50%) !important;
-        }
-        .rdp-day[data-range-end]:not([data-range-start]) .rdp-day_button {
-            background-color: #7ec48e !important;
-            border-radius: 50% !important;
-        }
-
-
-
-        /* ---- TODAY ---- */
-        .rdp-day[data-today]:not([data-selected]) {
-            color: #9dd1a6 !important;
-            font-weight: 900 !important;
-            border: none !important;
-            background-color: transparent !important;
-        }
-        .rdp-day[data-today]:not([data-selected]) button,
-        .rdp-day[data-today]:not([data-selected]) .rdp-day_button {
-            color: #9dd1a6 !important;
-        }
-
-        /* ---- HOVER on unselected days ---- */
-        .rdp-day:not([data-selected]):not([data-range-middle]):hover {
+        /* Hover effect on standard day buttons */
+        .rdp-day:not(.rdp-range_start):not(.rdp-range_end):not(.rdp-range_middle) .rdp-day_button:not(.rdp-selected):hover {
             background-color: rgba(255, 255, 255, 0.15) !important;
             border-radius: 50% !important;
         }
 
-        /* ---- KILL ALL BLUE OUTLINES/FOCUS ---- */
+        /* Today's date (if not selected) */
+        .rdp-today:not(.rdp-selected) .rdp-day_button {
+            color: #9dd1a6 !important;
+            font-weight: 700 !important;
+            border: 1px solid rgba(157, 209, 166, 0.4) !important;
+        }
+
+        /* ----- RANGE SELECTION (PREMIUM PILL EFFECT) ----- */
+
+        /* Base rule for track background */
+        .rdp-range_middle::before,
+        .rdp-range_start::before,
+        .rdp-range_end::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: var(--track-height);
+            background-color: rgba(157, 209, 166, 0.15) !important;
+            z-index: 0;
+        }
+
+        /* 1. Range Middle Cell Track */
+        .rdp-range_middle {
+            background-color: transparent !important;
+        }
+        .rdp-range_middle::before {
+            left: 0;
+            right: 0;
+        }
+        .rdp-range_middle .rdp-day_button {
+            border-radius: 0 !important;
+            background-color: transparent !important;
+            color: #ffffff !important;
+            font-weight: 500 !important;
+        }
+
+        /* Rounding edges of the track at row boundaries (Monday/Sunday) */
+        .rdp-day:first-child.rdp-range_middle::before {
+            left: 4px;
+            border-top-left-radius: 9999px;
+            border-bottom-left-radius: 9999px;
+        }
+        .rdp-day:last-child.rdp-range_middle::before {
+            right: 4px;
+            border-top-right-radius: 9999px;
+            border-bottom-right-radius: 9999px;
+        }
+
+        /* 2. Range Start */
+        .rdp-range_start {
+            background: transparent !important;
+        }
+        .rdp-range_start::before {
+            left: 50%;
+            right: 0;
+        }
+        .rdp-range_start .rdp-day_button {
+            background-color: #9dd1a6 !important;
+            color: #10595a !important;
+            font-weight: 800 !important;
+            border-radius: 50% !important;
+            box-shadow: none !important;
+        }
+        .rdp-range_start .rdp-day_button:hover {
+            background-color: #9dd1a6 !important;
+            color: #10595a !important;
+            opacity: 1 !important;
+            box-shadow: 0 4px 12px rgba(157, 209, 166, 0.5) !important;
+        }
+        /* Start day on row boundary (Sunday) */
+        .rdp-day:last-child.rdp-range_start::before {
+            right: 4px;
+            border-top-right-radius: 9999px;
+            border-bottom-right-radius: 9999px;
+        }
+
+        /* 3. Range End */
+        .rdp-range_end {
+            background: transparent !important;
+        }
+        .rdp-range_end::before {
+            left: 0;
+            right: 50%;
+        }
+        .rdp-range_end .rdp-day_button {
+            background-color: #9dd1a6 !important;
+            color: #10595a !important;
+            font-weight: 800 !important;
+            border-radius: 50% !important;
+            box-shadow: none !important;
+        }
+        .rdp-range_end .rdp-day_button:hover {
+            background-color: #9dd1a6 !important;
+            color: #10595a !important;
+            opacity: 1 !important;
+            box-shadow: 0 4px 12px rgba(157, 209, 166, 0.5) !important;
+        }
+        /* End day on row boundary (Monday) */
+        .rdp-day:first-child.rdp-range_end::before {
+            left: 4px;
+            border-top-left-radius: 9999px;
+            border-bottom-left-radius: 9999px;
+        }
+
+        /* 4. Single Selection / Start matches End (cancel connection) */
+        .rdp-range_start.rdp-range_end::before {
+            display: none !important;
+        }
+
+        /* ----- DISABLED / PAST DAYS ----- */
+        .rdp-disabled {
+            opacity: 0.3 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+        }
+        .rdp-disabled .rdp-day_button {
+            color: rgba(255, 255, 255, 0.3) !important;
+            cursor: not-allowed !important;
+        }
+
+        /* ----- CLEAN OUTLINES / FOCUS ----- */
         .rdp-day:focus,
         .rdp-day:focus-visible,
-        .rdp-day:active,
-        .rdp-day button:focus,
-        .rdp-day button:focus-visible,
-        .rdp-day button:active,
         .rdp-day_button:focus,
         .rdp-day_button:focus-visible,
-        .rdp-day_button:active,
         .rdp-button_previous:focus,
-        .rdp-button_next:focus,
-        .rdp-focused,
-        .rdp-day[data-focused] {
+        .rdp-button_next:focus {
             outline: none !important;
             box-shadow: none !important;
-            border-color: transparent !important;
             -webkit-tap-highlight-color: transparent !important;
         }
     `;
@@ -301,30 +322,22 @@ Espero su respuesta, gracias!`;
                         locale={es}
                         numberOfMonths={1}
                         disabled={[
-                            { before: new Date() },
-                            ...bookedDates
+                            { before: new Date() }
                         ]}
                         modifiers={{
-                            booked: bookedDates,
                             past: { before: todayForModifiers }
                         }}
                         modifiersClassNames={{
-                            booked: 'day-booked',
-                            past: 'day-past'
+                            past: 'day-past',
+                            selected: 'rdp-selected',
+                            range_start: 'rdp-range_start',
+                            range_middle: 'rdp-range_middle',
+                            range_end: 'rdp-range_end'
                         }}
                     />
                 </div>
 
-                <div className="mt-4 md:mt-8 flex items-center justify-center gap-6 text-[9px] md:text-[10px] uppercase tracking-widest text-white/50">
-                    <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#9dd1a6]"></span>
-                        <span>Selección</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#d4a373]"></span>
-                        <span>Reservado</span>
-                    </div>
-                </div>
+
             </div>
 
             {/* Right Panel: Form (Clean White) */}

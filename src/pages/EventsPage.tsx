@@ -218,8 +218,76 @@ const EventsPage: React.FC = () => {
                         )}
                     </div>
                 </div>
+                       {/* VISUAL & FRIENDLY UPCOMING LIST */}
+                <div className="mt-20 max-w-7xl mx-auto">
+                    <div className="flex items-end justify-between mb-12 px-4 relative">
+                        <div>
+                            <Editable
+                                id="events.upcoming.subtitle"
+                                defaultValue="Lo que se viene..."
+                                className="font-script text-5xl md:text-6xl text-[#90c69e] block mb-2 -rotate-2"
+                                label="Subtítulo Próximos"
+                            />
+                            <Editable
+                                id="events.upcoming.title"
+                                defaultValue="PRÓXIMAS FECHAS"
+                                className="font-ui text-2xl font-black text-[#10595a] tracking-tight block"
+                                label="Título Próximos"
+                            />
+                        </div>
+                        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-[#10595a]/20 via-[#10595a]/5 to-transparent"></div>
 
+                        {/* Mobile Swipe Hint */}
+                        <div className="md:hidden flex gap-2 animate-pulse">
+                            <div className="w-2 h-2 rounded-full bg-[#10595a]"></div>
+                            <div className="w-2 h-2 rounded-full bg-[#10595a]/30"></div>
+                            <div className="w-2 h-2 rounded-full bg-[#10595a]/10"></div>
+                        </div>
+                    </div>
 
+                    <div className="flex md:grid md:grid-cols-3 gap-8 overflow-x-auto snap-x snap-mandatory pb-12 md:pb-0 px-4 md:px-0 scrollbar-hide">
+                        {events.slice(0, 3).map((ev, i) => (
+                            <div
+                                key={ev.id}
+                                onClick={() => {
+                                    setSelectedDate(new Date(ev.startDate));
+                                    setSelectedEvent(ev);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="min-w-[300px] md:min-w-0 snap-center bg-white rounded-[2.5rem] p-4 shadow-sm hover:shadow-2xl transition-all duration-500 group cursor-pointer border border-[#10595a]/5 hover:border-[#90c69e]/30 hover:-translate-y-3"
+                            >
+                                <div className="h-52 rounded-[2rem] overflow-hidden mb-6 relative z-0">
+                                    <div className="absolute inset-0 bg-[#10595a]/20 group-hover:bg-transparent transition-colors duration-500 z-10 hidden"></div>
+                                    <img
+                                        src={ev.image || ""}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        alt={ev.title || 'Evento en Urdinarrain — Glak Apart'}
+                                        onError={(e) => (e.currentTarget.src = "")}
+                                    />
+                                    <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
+                                    <div className="absolute top-4 left-4 bg-white/95 px-4 py-2 rounded-xl shadow-lg z-20">
+                                        <span className="font-bold text-[#10595a] text-xs tracking-widest uppercase">
+                                            {format(new Date(ev.startDate), 'dd MMM', { locale: es })}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="px-4 pb-4">
+                                    <h4 className="font-ui font-black text-xl text-[#10595a] mb-3 line-clamp-1 group-hover:text-[#90c69e] transition-colors">{ev.title}</h4>
+                                    <p className="text-[#10595a]/60 text-sm line-clamp-2 leading-relaxed">{ev.description}</p>
+                                    <div className="mt-6 flex items-center justify-between">
+                                        <div className="h-px flex-grow bg-[#f4f1ea] group-hover:bg-[#90c69e]/30 transition-colors"></div>
+                                        <Editable
+                                            id="events.upcoming.card.link"
+                                            defaultValue="VER INFO"
+                                            className="text-[#90c69e] font-bold text-[10px] tracking-[0.2em] uppercase pl-4 opacity-70 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0 block"
+                                            label="Texto Ver Info"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
                 {/* NEW SECTION: SEASONS OF URDINARRAIN */}
                 <div className="my-32 max-w-7xl mx-auto px-4">
@@ -287,7 +355,7 @@ const EventsPage: React.FC = () => {
                                     <Editable
                                         id="events.season.summer.desc"
                                         type="textarea"
-                                        defaultValue="Días largos de sol, piscina y tardes eternas en el parque. La estación perfecta para desconectar."
+                                        defaultValue="Días largos de sol, piscina and tardes eternas en el parque. La estación perfecta para desconectar."
                                         className="text-white/90 text-[10px] md:text-sm font-medium leading-relaxed opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0 group-active:translate-y-0 delay-100 block"
                                         label="Descripción Verano"
                                     />
@@ -427,77 +495,6 @@ const EventsPage: React.FC = () => {
                             </div>
                         </motion.div>
                     </motion.div>
-                </div>
-
-                {/* VISUAL & FRIENDLY UPCOMING LIST */}
-                <div className="mt-20 max-w-7xl mx-auto">
-                    <div className="flex items-end justify-between mb-12 px-4 relative">
-                        <div>
-                            <Editable
-                                id="events.upcoming.subtitle"
-                                defaultValue="Lo que se viene..."
-                                className="font-script text-5xl md:text-6xl text-[#90c69e] block mb-2 -rotate-2"
-                                label="Subtítulo Próximos"
-                            />
-                            <Editable
-                                id="events.upcoming.title"
-                                defaultValue="PRÓXIMAS FECHAS"
-                                className="font-ui text-2xl font-black text-[#10595a] tracking-tight block"
-                                label="Título Próximos"
-                            />
-                        </div>
-                        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-[#10595a]/20 via-[#10595a]/5 to-transparent"></div>
-
-                        {/* Mobile Swipe Hint */}
-                        <div className="md:hidden flex gap-2 animate-pulse">
-                            <div className="w-2 h-2 rounded-full bg-[#10595a]"></div>
-                            <div className="w-2 h-2 rounded-full bg-[#10595a]/30"></div>
-                            <div className="w-2 h-2 rounded-full bg-[#10595a]/10"></div>
-                        </div>
-                    </div>
-
-                    <div className="flex md:grid md:grid-cols-3 gap-8 overflow-x-auto snap-x snap-mandatory pb-12 md:pb-0 px-4 md:px-0 scrollbar-hide">
-                        {events.slice(0, 3).map((ev, i) => (
-                            <div
-                                key={ev.id}
-                                onClick={() => {
-                                    setSelectedDate(new Date(ev.startDate));
-                                    setSelectedEvent(ev);
-                                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                                }}
-                                className="min-w-[300px] md:min-w-0 snap-center bg-white rounded-[2.5rem] p-4 shadow-sm hover:shadow-2xl transition-all duration-500 group cursor-pointer border border-[#10595a]/5 hover:border-[#90c69e]/30 hover:-translate-y-3"
-                            >
-                                <div className="h-52 rounded-[2rem] overflow-hidden mb-6 relative z-0">
-                                    <div className="absolute inset-0 bg-[#10595a]/20 group-hover:bg-transparent transition-colors duration-500 z-10 hidden"></div>
-                                    <img
-                                        src={ev.image || ""}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                        alt={ev.title || 'Evento en Urdinarrain — Glak Apart'}
-                                        onError={(e) => (e.currentTarget.src = "")}
-                                    />
-                                    <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
-                                    <div className="absolute top-4 left-4 bg-white/95 px-4 py-2 rounded-xl shadow-lg z-20">
-                                        <span className="font-bold text-[#10595a] text-xs tracking-widest uppercase">
-                                            {format(new Date(ev.startDate), 'dd MMM', { locale: es })}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="px-4 pb-4">
-                                    <h4 className="font-ui font-black text-xl text-[#10595a] mb-3 line-clamp-1 group-hover:text-[#90c69e] transition-colors">{ev.title}</h4>
-                                    <p className="text-[#10595a]/60 text-sm line-clamp-2 leading-relaxed">{ev.description}</p>
-                                    <div className="mt-6 flex items-center justify-between">
-                                        <div className="h-px flex-grow bg-[#f4f1ea] group-hover:bg-[#90c69e]/30 transition-colors"></div>
-                                        <Editable
-                                            id="events.upcoming.card.link"
-                                            defaultValue="VER INFO"
-                                            className="text-[#90c69e] font-bold text-[10px] tracking-[0.2em] uppercase pl-4 opacity-70 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0 block"
-                                            label="Texto Ver Info"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
                 </div>
             </div>
 

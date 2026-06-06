@@ -45,19 +45,16 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* CONTENEDOR PRINCIPAL (Simulación de Hoja 3:4 en Pantalla) */
+    /* CONTENEDOR PRINCIPAL (Simulación de Hoja A4 en Pantalla) */
     .page-container {
       width: 100%;
-      max-width: 800px;
-      aspect-ratio: 3 / 4;
+      max-width: 900px;
       background-color: var(--card-bg);
       border-radius: 24px;
       overflow: hidden;
       box-shadow: 0 20px 40px rgba(16, 89, 90, 0.08);
       border: 1px solid var(--card-border);
       position: relative;
-      display: flex;
-      flex-direction: column;
     }
 
     /* CABECERA (BARRIL VERDE BOSQUE) */
@@ -116,6 +113,12 @@
       margin-top: 2px;
     }
 
+    .header-text-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     /* BANNER DESTACADO DE WIFI */
     .wifi-section {
       background: linear-gradient(135deg, rgba(157, 209, 166, 0.15), rgba(16, 89, 90, 0.08));
@@ -167,7 +170,6 @@
       grid-template-columns: 1fr 1fr;
       gap: 24px;
       padding: 25px 40px 30px;
-      flex-grow: 1;
     }
 
     /* ESTILO DE CADA TARJETA */
@@ -253,30 +255,62 @@
     /* TARJETA DE FIRMA Y CIERRE */
     .footer-note {
       grid-column: span 2;
-      background: linear-gradient(to right, rgba(16, 89, 90, 0.02), rgba(157, 209, 166, 0.04));
-      border-radius: 16px;
-      padding: 24px;
+      background: linear-gradient(135deg, rgba(16, 89, 90, 0.01) 0%, rgba(157, 209, 166, 0.03) 100%);
+      border-radius: 20px;
+      padding: 24px 30px;
       border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .footer-info-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      border-bottom: 1px dashed rgba(16, 89, 90, 0.15);
+      padding-bottom: 16px;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: var(--text-light);
+      line-height: 1.4;
+    }
+
+    .info-item svg {
+      color: var(--forest-green);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .footer-main-msg {
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
+      gap: 6px;
     }
 
-    .footer-note p {
+    .footer-main-msg .greeting {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--forest-green);
+    }
+
+    .footer-main-msg .thanks {
       font-size: 0.95rem;
       color: var(--text-main);
-      max-width: 720px;
-      line-height: 1.6;
     }
 
     .signature {
       font-family: 'Great Vibes', cursive;
-      font-size: 2.4rem;
+      font-size: 2.6rem;
       color: var(--forest-green);
-      margin-top: 5px;
+      margin-top: 6px;
     }
 
     /* RESPONSIVIDAD PARA PANTALLAS MÓVILES */
@@ -308,6 +342,12 @@
       }
       .footer-note {
         grid-column: span 1;
+        padding: 20px;
+      }
+      .footer-info-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding-bottom: 16px;
       }
     }
 
@@ -349,12 +389,18 @@
         flex-direction: column;
       }
 
-      /* Reducir levemente el banner de cabecera para optimizar espacio */
+      /* Reducir levemente el banner de cabecera y hacerlo horizontal para optimizar espacio */
       header {
-        padding: 22px 20px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 30px !important;
+        padding: 12px 30px !important;
         border-radius: 12px !important;
         border: 1px solid var(--forest-green) !important;
         background-color: var(--forest-green) !important;
+        text-align: left !important;
       }
 
       header::after {
@@ -362,26 +408,33 @@
       }
 
       .logo-container {
-        width: 100px !important;
-        height: 100px !important;
-        margin-bottom: 0px !important;
+        width: 70px !important;
+        height: 70px !important;
+        margin: 0 !important;
+      }
+
+      .header-text-group {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
       }
 
       header h1 {
         font-size: 0.95rem !important;
         letter-spacing: 0.2em !important;
-        margin-top: 10px !important;
+        margin-top: 0px !important;
+        margin-bottom: 2px !important;
       }
 
       header .welcome-note {
-        font-size: 1.9rem !important;
-        margin-top: 1px !important;
+        font-size: 1.8rem !important;
+        margin-top: 0px !important;
       }
 
       /* Banner de WiFi optimizado para papel */
       .wifi-section {
-        margin: 14px 0 6px 0 !important;
-        padding: 10px 20px !important;
+        margin: 10px 0 4px 0 !important;
+        padding: 8px 20px !important;
         border-radius: 10px !important;
         background-color: #f3f9f4 !important; /* Fondo suave asegurado */
         border: 1px solid rgba(16, 89, 90, 0.18) !important;
@@ -401,14 +454,14 @@
       .content-grid {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
-        gap: 14px !important;
-        padding: 12px 0 14px 0 !important;
+        gap: 12px !important;
+        padding: 8px 0 10px 0 !important;
       }
 
       /* Tarjetas compactadas para impresión */
       .card {
         border-radius: 12px !important;
-        padding: 14px 16px !important;
+        padding: 12px 14px !important;
         border: 1px solid var(--card-border) !important;
         background-color: #ffffff !important;
         box-shadow: none !important;
@@ -455,18 +508,43 @@
       /* Cierre de página compactado */
       .footer-note {
         grid-column: span 2 !important;
-        padding: 12px 20px !important;
-        border-radius: 10px !important;
+        padding: 10px 18px !important;
+        border-radius: 12px !important;
         background-color: #fcfbfa !important;
         border: 1px solid var(--card-border) !important;
         margin-top: 0px !important;
-        gap: 4px !important;
+        gap: 8px !important;
       }
 
-      .footer-note p {
-        font-size: 0.78rem !important;
-        max-width: 100% !important;
-        line-height: 1.4 !important;
+      .footer-info-row {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 12px !important;
+        padding-bottom: 8px !important;
+        border-bottom: 1px dashed rgba(16, 89, 90, 0.1) !important;
+      }
+
+      .info-item {
+        font-size: 0.68rem !important;
+        gap: 6px !important;
+        line-height: 1.3 !important;
+      }
+
+      .info-item svg {
+        width: 12px !important;
+        height: 12px !important;
+        margin-top: 1px !important;
+      }
+
+      .footer-main-msg {
+        gap: 2px !important;
+      }
+
+      .footer-main-msg .greeting {
+        font-size: 0.74rem !important;
+      }
+
+      .footer-main-msg .thanks {
+        font-size: 0.74rem !important;
       }
 
       .signature {
@@ -537,8 +615,10 @@
           </g>
         </svg>
       </div>
-      <h1>Guía de Convivencia</h1>
-      <div class="welcome-note">¡Te damos la bienvenida!</div>
+      <div class="header-text-group">
+        <h1>Guía de Convivencia</h1>
+        <div class="welcome-note">¡Te damos la bienvenida!</div>
+      </div>
     </header>
 
     <!-- TARJETA DESTACADA DE CONEXIÓN WIFI -->
@@ -552,7 +632,7 @@
         </svg>
       </div>
       <div class="wifi-info">
-        <span>RED WIFI: <strong>Glak.Apart</strong></span>
+        <span>RED WIFI: <strong>Glak_Apart</strong></span>
         <span>CONTRASEÑA: <strong>viajarviajar</strong></span>
       </div>
     </div>
@@ -575,7 +655,7 @@
           <h2>Tu Estadía y Desayuno</h2>
         </div>
         <ul class="card-list">
-          <li><strong>Horarios de Cabaña:</strong> El check-in es a partir de las <b>14:00 hs.</b> y el check-out es hasta las <b>10:00 hs.</b>, permitiéndonos acondicionar la cabaña para los próximos huéspedes. Si necesitas salir más tarde, por favor consúltanos con 72 hs. de anticipación.</li>
+          <li><strong>Horarios de Cabaña:</strong> El check-in es a partir de las <b>14:00 hs.</b> y el check-out es hasta las <b>10:00 hs.</b>, permitiéndonos acondicionar la cabaña para los próximos huéspedes. Si necesitas salir más tarde, por favor consúltanos con anticipación.</li>
           <li><strong>Desayuno Seco:</strong> Con mucho cariño, al ingresar dejamos a tu disposición lo esencial para comenzar tus mañanas: leche en polvo, azúcar, café e infusiones en saquitos de té.</li>
           <li><strong>Equipamiento y Vajilla:</strong> La cabaña cuenta con vajilla completa, ollas, ensaladeras y utensilios de cocina. Además, te dejamos lo básico para tus comidas: aceite, vinagre, sal fina y sal gruesa. Proveemos sábanas y toallas (con recambio a mitad de estadía para reservas de 10 días o más).</li>
         </ul>
@@ -630,7 +710,7 @@
           <h2>Nuestra Piscina</h2>
         </div>
         <ul class="card-list">
-          <li><strong>Horario de Piscina:</strong> Te invitamos a disfrutar de la piscina en el horario de <b>10:00 a 20:00 hs.</b> Fuera de este rango, realizamos el mantenimiento diario del agua para tu total seguridad.</li>
+          <li><strong>Horario de Piscina:</strong> Te invitamos a disfrutar de nuestra piscina de temporada (no climatizada) en el horario de <b>10:00 a 20:00 hs.</b> Fuera de este rango, realizamos el mantenimiento diario del agua para tu total seguridad.</li>
           <li><strong>Uso Exclusivo:</strong> Las instalaciones y la piscina son exclusivamente para el disfrute de los huéspedes registrados en el complejo. No está permitido el ingreso de visitas.</li>
           <li><strong>Cuidado e Higiene:</strong> Por favor, no introduzcas alimentos ni bebidas en el área perimetral de la pileta. Te solicitamos traer tus propias toallas para este sector (las toallas blancas de la cabaña son solo para uso interno).</li>
           <li><strong>Menores de Edad:</strong> Al no contar con servicio de guardavidas, es obligatorio que los menores de 13 años estén siempre acompañados e ingresen junto a un adulto responsable.</li>
@@ -639,9 +719,28 @@
 
       <!-- NOTA DE CIERRE Y AGRADECIMIENTO -->
       <div class="footer-note">
-        <p>Trabajamos diariamente para ofrecerte una estadía mágica y la mejor atención en Urdinarrain. Para tu tranquilidad, la cabaña cuenta con luz de emergencia y extintor ABC. El pago de la estadía se realiza al ingresar. Recuerda resguardar tus pertenencias, ya que la administración no se responsabiliza por pérdidas en las habitaciones. Gladys y Adrián quedamos a tu completa disposición para todo lo que necesites.</p>
-        <p>¡Muchas gracias por elegirnos y por ayudarnos a cuidar este espacio de descanso!</p>
-        <div class="signature">Gladys y Adrián</div>
+        <!-- Fila de aclaraciones técnicas e informativas -->
+        <div class="footer-info-row">
+          <div class="info-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Cada unidad cuenta con luz de emergencia y extintor ABC.</span>
+          </div>
+          <div class="info-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <span>El pago de la estadía se realiza al ingresar.</span>
+          </div>
+          <div class="info-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>La administración no se responsabiliza por pérdidas. Cuida tus objetos.</span>
+          </div>
+        </div>
+        
+        <!-- Mensaje cálido principal y firma -->
+        <div class="footer-main-msg">
+          <p class="greeting">Quedamos a tu completa disposición para todo lo que necesites.</p>
+          <p class="thanks">¡Muchas gracias por elegirnos y por ayudarnos a cuidar este espacio de descanso!</p>
+          <div class="signature">Gladys y Adrián</div>
+        </div>
       </div>
 
     </div>
