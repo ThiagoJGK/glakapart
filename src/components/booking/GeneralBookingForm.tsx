@@ -62,28 +62,37 @@ Espero su respuesta, gracias!`;
             --rdp-accent-background-color: rgba(157, 209, 166, 0.15);
             --rdp-selected-border: none;
             --rdp-outside-opacity: 0.3;
-            --rdp-day-height: 34px;
-            --rdp-day-width: 34px;
-            --track-height: 26px; /* 26px track & button on mobile */
+            --rdp-day-height: 44px;
+            --rdp-day-width: 44px;
+            --track-height: 36px; /* 36px track & button on mobile */
             margin: 0;
         }
 
-        /* Fixed calendar height to prevent layout shift */
-        .rdp-month {
-            min-height: 280px;
+        /* Responsive adjustments for very small mobiles (like iPhone SE) */
+        @media (max-width: 350px) {
+            .rdp-root {
+                --rdp-day-height: 38px;
+                --rdp-day-width: 38px;
+                --track-height: 30px;
+            }
+            .rdp-month, .rdp-months {
+                min-height: 290px !important;
+            }
         }
-        .rdp-months {
-            min-height: 280px;
+
+        /* Fixed calendar height to prevent layout shift */
+        .rdp-month, .rdp-months {
+            min-height: 320px;
         }
 
         @media (min-width: 768px) {
             .rdp-root {
-                --rdp-day-height: 40px;
-                --rdp-day-width: 40px;
-                --track-height: 32px; /* 32px track & button on desktop */
+                --rdp-day-height: 46px;
+                --rdp-day-width: 46px;
+                --track-height: 38px; /* 38px track & button on desktop */
             }
             .rdp-month, .rdp-months {
-                min-height: 340px;
+                min-height: 360px !important;
             }
         }
 
@@ -91,9 +100,10 @@ Espero su respuesta, gracias!`;
         .rdp-caption_label,
         .rdp-month_caption {
             color: #ffffff !important;
-            font-weight: 300;
-            font-size: 1.1rem;
+            font-weight: 400;
+            font-size: 1.25rem;
             text-transform: capitalize;
+            margin-bottom: 12px !important;
         }
 
         /* Navigation arrows */
@@ -102,6 +112,11 @@ Espero su respuesta, gracias!`;
         .rdp-nav button {
             color: #9dd1a6 !important;
             transition: all 0.2s ease;
+        }
+        .rdp-button_previous,
+        .rdp-button_next {
+            width: 32px !important;
+            height: 32px !important;
         }
         .rdp-button_previous:hover,
         .rdp-button_next:hover {
@@ -123,14 +138,15 @@ Espero su respuesta, gracias!`;
             color: #9dd1a6 !important;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.7rem;
-            opacity: 0.8;
+            font-size: 0.8rem;
+            opacity: 0.9;
+            padding-bottom: 8px !important;
         }
 
         /* All day cells - table-cell display to prevent layout collapse */
         .rdp-day {
             color: #ffffff;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             padding: 0 !important;
             position: relative;
             display: table-cell !important;
@@ -302,14 +318,14 @@ Espero su respuesta, gracias!`;
             <style>{calendarStyles}</style>
 
             {/* Left Panel: Calendar (Green Experience) */}
-            <div className="md:w-3/5 bg-[#10595a] p-5 py-6 md:p-10 flex flex-col items-center justify-center text-white relative">
+            <div className="md:w-3/5 bg-[#10595a] px-4 py-8 md:p-10 flex flex-col items-center justify-center text-white relative">
                 {/* Subtle Grain or Pattern can be added here if needed */}
-                <div className="text-center mb-4 md:mb-6">
-                    <p className="text-[10px] uppercase tracking-[0.3em] font-light text-white/60 mb-1 md:mb-2">Selecciona tus fechas</p>
-                    <h3 className="font-script text-2xl md:text-4xl text-white">Reserva tu estadía</h3>
+                <div className="text-center mb-6 md:mb-8">
+                    <p className="text-[11px] uppercase tracking-[0.3em] font-semibold text-[#9dd1a6] mb-2">Selecciona tus fechas</p>
+                    <h3 className="font-script text-3xl md:text-5xl text-white">Reserva tu estadía</h3>
                 </div>
 
-                <div className="booking-calendar-wrapper w-full flex justify-center booking-calendar-dark scale-90 md:scale-95 origin-top">
+                <div className="booking-calendar-wrapper w-full flex justify-center booking-calendar-dark md:scale-95 origin-top">
                     <DayPicker
                         mode="range"
                         selected={range}

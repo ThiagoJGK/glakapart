@@ -45,6 +45,9 @@ const Hero: React.FC = () => {
     const [showVideo, setShowVideo] = useState(false);
     const { isAdmin, isDraftMode } = useAdmin();
 
+    const [currentSlideBg, setCurrentSlideBg] = useState<string>("");
+    const [currentSlideBlur, setCurrentSlideBlur] = useState<string>("");
+
     const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
     const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
@@ -67,6 +70,9 @@ const Hero: React.FC = () => {
             } catch (e) {
                 console.warn("Error fetching hero slide data", e);
             }
+
+            setCurrentSlideBg(imageUrl);
+            setCurrentSlideBlur(blurUrl);
 
             // 3. Dispatch event
             const event = new CustomEvent('HERO_SLIDE_CHANGE', {
@@ -102,26 +108,50 @@ const Hero: React.FC = () => {
 
     // --- RENDER HELPERS ---
 
+    const getFrostedStyle = () => currentSlideBlur ? {
+        backgroundImage: `url('${currentSlideBlur}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+    } : { backgroundColor: 'rgba(16, 89, 90, 0.6)' };
+
+    const getLocalFrostedStyle = () => currentSlideBlur ? {
+        backgroundImage: `url('${currentSlideBlur}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+    } : { backgroundColor: 'rgba(16, 89, 90, 0.6)' };
+
     const renderBadges = (isMobile = false) => (
-        <div className={`bg-[#90c69e] shadow-2xl rounded-3xl transform transition-transform hover:scale-[1.02] flex flex-col items-center justify-center overflow-hidden ${isMobile ? 'px-8 py-5 mx-auto' : 'px-6 py-4 md:px-12 md:py-6'}`}>
-            <Editable
-                id={`hero.slide${currentSlide}.badgeTitle1`}
-                defaultValue={slides[currentSlide].badge1}
-                className={`font-ui text-black font-light tracking-widest block text-center ${isMobile ? 'text-lg' : 'text-lg md:text-3xl lg:text-4xl'}`}
-                label="Título 1"
+        <div className={`shadow-2xl rounded-3xl flex flex-col items-center justify-center overflow-hidden border border-[#90c69e]/35 relative ${isMobile ? 'px-8 py-4 mx-auto max-w-[280px]' : 'px-6 py-4 md:px-12 md:py-6'}`}>
+            {/* Blurred background image with grayscale filter (fixed attachment restored) */}
+            <div
+                className="absolute inset-0 z-0"
+                style={{ ...getFrostedStyle(), filter: 'grayscale(100%)' }}
             />
-            <Editable
-                id={`hero.slide${currentSlide}.badgeTitle2`}
-                defaultValue={slides[currentSlide].badge2}
-                className={`font-script text-black block text-center ${isMobile ? 'text-5xl leading-tight pt-1' : 'text-4xl md:text-7xl lg:text-9xl leading-tight md:my-1'}`}
-                label="Título Script"
-            />
-            <Editable
-                id={`hero.slide${currentSlide}.badgeTitle3`}
-                defaultValue={slides[currentSlide].badge3}
-                className={`font-ui text-black font-light tracking-[0.2em] block text-center ${isMobile ? 'text-sm' : 'text-xs md:text-2xl lg:text-3xl'}`}
-                label="Título 3"
-            />
+            {/* Salvia green overlay on top of the blurred bg with hover transition */}
+            <div className="absolute inset-0 bg-[#90c69e]/75 hover:bg-[#90c69e]/65 z-[1] transition-colors duration-300"></div>
+
+            {/* Content in full color above everything (hover scale applied locally) */}
+            <div className="relative z-10 flex flex-col items-center justify-center transform transition-transform duration-300 hover:scale-105 cursor-pointer">
+                <Editable
+                    id={`hero.slide${currentSlide}.badgeTitle1`}
+                    defaultValue={slides[currentSlide].badge1}
+                    className={`font-ui text-[#082f30] font-semibold tracking-[0.25em] block text-center drop-shadow-[0_1px_2px_rgba(8,47,48,0.25)] ${isMobile ? 'text-[11px]' : 'text-xs md:text-sm lg:text-base'}`}
+                    label="Título 1"
+                />
+                <Editable
+                    id={`hero.slide${currentSlide}.badgeTitle2`}
+                    defaultValue={slides[currentSlide].badge2}
+                    className={`font-script text-[#082f30] block text-center leading-[0.85] -my-1.5 drop-shadow-[0_2px_4px_rgba(8,47,48,0.3)] ${isMobile ? 'text-[42px] pt-1 pb-1' : 'text-6xl md:text-8xl lg:text-9xl -my-3 md:-my-5 lg:-my-6'}`}
+                    label="Título Script"
+                />
+                <Editable
+                    id={`hero.slide${currentSlide}.badgeTitle3`}
+                    defaultValue={slides[currentSlide].badge3}
+                    className={`font-ui text-[#082f30] font-semibold tracking-[0.25em] block text-center drop-shadow-[0_1px_2px_rgba(8,47,48,0.25)] ${isMobile ? 'text-[11px]' : 'text-xs md:text-sm lg:text-base'}`}
+                    label="Título 3"
+                />
+            </div>
         </div>
     );
 
