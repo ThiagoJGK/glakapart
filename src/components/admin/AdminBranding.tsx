@@ -4,7 +4,7 @@ import { getContent, updateContent } from '@/services/content';
 import { uploadImage } from '@/services/images';
 import { generateBlurredImage } from '@/utils/imageUtils';
 import { Toast } from '../ui/Toast';
-import { Bot, Save, Palette, Image as ImageIcon, Link as LinkIcon, AlertTriangle } from 'lucide-react';
+import { Bot, Save, Palette, Image as ImageIcon, Link as LinkIcon, AlertTriangle, Mail, Trash2, Plus } from 'lucide-react';
 
 const AdminBranding: React.FC = () => {
     // Branding States
@@ -16,6 +16,9 @@ const AdminBranding: React.FC = () => {
     const [secondaryColor, setSecondaryColor] = useState('#819488');
     
     const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
+
+    // Notification Emails State
+    const [notificationEmails, setNotificationEmails] = useState<string[]>([]);
 
     // Chatbot State
     const [chatbotEnabled, setChatbotEnabled] = useState(false);
@@ -45,6 +48,7 @@ const AdminBranding: React.FC = () => {
                 setPrimaryColor(settingsData.primaryColor || '#10595a');
                 setSecondaryColor(settingsData.secondaryColor || '#819488');
                 setMaintenanceEnabled(settingsData.maintenanceEnabled || false);
+                setNotificationEmails(settingsData.notificationEmails || []);
             }
             
             if (chatbotData) {
@@ -68,6 +72,7 @@ const AdminBranding: React.FC = () => {
                 updateContent('settings', 'primaryColor', primaryColor),
                 updateContent('settings', 'secondaryColor', secondaryColor),
                 updateContent('settings', 'maintenanceEnabled', maintenanceEnabled),
+                updateContent('settings', 'notificationEmails', notificationEmails.filter(email => email.trim() !== '')),
                 updateContent('chatbot', 'enabled', chatbotEnabled),
                 updateContent('chatbot', 'systemPrompt', chatbotPrompt)
             ];
@@ -215,6 +220,64 @@ const AdminBranding: React.FC = () => {
                                 />
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
                             </label>
+                        </div>
+                    </div>
+                </section>
+
+                {/* 4b. NOTIFICACIONES DE CONSULTAS */}
+                <section>
+                    <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-3">
+                        <Mail className="w-5 h-5 text-sage" />
+                        <h4 className="font-bold text-gray-700 uppercase tracking-widest text-sm">Notificaciones de Consultas</h4>
+                    </div>
+
+                    <div className="space-y-4 bg-gray-50 p-5 rounded-xl border border-gray-100">
+                        <p className="text-xs text-gray-500 mb-2 leading-relaxed">
+                            Configura las direcciones de correo electrónico que recibirán alertas cuando un nuevo huésped envíe una solicitud de reserva.
+                        </p>
+
+                        <div className="space-y-3">
+                            {notificationEmails.map((email, idx) => (
+                                <div key={idx} className="flex gap-2 items-center">
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => {
+                                            const updated = [...notificationEmails];
+                                            updated[idx] = e.target.value;
+                                            setNotificationEmails(updated);
+                                        }}
+                                        placeholder="ejemplo@correo.com"
+                                        className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-forest text-gray-700"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const updated = notificationEmails.filter((_, i) => i !== idx);
+                                            setNotificationEmails(updated);
+                                        }}
+                                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                                        title="Eliminar correo"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            ))}
+
+                            {notificationEmails.length === 0 && (
+                                <p className="text-xs text-amber-600 bg-amber-50 p-3.5 rounded-lg border border-amber-100/60">
+                                    No hay correos configurados. No se enviarán notificaciones de nuevas solicitudes.
+                                </p>
+                            )}
+
+                            <button
+                                type="button"
+                                onClick={() => setNotificationEmails([...notificationEmails, ''])}
+                                className="flex items-center gap-2 text-xs font-bold text-forest hover:text-[#0d4a4b] transition-colors pt-2 uppercase tracking-wider"
+                            >
+                                <Plus className="w-4 h-4" /> Añadir correo
+                            </button>
                         </div>
                     </div>
                 </section>

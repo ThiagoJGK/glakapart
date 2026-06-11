@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import Editable from '../ui/Editable';
 import { getContent } from '@/services/content';
@@ -11,6 +11,10 @@ const CommonSpaces: React.FC = () => {
     
     const [poolIndex, setPoolIndex] = useState(0);
     const [gardenIndex, setGardenIndex] = useState(0);
+
+    // Touch refs for swipe support on mobile
+    const poolTouchStart = useRef<number | null>(null);
+    const gardenTouchStart = useRef<number | null>(null);
 
     useEffect(() => {
         const fetchGalleries = async () => {
@@ -85,7 +89,16 @@ const CommonSpaces: React.FC = () => {
                         </div>
 
                         {/* Image Gallery */}
-                        <div className="h-[400px] lg:h-[600px] w-full lg:w-[55%] relative group/gallery isolate overflow-hidden bg-gray-100">
+                        <div
+                            className="h-[400px] lg:h-[600px] w-full lg:w-[55%] relative group/gallery isolate overflow-hidden bg-gray-100"
+                            onTouchStart={(e) => { poolTouchStart.current = e.touches[0].clientX; }}
+                            onTouchEnd={(e) => {
+                                if (poolTouchStart.current === null) return;
+                                const delta = poolTouchStart.current - e.changedTouches[0].clientX;
+                                if (Math.abs(delta) > 40) handleSwipe('pool', delta > 0 ? 1 : -1);
+                                poolTouchStart.current = null;
+                            }}
+                        >
                             {galleriesLoaded && poolGallery.length > 0 ? (
                                 poolGallery.map((img, idx) => {
                                     const isActive = idx === poolIndex;
@@ -125,11 +138,11 @@ const CommonSpaces: React.FC = () => {
                             {/* Mobile Unique Badge */}
                             <div className="absolute top-4 left-4 lg:hidden bg-gradient-to-r from-sage to-forest text-white text-[10px] font-ui font-bold px-4 py-2 rounded-full shadow-md z-20 flex items-center gap-1.5">
                                 <Star size={12} className="fill-current" />
-                                <Editable id="home.common.pool.badge.mobile" defaultValue="ÚNICO CON PISCINA" className="inline" label="Badge Piscina Móvil" />
+                                <Editable id="home.common.pool.badge.mobile" defaultValue="ÚNICO ALOJAMIENTO CON PISCINA" className="inline" label="Badge Piscina Móvil" />
                             </div>
 
                             {poolGallery.length > 1 && (
-                                <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover/gallery:opacity-100 transition-opacity z-10 pointer-events-none">
+                                <div className="absolute inset-0 hidden md:flex items-center justify-between px-4 opacity-60 hover:opacity-100 transition-opacity z-10 pointer-events-none">
                                     <button 
                                         aria-label="Imagen anterior de la piscina"
                                         onClick={(e) => { e.preventDefault(); handleSwipe('pool', -1); }}
@@ -163,7 +176,7 @@ const CommonSpaces: React.FC = () => {
                         <div className="p-8 lg:p-16 space-y-6 lg:w-[45%] flex flex-col justify-center bg-white z-10">
                             <div className="flex flex-col gap-4">
                                 <Editable id="home.common.pool.subbadge" defaultValue="Exclusividad & Relax" className="font-ui text-xs font-bold text-sage tracking-[0.2em] uppercase block" label="Subtítulo Piscina" />
-                                <Editable id="home.common.pool.title" defaultValue="Nuestra Piscina" className="font-script text-6xl md:text-7xl text-forest block" label="Título Piscina" />
+                                <Editable id="home.common.pool.title" defaultValue="Nuestra Piscina" className="font-script text-4xl md:text-6xl lg:text-7xl leading-tight text-forest block" label="Título Piscina" />
                             </div>
                             <Editable
                                 id="home.common.pool.text"
@@ -172,11 +185,11 @@ const CommonSpaces: React.FC = () => {
                                 className="text-gray-600 leading-relaxed text-lg md:text-xl font-light py-4"
                                 label="Texto Piscina"
                             />
-                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-base font-medium text-gray-500 pt-6 border-t border-gray-100">
-                                <li className="flex items-center gap-3"><span className="text-forest bg-sage/20 p-1 rounded-full">✓</span> <Editable id="home.common.feat1" defaultValue="Deck solarium" className="inline" label="Feature 1" /></li>
-                                <li className="flex items-center gap-3"><span className="text-forest bg-sage/20 p-1 rounded-full">✓</span> <Editable id="home.common.feat2" defaultValue="Toallones de cortesía" className="inline" label="Feature 2" /></li>
-                                <li className="flex items-center gap-3"><span className="text-forest bg-sage/20 p-1 rounded-full">✓</span> <Editable id="home.common.feat3" defaultValue="Agua cristalina" className="inline" label="Feature 3" /></li>
-                                <li className="flex items-center gap-3"><span className="text-forest bg-sage/20 p-1 rounded-full">✓</span> <Editable id="home.common.feat4" defaultValue="Zona de descanso" className="inline" label="Feature 4" /></li>
+                            <ul className="grid grid-cols-2 gap-3 text-sm font-medium text-gray-500 pt-4 border-t border-gray-200">
+                                <li className="flex items-center gap-2"><span className="text-forest">✓</span> <Editable id="home.common.feat1" defaultValue="Deck solarium" className="inline" label="Feature 1" /></li>
+                                <li className="flex items-center gap-2"><span className="text-forest">✓</span> <Editable id="home.common.feat2" defaultValue="Toallones de cortesía" className="inline" label="Feature 2" /></li>
+                                <li className="flex items-center gap-2"><span className="text-forest">✓</span> <Editable id="home.common.feat3" defaultValue="Agua cristalina" className="inline" label="Feature 3" /></li>
+                                <li className="flex items-center gap-2"><span className="text-forest">✓</span> <Editable id="home.common.feat4" defaultValue="Zona de descanso" className="inline" label="Feature 4" /></li>
                             </ul>
                         </div>
                     </div>
@@ -185,7 +198,16 @@ const CommonSpaces: React.FC = () => {
                     <div className="bg-white rounded-[40px] shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-500 overflow-hidden flex flex-col lg:flex-row-reverse relative">
                         
                         {/* Image Gallery */}
-                        <div className="h-[350px] lg:h-[500px] w-full lg:w-[45%] relative group/gallery isolate overflow-hidden bg-[#f4f1ea]">
+                        <div
+                            className="h-[350px] lg:h-[500px] w-full lg:w-[45%] relative group/gallery isolate overflow-hidden bg-[#f4f1ea]"
+                            onTouchStart={(e) => { gardenTouchStart.current = e.touches[0].clientX; }}
+                            onTouchEnd={(e) => {
+                                if (gardenTouchStart.current === null) return;
+                                const delta = gardenTouchStart.current - e.changedTouches[0].clientX;
+                                if (Math.abs(delta) > 40) handleSwipe('garden', delta > 0 ? 1 : -1);
+                                gardenTouchStart.current = null;
+                            }}
+                        >
                             {galleriesLoaded && gardenGallery.length > 0 ? (
                                 gardenGallery.map((img, idx) => {
                                     const isActive = idx === gardenIndex;
@@ -223,7 +245,7 @@ const CommonSpaces: React.FC = () => {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover/gallery:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
                             {gardenGallery.length > 1 && (
-                                <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover/gallery:opacity-100 transition-opacity z-10 pointer-events-none">
+                                <div className="absolute inset-0 hidden md:flex items-center justify-between px-4 opacity-60 hover:opacity-100 transition-opacity z-10 pointer-events-none">
                                     <button 
                                         aria-label="Imagen anterior del parque"
                                         onClick={(e) => { e.preventDefault(); handleSwipe('garden', -1); }}
@@ -257,7 +279,7 @@ const CommonSpaces: React.FC = () => {
                         <div className="p-8 lg:p-16 space-y-6 lg:w-[55%] flex flex-col justify-center bg-[#f9faf9] z-10">
                             <div className="flex flex-col gap-2">
                                 <Editable id="home.common.garden.subbadge" defaultValue="Aire Libre" className="font-ui text-xs font-bold text-sage tracking-widest uppercase block" label="Subtítulo Parque" />
-                                <Editable id="home.common.garden.title" defaultValue="Parque y Asadores" className="font-script text-5xl md:text-6xl text-forest block" label="Título Parque" />
+                                <Editable id="home.common.garden.title" defaultValue="Parque y Asadores" className="font-script text-4xl md:text-5xl lg:text-6xl leading-tight text-forest block" label="Título Parque" />
                             </div>
                             <Editable
                                 id="home.common.garden.text"

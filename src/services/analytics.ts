@@ -15,12 +15,35 @@ const ADMIN_EMAILS = [
     'apartglak@gmail.com',
 ];
 
+// ─── UUID helper — crypto.randomUUID() requires HTTPS (secure context).
+// This polyfill falls back to crypto.getRandomValues or Math.random so it
+// works when testing over HTTP on a local IP address.
+function generateUUID(): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+    // Fallback: use crypto.getRandomValues if available (works over HTTP)
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        const buf = new Uint8Array(16);
+        crypto.getRandomValues(buf);
+        buf[6] = (buf[6] & 0x0f) | 0x40; // version 4
+        buf[8] = (buf[8] & 0x3f) | 0x80; // variant
+        const hex = Array.from(buf).map(b => b.toString(16).padStart(2, '0')).join('');
+        return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+    }
+    // Last resort: Math.random
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+}
+
 // ─── Session & Visitor IDs ───
 
 function getVisitorId(): string {
     let id = localStorage.getItem('glak_vid');
     if (!id) {
-        id = crypto.randomUUID();
+        id = generateUUID();
         localStorage.setItem('glak_vid', id);
     }
     return id;
@@ -29,7 +52,7 @@ function getVisitorId(): string {
 function getSessionId(): string {
     let id = sessionStorage.getItem('glak_sid');
     if (!id) {
-        id = crypto.randomUUID();
+        id = generateUUID();
         sessionStorage.setItem('glak_sid', id);
     }
     return id;

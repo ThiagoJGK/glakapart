@@ -22,8 +22,11 @@ import {
     Settings, 
     Globe, 
     LogOut,
-    Lock
+    Lock,
+    Users
 } from 'lucide-react';
+import { AdminGuests } from '@/components/admin/AdminGuests';
+import { subscribeToNewInquiriesCount } from '@/services/inquiries';
 
 const ALLOWED_EMAILS = [
     'thiagojgk@gmail.com',
@@ -33,6 +36,7 @@ const ALLOWED_EMAILS = [
 
 const TAB_TITLES: Record<string, string> = {
     dashboard: 'Panel Principal',
+    guests: 'Huéspedes y Solicitudes',
     'images-manager': 'Gestión de Imágenes',
     'texts-manager': 'Gestión de Textos',
     events: 'Eventos y Experiencias',
@@ -106,8 +110,18 @@ const AdminLogin: React.FC = () => {
 const Admin: React.FC = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [newInquiriesCount, setNewInquiriesCount] = useState(0);
     const { toggleDraftMode, authLoading, user } = useAdmin();
     const router = useRouter();
+
+    useEffect(() => {
+        if (user && ALLOWED_EMAILS.includes(user.email?.toLowerCase() || '')) {
+            const unsubscribe = subscribeToNewInquiriesCount((count) => {
+                setNewInquiriesCount(count);
+            });
+            return () => unsubscribe();
+        }
+    }, [user]);
 
     if (authLoading) {
         return null;
@@ -133,78 +147,94 @@ const Admin: React.FC = () => {
     };
 
     const navButtonClass = (tab: string) =>
-        `w-full flex items-center gap-3 px-8 py-3 text-[11px] font-bold tracking-widest text-white/70 hover:text-white hover:bg-white/5 transition-all ${
+        `w-full flex items-center gap-3 px-5 py-2.5 text-xs font-semibold tracking-wider text-white/70 hover:text-white hover:bg-white/5 transition-all rounded-xl relative ${
             activeTab === tab 
-                ? 'bg-white/10 text-white border-r-4 border-sage' 
+                ? 'bg-white/10 text-white font-bold shadow-sm' 
                 : ''
         }`;
 
+    const NavButton: React.FC<{
+        tab: string;
+        icon: React.ReactNode;
+        label: string;
+        badge?: React.ReactNode;
+    }> = ({ tab, icon, label, badge }) => (
+        <button
+            onClick={() => handleTabChange(tab)}
+            className={navButtonClass(tab)}
+        >
+            {activeTab === tab && (
+                <span className="absolute left-2.5 top-3 bottom-3 w-1 bg-sage rounded-full" />
+            )}
+            {icon}
+            <span className="flex-1 text-left">{label}</span>
+            {badge}
+        </button>
+    );
+
     const NavContent = () => (
         <>
-            <div className="px-8 py-2 mt-4 mb-1">
-                <p className="text-[9px] font-extrabold text-sage/70 tracking-widest uppercase">Vista General</p>
-            </div>
-            <button onClick={() => handleTabChange('dashboard')} className={navButtonClass('dashboard')}>
-                <LayoutDashboard size={14} className={activeTab === 'dashboard' ? 'text-sage' : 'text-white/40'} />
-                PANEL PRINCIPAL
-            </button>
+            <NavButton
+                tab="dashboard"
+                icon={<LayoutDashboard size={14} className={activeTab === 'dashboard' ? 'text-sage' : 'text-white/40'} />}
+                label="PANEL PRINCIPAL"
+            />
+            <NavButton
+                tab="guests"
+                icon={<Users size={14} className={activeTab === 'guests' ? 'text-sage' : 'text-white/40'} />}
+                label="HUÉSPEDES"
+                badge={newInquiriesCount > 0 && (
+                    <span className="bg-amber-500 text-white font-bold text-[9px] px-1.5 py-0.5 rounded-full animate-pulse">
+                        {newInquiriesCount}
+                    </span>
+                )}
+            />
             <button
                 onClick={() => { handleQuickEdit(); setMobileMenuOpen(false); }}
-                className="w-full flex items-center gap-3 px-8 py-3 text-[11px] font-bold tracking-widest text-sage hover:bg-sage/10 transition-colors"
+                className="w-full flex items-center gap-3 px-5 py-2.5 text-xs font-semibold tracking-wider text-sage hover:bg-sage/10 transition-colors rounded-xl"
             >
                 <Zap size={14} className="text-sage" />
-                EDICIÓN RÁPIDA
+                <span className="flex-1 text-left">EDICIÓN RÁPIDA</span>
             </button>
 
-            <div className="px-8 py-2 mt-6 mb-1">
-                <p className="text-[9px] font-extrabold text-sage/70 tracking-widest uppercase">Gestores Consolidados</p>
-            </div>
-            <button onClick={() => handleTabChange('images-manager')} className={navButtonClass('images-manager')}>
-                <ImageIcon size={14} className={activeTab === 'images-manager' ? 'text-sage' : 'text-white/40'} />
-                GESTIÓN DE IMÁGENES
-            </button>
-            <button onClick={() => handleTabChange('texts-manager')} className={navButtonClass('texts-manager')}>
-                <FileText size={14} className={activeTab === 'texts-manager' ? 'text-sage' : 'text-white/40'} />
-                GESTIÓN DE TEXTOS
-            </button>
+            <div className="h-px bg-white/5 my-2 mx-5" />
 
-            <div className="px-8 py-2 mt-6 mb-1">
-                <p className="text-[9px] font-extrabold text-sage/70 tracking-widest uppercase">Contenido Especial</p>
-            </div>
-            <button onClick={() => handleTabChange('events')} className={navButtonClass('events')}>
-                <Calendar size={14} className={activeTab === 'events' ? 'text-sage' : 'text-white/40'} />
-                EVENTOS & EXP
-            </button>
-            <button onClick={() => handleTabChange('faq')} className={navButtonClass('faq')}>
-                <HelpCircle size={14} className={activeTab === 'faq' ? 'text-sage' : 'text-white/40'} />
-                PREGUNTAS FRECUENTES
-            </button>
+            <NavButton
+                tab="images-manager"
+                icon={<ImageIcon size={14} className={activeTab === 'images-manager' ? 'text-sage' : 'text-white/40'} />}
+                label="GESTIÓN DE IMÁGENES"
+            />
+            <NavButton
+                tab="texts-manager"
+                icon={<FileText size={14} className={activeTab === 'texts-manager' ? 'text-sage' : 'text-white/40'} />}
+                label="GESTIÓN DE TEXTOS"
+            />
 
-            <div className="px-8 py-2 mt-6 mb-1">
-                <p className="text-[9px] font-extrabold text-sage/70 tracking-widest uppercase">Configuración & Marketing</p>
-            </div>
-            <button onClick={() => handleTabChange('settings')} className={navButtonClass('settings')}>
-                <Settings size={14} className={activeTab === 'settings' ? 'text-sage' : 'text-white/40'} />
-                AJUSTES GENERALES
-            </button>
-            <button onClick={() => handleTabChange('seo')} className={navButtonClass('seo')}>
-                <Globe size={14} className={activeTab === 'seo' ? 'text-sage' : 'text-white/40'} />
-                SEO / OPEN GRAPH
-            </button>
+            <div className="h-px bg-white/5 my-2 mx-5" />
 
-            <div className="h-px bg-white/10 mx-8 my-6"></div>
+            <NavButton
+                tab="events"
+                icon={<Calendar size={14} className={activeTab === 'events' ? 'text-sage' : 'text-white/40'} />}
+                label="EVENTOS & EXP"
+            />
+            <NavButton
+                tab="faq"
+                icon={<HelpCircle size={14} className={activeTab === 'faq' ? 'text-sage' : 'text-white/40'} />}
+                label="PREGUNTAS FRECUENTES"
+            />
 
-            {/* User info + logout */}
-            <div className="px-8 pb-2">
-                <p className="text-[9px] text-white/40 truncate">{user?.email}</p>
-            </div>
-            <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-8 py-3 text-[11px] font-bold tracking-widest text-red-300/80 hover:text-red-300 hover:bg-red-500/10 transition-colors"
-            >
-                <LogOut size={14} className="text-red-300/60" />
-                CERRAR SESIÓN
-            </button>
+            <div className="h-px bg-white/5 my-2 mx-5" />
+
+            <NavButton
+                tab="settings"
+                icon={<Settings size={14} className={activeTab === 'settings' ? 'text-sage' : 'text-white/40'} />}
+                label="AJUSTES GENERALES"
+            />
+            <NavButton
+                tab="seo"
+                icon={<Globe size={14} className={activeTab === 'seo' ? 'text-sage' : 'text-white/40'} />}
+                label="SEO / OPEN GRAPH"
+            />
         </>
     );
 
@@ -233,29 +263,60 @@ const Admin: React.FC = () => {
             {mobileMenuOpen && (
                 <div className="md:hidden fixed inset-0 z-[99] animate-fade-in">
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}></div>
-                    <nav className="absolute top-[56px] left-0 right-0 bg-forest text-white shadow-2xl overflow-y-auto max-h-[calc(100vh-56px)] animate-fade-in-up">
+                    <nav className="absolute top-[56px] left-0 right-0 bg-forest text-white shadow-2xl overflow-y-auto max-h-[calc(100vh-56px)] p-3 space-y-1 animate-fade-in-up">
                         <NavContent />
+                        <div className="h-px bg-white/10 my-4 mx-5"></div>
+                        <div className="px-5 pb-2 truncate">
+                            <p className="text-[9px] text-white/40 tracking-wider">SESIÓN ACTIVA</p>
+                            <p className="text-xs font-medium text-white truncate">{user?.email}</p>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-5 py-2.5 text-xs font-semibold tracking-wider text-red-300 hover:text-red-200 hover:bg-red-500/10 transition-colors rounded-xl"
+                        >
+                            <LogOut size={14} className="text-red-300/60" />
+                            CERRAR SESIÓN
+                        </button>
                         <div className="h-4"></div>
                     </nav>
                 </div>
             )}
 
-            <div className="flex">
+            <div className="flex bg-forest min-h-screen">
                 {/* ─── Desktop Sidebar (hidden on mobile) ─── */}
-                <aside className="hidden md:block w-64 bg-forest text-white h-screen fixed left-0 top-0 overflow-y-auto">
-                    <div className="p-8 flex flex-col items-center border-b border-white/10">
-                        <div className="h-32 w-full flex items-center justify-center mb-6 cursor-pointer" onClick={() => router.push('/')}>
-                            <Logo className="h-full w-auto max-w-[240px] brightness-0 invert" />
+                <aside className="hidden md:flex flex-col w-64 bg-forest text-white h-screen fixed left-0 top-0 border-r border-white/10">
+                    {/* Header */}
+                    <div className="p-5 flex flex-col items-center border-b border-white/10 flex-shrink-0">
+                        <div className="h-14 w-full flex items-center justify-center cursor-pointer" onClick={() => router.push('/')}>
+                            <Logo className="h-full w-auto max-w-[180px] brightness-0 invert" />
                         </div>
-                        <p className="text-[10px] opacity-70 tracking-widest">PANEL DE CONTROL</p>
                     </div>
-                    <nav className="mt-4 pb-8">
+                    {/* Nav Items */}
+                    <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1 no-scrollbar">
                         <NavContent />
                     </nav>
+                    {/* Footer / User info */}
+                    <div className="p-4 border-t border-white/10 bg-black/10 flex-shrink-0">
+                        <div className="flex flex-col gap-2">
+                            <div className="px-2 truncate">
+                                <p className="text-[10px] text-white/50 tracking-wider">SESIÓN ACTIVA</p>
+                                <p className="text-xs font-medium text-white truncate" title={user?.email || ''}>
+                                    {user?.email}
+                                </p>
+                            </div>
+                            <button
+                                onClick={handleLogout}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold tracking-wider text-red-300 hover:text-red-200 hover:bg-red-500/10 transition-colors rounded-xl"
+                            >
+                                <LogOut size={14} className="text-red-300/60" />
+                                CERRAR SESIÓN
+                            </button>
+                        </div>
+                    </div>
                 </aside>
 
                 {/* ─── Main Content ─── */}
-                <main className="w-full md:ml-64 p-5 pt-20 md:p-12 md:pt-12">
+                <main className="w-full md:ml-64 h-screen overflow-y-auto no-scrollbar bg-white md:rounded-l-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.08)] p-5 pt-20 md:p-12 md:pt-12 relative z-10 border-l border-white/10">
                     <h2 className="text-2xl md:text-3xl text-forest font-light mb-8 md:mb-12 border-b border-gray-200 pb-4">
                         {TAB_TITLES[activeTab] || ''}
                     </h2>
@@ -269,6 +330,7 @@ const Admin: React.FC = () => {
                         </div>
                     )}
 
+                    {activeTab === 'guests' && <AdminGuests />}
                     {activeTab === 'images-manager' && <AdminImages />}
                     {activeTab === 'texts-manager' && <AdminTexts />}
                     {activeTab === 'events' && <AdminEvents />}

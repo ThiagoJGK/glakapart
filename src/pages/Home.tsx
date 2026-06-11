@@ -4,10 +4,8 @@ import ApartmentsGrid from '@/components/home/ApartmentsGrid';
 import CommonSpaces from '@/components/home/CommonSpaces';
 import SectionExplore from '@/components/home/SectionExplore';
 import ScrollReveal from '@/components/ui/ScrollReveal';
-import DirectBookingBenefits from '@/components/DirectBookingBenefits';
 import GuestGallery from '@/components/home/GuestGallery';
 import FAQ from '@/components/home/FAQ';
-
 import Events from '@/components/home/Events';
 
 const Home: React.FC = () => {
@@ -21,10 +19,6 @@ const Home: React.FC = () => {
 
             <ScrollReveal delay={200}>
                 <CommonSpaces />
-            </ScrollReveal>
-
-            <ScrollReveal delay={100}>
-                <DirectBookingBenefits />
             </ScrollReveal>
 
             <ScrollReveal delay={100}>

@@ -23,19 +23,25 @@ const FloatingBookingButton: React.FC = () => {
         return () => window.removeEventListener('scroll', toggleVisibility);
     }, []);
 
+    const [isBookingOrFooterVisible, setIsBookingOrFooterVisible] = useState(false);
+
     useEffect(() => {
         const observer = new IntersectionObserver(
-            ([entry]) => {
-                setIsFooterVisible(entry.isIntersecting);
+            (entries) => {
+                const isAnyIntersecting = entries.some(entry => entry.isIntersecting);
+                setIsBookingOrFooterVisible(isAnyIntersecting);
             },
             { root: null, threshold: 0.1 }
         );
 
         const footer = document.querySelector('footer');
+        const bookingSection = document.getElementById('reservas');
         if (footer) observer.observe(footer);
+        if (bookingSection) observer.observe(bookingSection);
 
         return () => {
             if (footer) observer.unobserve(footer);
+            if (bookingSection) observer.unobserve(bookingSection);
         };
     }, []);
 
@@ -50,12 +56,12 @@ const FloatingBookingButton: React.FC = () => {
     return (
         <button
             id="floating-booking-button"
-            aria-label="Reservar alojamiento"
+            aria-label="Consultar disponibilidad de alojamiento"
             onClick={scrollToBooking}
-            className={`fixed bottom-6 right-24 z-50 bg-[#10595a] text-white p-4 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-500 hover:scale-110 hover:bg-[#156e70] ${isVisible && !isFooterVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
+            className={`fixed bottom-6 right-24 z-50 bg-[#10595a] text-white p-4 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-500 hover:scale-110 hover:bg-[#156e70] ${isVisible && !isBookingOrFooterVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
         >
             <CalendarCheck size={24} />
-            <span className="text-xs font-bold tracking-widest hidden lg:inline-block pr-2">RESERVAR</span>
+            <span className="text-xs font-bold tracking-widest hidden lg:inline-block pr-2">CONSULTAR</span>
         </button>
     );
 };

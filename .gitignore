@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# temp files & agents
+.agents/
+scratch/
+err.txt
+out.txt
+build_errors.txt
+build_final.txt
+build_final2.txt
+build_full.txt
+build_log.txt
+build_output*.txt
+deploy_log.txt
+*.log

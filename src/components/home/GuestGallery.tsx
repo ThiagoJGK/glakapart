@@ -133,16 +133,31 @@ const ARC_RADIUS = 900;       // radius of the virtual cylinder (px)
 const CARD_WIDTH_DESKTOP = 200;
 const CARD_WIDTH_MOBILE = 140;
 
+// Desktop: 3D cylinder arc. Mobile: flat 2D fan (no rotateY, no translateZ)
+// On mobile, preserve-3d causes back cards to visually pierce front cards
 function getCardTransform(idx: number, total: number, isMobile: boolean) {
     const center = (total - 1) / 2;
     const offset = idx - center;
-    const angle = offset * ARC_ANGLE_STEP;
-    const radius = isMobile ? ARC_RADIUS * 0.45 : ARC_RADIUS;
-
-    const x = Math.sin((angle * Math.PI) / 180) * radius;
-    const z = Math.cos((angle * Math.PI) / 180) * radius - radius;
-
     const absOffset = Math.abs(offset);
+
+    if (isMobile) {
+        // Flat 2D fan: only horizontal spread + scale, no 3D rotation
+        const spacing = 52; // px between card centers
+        const x = offset * spacing;
+        const opacity = Math.max(0.25, 1 - absOffset * 0.18);
+        const scale = Math.max(0.70, 1 - absOffset * 0.07);
+        return {
+            transform: `translateX(${x}px) scale(${scale})`,
+            opacity,
+            zIndex: Math.round(total - absOffset),
+            is3D: false,
+        };
+    }
+
+    // Desktop: full 3D cylinder
+    const angle = offset * ARC_ANGLE_STEP;
+    const x = Math.sin((angle * Math.PI) / 180) * ARC_RADIUS;
+    const z = Math.cos((angle * Math.PI) / 180) * ARC_RADIUS - ARC_RADIUS;
     const opacity = Math.max(0.3, 1 - absOffset * 0.15);
     const scale = Math.max(0.75, 1 - absOffset * 0.04);
 
@@ -150,6 +165,7 @@ function getCardTransform(idx: number, total: number, isMobile: boolean) {
         transform: `translateX(${x}px) translateZ(${z}px) rotateY(${angle}deg) scale(${scale})`,
         opacity,
         zIndex: Math.round(total - absOffset),
+        is3D: true,
     };
 }
 
@@ -227,11 +243,12 @@ const GuestGallery: React.FC = () => {
                 />
             </div>
 
-            {/* 3D Arc Container */}
+            {/* Carousel Container — 3D on desktop, flat 2D fan on mobile */}
             <div
                 className="relative w-full flex items-center justify-center mb-8 md:mb-12"
                 style={{
-                    perspective: '1200px',
+                    // Only apply perspective on desktop; mobile uses flat 2D to avoid card intersection
+                    perspective: isMobile ? 'none' : '1200px',
                     perspectiveOrigin: '50% 50%',
                     height: `${cardHeight + 40}px`,
                 }}
@@ -239,22 +256,24 @@ const GuestGallery: React.FC = () => {
                 <div
                     className="relative"
                     style={{
-                        transformStyle: 'preserve-3d',
+                        // preserve-3d only on desktop — on mobile it causes back cards to pierce front cards
+                        transformStyle: isMobile ? 'flat' : 'preserve-3d',
                         width: `${cardWidth}px`,
                         height: `${cardHeight}px`,
                     }}
                 >
                     {cards.map((card) => (
-                            <div
-                                key={card.id}
-                                className="absolute top-0 left-0 transition-[transform,opacity] duration-700 ease-out cursor-pointer"
+                        <div
+                            key={card.id}
+                            className="absolute top-0 left-0 transition-[transform,opacity] duration-700 ease-out cursor-pointer"
                             style={{
                                 width: `${cardWidth}px`,
                                 height: `${cardHeight}px`,
                                 transform: card.style.transform,
                                 opacity: card.style.opacity,
                                 zIndex: card.style.zIndex,
-                                transformStyle: 'preserve-3d',
+                                // Never use preserve-3d on mobile cards
+                                transformStyle: isMobile ? 'flat' : 'preserve-3d',
                             }}
                             onClick={() => setActiveIndex(activeGuests.findIndex(g => g.id === card.id))}
                         >

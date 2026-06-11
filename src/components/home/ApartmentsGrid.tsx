@@ -1,14 +1,16 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Editable from '../ui/Editable';
 import { trackEvent } from '@/services/analytics';
 
+const AUTOPLAY_DELAY = 5000;
+
 const ApartmentsGrid: React.FC = () => {
     const router = useRouter();
-    const [activeIndex, setActiveIndex] = useState(1); // Start with the middle one (Arrebol/1) by default
+    const [activeIndex, setActiveIndex] = useState(1); // Start with middle (Arrebol)
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const touchStartX = useRef<number | null>(null);
 
     const apartments = [
         {
@@ -37,37 +39,80 @@ const ApartmentsGrid: React.FC = () => {
         }
     ];
 
-    const nextSlide = () => {
-        setActiveIndex((prev) => (prev + 1) % apartments.length);
-    };
+    const N = apartments.length;
 
-    const prevSlide = () => {
-        setActiveIndex((prev) => (prev - 1 + apartments.length) % apartments.length);
-    };
+    // --- Auto-play: restart timer after each interaction ---
+    const startAutoPlay = useCallback(() => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => {
+            setActiveIndex((prev) => (prev + 1) % N);
+        }, AUTOPLAY_DELAY);
+    }, [N]);
 
-    // Auto-rotation effect
     useEffect(() => {
-        const interval = setInterval(() => {
-            nextSlide();
-        }, 5000); // 5 seconds per slide
-        return () => clearInterval(interval);
-    }, [apartments.length]);
+        startAutoPlay();
+        return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    }, [startAutoPlay]);
 
-    const getSlideStyles = (index: number) => {
-        if (index === activeIndex) return "z-20 scale-100 opacity-100 translate-x-0";
+    const goTo = (index: number) => {
+        setActiveIndex(index);
+        startAutoPlay(); // reset timer on manual interaction
+    };
 
-        // Calculate relative position for cyclic wrapping with 3 items
-        // If active is 0: 1 is Next (Right), 2 is Prev (Left)
-        // If active is 1: 2 is Next (Right), 0 is Prev (Left)
-        // If active is 2: 0 is Next (Right), 1 is Prev (Left)
+    const nextSlide = () => goTo((activeIndex + 1) % N);
+    const prevSlide = () => goTo((activeIndex - 1 + N) % N);
 
-        const isNext = (activeIndex + 1) % 3 === index;
-        const isPrev = (activeIndex - 1 + 3) % 3 === index;
+    // --- Touch swipe handlers ---
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+    };
 
-        if (isPrev) return "z-10 scale-90 opacity-40 -translate-x-[15%] grayscale"; // Preview Left
-        if (isNext) return "z-10 scale-90 opacity-40 translate-x-[15%] grayscale";  // Preview Right
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartX.current === null) return;
+        const delta = touchStartX.current - e.changedTouches[0].clientX;
+        if (Math.abs(delta) > 48) {
+            delta > 0 ? nextSlide() : prevSlide();
+        }
+        touchStartX.current = null;
+    };
 
-        return "hidden";
+    // --- Dynamic transform per card ---
+    // offset: -1 = left, 0 = center, +1 = right
+    const getCardStyle = (index: number): React.CSSProperties => {
+        let offset = (index - activeIndex + N) % N;
+        if (offset > Math.floor(N / 2)) offset -= N; // normalize: e.g. 2 → -1 for N=3
+
+        const isCenter = offset === 0;
+        const isVisible = Math.abs(offset) <= 1;
+
+        if (!isVisible) {
+            return {
+                transform: `translateX(${offset > 0 ? '130%' : '-130%'}) scale(0.75)`,
+                opacity: 0,
+                zIndex: 0,
+                pointerEvents: 'none',
+                transition: 'transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.35s ease',
+            };
+        }
+
+        const translateX = offset * 72; // % offset for lateral cards
+        const scale = isCenter ? 1 : 0.82;
+        const opacity = isCenter ? 1 : 0.65;
+        const zIndex = isCenter ? 20 : 10;
+        const filter = isCenter ? 'none' : 'blur(0.8px)';
+        const boxShadow = isCenter
+            ? '0 25px 50px -12px rgba(0,0,0,0.5)'
+            : '0 8px 24px -4px rgba(0,0,0,0.3)';
+
+        return {
+            transform: `translateX(${translateX}%) scale(${scale})`,
+            opacity,
+            zIndex,
+            filter,
+            boxShadow,
+            pointerEvents: 'auto',
+            transition: 'transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.45s ease, filter 0.45s ease, box-shadow 0.45s ease',
+        };
     };
 
     return (
@@ -92,26 +137,32 @@ const ApartmentsGrid: React.FC = () => {
                     </h2>
                 </div>
 
-                {/* MOBILE: Coverflow Carousel */}
-                <div className="md:hidden relative h-[500px] w-full flex items-center justify-center">
-                    {/* Navigation Buttons */}
-                    <button onClick={prevSlide} aria-label="Ver apartamento anterior" className="absolute left-2 z-30 bg-white/10 backdrop-blur-md p-3 rounded-full text-white hover:bg-white/20">
-                        <ChevronLeft size={24} />
-                    </button>
-                    <button onClick={nextSlide} aria-label="Ver apartamento siguiente" className="absolute right-2 z-30 bg-white/10 backdrop-blur-md p-3 rounded-full text-white hover:bg-white/20">
-                        <ChevronRight size={24} />
-                    </button>
+                {/* MOBILE: Improved Coverflow Carousel */}
+                <div
+                    className="md:hidden relative h-[500px] w-full flex items-center justify-center"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                >
 
-                    <div className="relative w-[85%] max-w-[320px] h-[450px] flex items-center justify-center perspective-[1000px]">
+                    {/* Cards container — overflow visible so lateral cards peek in */}
+                    <div className="relative w-[78%] max-w-[300px] h-[450px] flex items-center justify-center">
                         {apartments.map((apt, index) => {
-                            const styles = getSlideStyles(index);
                             const isActive = index === activeIndex;
+                            const cardStyle = getCardStyle(index);
 
                             return (
                                 <div
                                     key={apt.id}
-                                    className={`absolute top-0 w-full h-full transition-[transform,opacity] duration-500 ease-out shadow-2xl rounded-[30px] overflow-hidden ${styles}`}
-                                    onClick={() => { if (isActive) { trackEvent('apartment_click', { apartment: apt.id, source: 'mobile_carousel' }); router.push(`/apartamentos/${apt.id}`); } else { index === (activeIndex + 1) % 3 ? nextSlide() : prevSlide(); } }}
+                                    className="absolute top-0 w-full h-full rounded-[30px] overflow-hidden cursor-pointer"
+                                    style={cardStyle}
+                                    onClick={() => {
+                                        if (isActive) {
+                                            trackEvent('apartment_click', { apartment: apt.id, source: 'mobile_carousel' });
+                                            router.push(`/apartamentos/${apt.id}`);
+                                        } else {
+                                            goTo(index);
+                                        }
+                                    }}
                                 >
                                     {/* Image */}
                                     <div className="absolute inset-0">
@@ -122,18 +173,37 @@ const ApartmentsGrid: React.FC = () => {
                                             className="w-full h-full object-cover"
                                             label={`Fondo ${apt.title}`}
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-forest/90 via-forest/10 to-transparent pointer-events-none"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-forest/90 via-forest/10 to-transparent pointer-events-none" />
                                     </div>
 
-                                    {/* Content - Only visible fully on Active */}
-                                    <div className={`absolute bottom-0 left-0 w-full p-8 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-                                        <Editable id={`apartment.${apt.id}.name`} defaultValue={apt.title} className="font-script text-5xl text-white mb-2 block" label="Nombre" />
-                                        <div className="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full mb-3">
-                                            <Editable id={`apartment.${apt.id}.capacity`} defaultValue={apt.pax} className="text-[10px] font-ui font-bold text-white tracking-wider block" label="Capacidad" />
+                                    {/* Content: name always visible, details slide in on active */}
+                                    <div className="absolute bottom-0 left-0 w-full p-6">
+                                        <Editable
+                                            id={`apartment.${apt.id}.name`}
+                                            defaultValue={apt.title}
+                                            className="font-script text-4xl text-white mb-1 block"
+                                            label="Nombre"
+                                        />
+                                        <div
+                                            style={{
+                                                maxHeight: isActive ? '120px' : '0px',
+                                                opacity: isActive ? 1 : 0,
+                                                overflow: 'hidden',
+                                                transition: 'max-height 0.4s ease, opacity 0.35s ease',
+                                            }}
+                                        >
+                                            <div className="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full mb-3">
+                                                <Editable
+                                                    id={`apartment.${apt.id}.capacity`}
+                                                    defaultValue={apt.pax}
+                                                    className="text-[10px] font-ui font-bold text-white tracking-wider block"
+                                                    label="Capacidad"
+                                                />
+                                            </div>
+                                            <button className="font-ui text-[10px] tracking-widest text-white border-b border-white pb-1 block mt-1">
+                                                VER DETALLES
+                                            </button>
                                         </div>
-                                        <button className="font-ui text-[10px] tracking-widest text-white border-b border-white pb-1 block mt-2">
-                                            VER DETALLES
-                                        </button>
                                     </div>
                                 </div>
                             );
@@ -184,11 +254,3 @@ const ApartmentsGrid: React.FC = () => {
 };
 
 export default ApartmentsGrid;
-
-
-
-
-
-
-
-

@@ -194,3 +194,12 @@ body.maintenance-mode #chat-widget {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Utility to hide scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
