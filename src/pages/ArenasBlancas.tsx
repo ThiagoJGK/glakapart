@@ -12,7 +12,7 @@ const ArenasBlancas: React.FC = () => {
                 label="SEO H1"
             />
             
-            <div className="fixed inset-0 -z-20 w-full h-full bg-[#f4f1ea]">
+            <div className="fixed inset-0 -z-20 w-full h-full">
                 <Editable
                     id="arenasblancas.background"
                     type="image"

@@ -29,11 +29,6 @@ export const metadata: Metadata = {
   description: 'Apart Hotel con piscina en Urdinarrain, Entre Ríos ⭐ 4.9/5 en Google. WiFi, aire, cocina completa. Reservá directo.',
   keywords: 'Glak Apart, apartamentos Urdinarrain, alojamiento Urdinarrain, cabañas Entre Ríos, turismo rural Entre Ríos, apart hotel Urdinarrain, alojamiento turístico Urdinarrain, cabañas con pileta Entre Ríos, escapada rural Argentina',
   metadataBase: new URL('https://glakapart.com.ar'),
-  icons: {
-    icon: '/icon.svg',
-    shortcut: '/icon.svg',
-    apple: '/icon.svg',
-  },
   openGraph: {
     type: 'website',
     url: 'https://glakapart.com.ar',
@@ -71,6 +66,11 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
         <link rel="preconnect" href="https://feeds.behold.so" />
         <link rel="dns-prefetch" href="https://feeds.behold.so" />
+        {/* Hardcoded Favicon and Touch Icons */}
+        <link rel="shortcut icon" href="/icon.svg" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
       <body className={`${jost.variable} ${montserrat.variable} ${greatVibes.variable}`}>
         <Providers>
