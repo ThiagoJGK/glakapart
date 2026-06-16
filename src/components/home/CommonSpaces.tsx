@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import Editable from '../ui/Editable';
 import { getContent } from '@/services/content';
+import { getOptimizedCloudinaryUrl } from '@/utils/cloudinaryHelper';
 
 const CommonSpaces: React.FC = () => {
     const [poolGallery, setPoolGallery] = useState<string[]>([]);
@@ -113,7 +114,7 @@ const CommonSpaces: React.FC = () => {
                                     return (
                                         <img
                                             key={idx}
-                                            src={img}
+                                            src={getOptimizedCloudinaryUrl(img, 800)}
                                             alt={`Piscina ${idx + 1}`}
                                             width="800"
                                             height="600"
@@ -171,7 +172,7 @@ const CommonSpaces: React.FC = () => {
                         {/* Content */}
                         <div className="p-8 lg:p-16 space-y-6 lg:w-[45%] flex flex-col justify-center bg-white z-10">
                             <div className="flex flex-col gap-4">
-                                <Editable id="home.common.pool.subbadge" defaultValue="Exclusividad & Relax" className="font-ui text-xs font-bold text-sage tracking-[0.2em] uppercase block" label="Subtítulo Piscina" />
+                                <Editable id="home.common.pool.subbadge" defaultValue="Exclusividad & Relax" className="font-ui text-xs font-bold text-forest tracking-[0.2em] uppercase block" label="Subtítulo Piscina" />
                                 <Editable id="home.common.pool.title" defaultValue="Nuestra Piscina" className="font-script text-4xl md:text-6xl lg:text-7xl leading-tight text-forest block" label="Título Piscina" />
                             </div>
                             <Editable
@@ -216,7 +217,7 @@ const CommonSpaces: React.FC = () => {
                                     return (
                                         <img
                                             key={idx}
-                                            src={img}
+                                            src={getOptimizedCloudinaryUrl(img, 800)}
                                             alt={`Parque ${idx + 1}`}
                                             width="800"
                                             height="600"
@@ -274,7 +275,7 @@ const CommonSpaces: React.FC = () => {
                         {/* Content */}
                         <div className="p-8 lg:p-16 space-y-6 lg:w-[45%] flex flex-col justify-center bg-[#f9faf9] z-10">
                             <div className="flex flex-col gap-2">
-                                <Editable id="home.common.garden.subbadge" defaultValue="Aire Libre" className="font-ui text-xs font-bold text-sage tracking-widest uppercase block" label="Subtítulo Parque" />
+                                <Editable id="home.common.garden.subbadge" defaultValue="Aire Libre" className="font-ui text-xs font-bold text-forest tracking-widest uppercase block" label="Subtítulo Parque" />
                                 <Editable id="home.common.garden.title" defaultValue="Parque y Asadores" className="font-script text-4xl md:text-5xl lg:text-6xl leading-tight text-forest block" label="Título Parque" />
                             </div>
                             <Editable

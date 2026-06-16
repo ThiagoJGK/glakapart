@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Instagram } from 'lucide-react';
 import Editable from '../ui/Editable';
 
@@ -15,8 +15,30 @@ interface InstagramPost {
 
 const InstagramFeed: React.FC = () => {
     const [posts, setPosts] = useState<InstagramPost[]>([]);
+    const [isVisible, setIsVisible] = useState(false);
+    const sectionRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { rootMargin: '200px' } // Load when 200px from viewport
+        );
+
+        if (sectionRef.current) {
+            observer.observe(sectionRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        if (!isVisible) return;
+
         const fetchFeed = async () => {
             try {
                 const response = await fetch(BEHOLD_URL);
@@ -43,10 +65,10 @@ const InstagramFeed: React.FC = () => {
         };
 
         fetchFeed();
-    }, []);
+    }, [isVisible]);
 
     return (
-        <section className="py-12 border-t border-forest/5">
+        <section ref={sectionRef} className="py-12 border-t border-forest/5 min-h-[250px]">
             <div className="container mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-8 gap-4">
                     <div>

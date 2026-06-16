@@ -59,7 +59,7 @@ export const generateBlurredImage = (file: File, blurAmount: number = 20): Promi
  * @param quality The WebP compression quality (0 to 1, default: 0.8).
  * @returns A Promise resolving to the optimized File object.
  */
-export const optimizeImageForWeb = (file: File, maxWidth: number = 1920, quality: number = 0.8): Promise<File> => {
+export const optimizeImageForWeb = (file: File, maxWidth: number = 1600, quality: number = 0.75): Promise<File> => {
     return new Promise((resolve, reject) => {
         // Skip non-images or SVGs/GIFs which might lose animation or get unnecessarily rasterized
         if (!file.type.startsWith('image/') || file.type === 'image/svg+xml' || file.type === 'image/gif') {

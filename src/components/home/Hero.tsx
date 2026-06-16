@@ -16,7 +16,7 @@ const slides = [
         badge3: "URDINARRAIN",
         mainTitle: "Desenchufate del mundo...",
         description: "Viví la experiencia Glak Apart entre paisaje y naturaleza. Alojamientos turísticos pensados para desconectar y disfrutar con los tuyos.",
-        image: ""
+        image: "https://res.cloudinary.com/dpm4judv4/image/upload/f_auto,q_auto,w_1200/nhtwkozddmxwuuervhbf.jpg"
     },
     {
         id: 1,
@@ -25,7 +25,7 @@ const slides = [
         badge3: "SIN CONTAMINACIÓN",
         mainTitle: "Noches mágicas...",
         description: "Descubrí un cielo profundo y brillante, lejos de las luces de la ciudad. La paz de la noche entrerriana te espera.",
-        image: ""
+        image: "https://res.cloudinary.com/dpm4judv4/image/upload/f_auto,q_auto,w_1200/kcwf8npshn6hz5wdc9gu.webp"
     },
     {
         id: 2,
@@ -34,7 +34,7 @@ const slides = [
         badge3: "EN EL CAMPO",
         mainTitle: "Colores que enamoran...",
         description: "Cada tarde es un espectáculo único. Relajate y disfrutá de la caída del sol en un entorno rural inigualable.",
-        image: ""
+        image: "https://res.cloudinary.com/dpm4judv4/image/upload/f_auto,q_auto,w_1200/r74r3uahoccc0p5k1cup.webp"
     }
 ];
 
@@ -241,6 +241,7 @@ const Hero: React.FC = () => {
                                     className="w-full h-full object-cover"
                                     label="Imagen Principal"
                                     withBlur={true}
+                                    width={1200}
                                 />
                                 {/* Gradient to blend image into text part - Modified to use fully opaque base color to avoid beige tone mismatches */}
                                 <div className="absolute bottom-0 left-0 w-full h-12 bg-[#f4f1ea]"></div>
@@ -312,6 +313,7 @@ const Hero: React.FC = () => {
                                             className="w-full h-full object-cover"
                                             label="Imagen Principal"
                                             withBlur={true}
+                                            width={1200}
                                         />
                                     </motion.div>
                                 </AnimatePresence>

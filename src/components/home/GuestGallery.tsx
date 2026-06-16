@@ -226,7 +226,7 @@ const GuestGallery: React.FC = () => {
                 <Editable
                     id="home.guests.badge"
                     defaultValue="Experiencias Reales"
-                    className="font-ui text-[10px] md:text-xs tracking-[0.25em] bg-transparent border border-[#10595a]/20 text-[#10595a]/70 px-4 py-2 rounded-full w-fit uppercase font-bold mb-6 mx-auto inline-block"
+                    className="font-ui text-[10px] md:text-xs tracking-[0.25em] bg-transparent border border-[#10595a]/30 text-[#10595a] px-4 py-2 rounded-full w-fit uppercase font-bold mb-6 mx-auto inline-block"
                     label="Insignia Huéspedes"
                 />
                 <Editable
@@ -238,7 +238,7 @@ const GuestGallery: React.FC = () => {
                 <Editable
                     id="home.guests.subtitle"
                     defaultValue="Momentos que se viven en Glak Apart"
-                    className="font-ui tracking-widest text-sm text-[#10595a]/50 block"
+                    className="font-ui tracking-widest text-sm text-[#10595a]/80 block"
                     label="Subtítulo Huéspedes"
                 />
             </div>
@@ -314,7 +314,7 @@ const GuestGallery: React.FC = () => {
                     <Editable
                         id="home.reviews.count"
                         defaultValue="Más de 70 reseñas"
-                        className="text-[#10595a]/60 font-ui tracking-wider text-xs md:text-sm block mt-1"
+                        className="text-[#10595a]/85 font-ui tracking-wider text-xs md:text-sm block mt-1"
                         label="Cantidad de reseñas"
                     />
                 </div>

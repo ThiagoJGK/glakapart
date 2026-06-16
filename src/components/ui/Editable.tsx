@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAdmin } from '@/context/AdminContext';
 import { getContent, updateContent } from '@/services/content';
 import EditModal from '../admin/EditModal';
+import { getOptimizedCloudinaryUrl } from '@/utils/cloudinaryHelper';
 
 interface EditableProps {
     id: string; // Unique ID for Firestore document/field (e.g. "home.heroTitle")
@@ -12,6 +13,7 @@ interface EditableProps {
     children?: React.ReactNode; // Optional: render children if no dynamic content yet (shim)
     label?: string; // Label for the modal
     withBlur?: boolean; // Enable blur generation for images
+    width?: number; // Target width for Cloudinary optimization
 }
 
 // Helper to parse "collection.document.field" or "section.field"
@@ -25,7 +27,7 @@ const parseId = (id: string) => {
 
 import MissingImagePlaceholder from './MissingImagePlaceholder';
 
-const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', className = '', label = 'Editar Contenido', withBlur }) => {
+const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', className = '', label = 'Editar Contenido', withBlur, width = 800 }) => {
     const { isAdminMode } = useAdmin();
     const [content, setContent] = useState(defaultValue);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -77,10 +79,10 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
                     content ? (
                         <>
                             {/* Hidden img to track loading state for background images */}
-                            <img src={content} onLoad={() => setImgLoaded(true)} className="hidden" alt="preload" />
+                            <img src={getOptimizedCloudinaryUrl(content, width)} onLoad={() => setImgLoaded(true)} className="hidden" alt="preload" />
                             <div
                                 className={`w-full h-full bg-cover bg-center bg-fixed absolute inset-0 transition-opacity duration-1000 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-                                style={{ backgroundImage: `url(${content})`, backgroundColor: '#10595a' }}
+                                style={{ backgroundImage: `url(${getOptimizedCloudinaryUrl(content, width)})`, backgroundColor: '#10595a' }}
                             ></div>
                             {/* Optional: Add a low quality placeholder or solid color behind while loading */}
                             {!imgLoaded && <div className="absolute inset-0 bg-[#10595a] animate-pulse"></div>}
@@ -92,9 +94,9 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
                     content ? (
                         <>
                             <img 
-                                width={800} 
+                                width={width} 
                                 height={600} 
-                                src={content} 
+                                src={getOptimizedCloudinaryUrl(content, width)} 
                                 alt={label} 
                                 onLoad={() => setImgLoaded(true)}
                                 className={`w-full h-full object-cover transition-opacity duration-1000 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} 
