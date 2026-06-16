@@ -66,10 +66,9 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
         <link rel="preconnect" href="https://feeds.behold.so" />
         <link rel="dns-prefetch" href="https://feeds.behold.so" />
-        {/* Hardcoded Favicon and Touch Icons */}
-        <link rel="shortcut icon" href="/icon.svg" />
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        {/* Favicon - uses icon.svg (circular palm tree, transparent background) */}
         <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+        <link rel="shortcut icon" href="/icon.svg" />
         <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
       <body className={`${jost.variable} ${montserrat.variable} ${greatVibes.variable}`}>
