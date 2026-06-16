@@ -9,7 +9,9 @@ import {
     Timestamp, 
     where,
     getDocs,
-    or
+    or,
+    setDoc,
+    increment
 } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 
@@ -69,72 +71,35 @@ export const createInquiry = async (data: CreateInquiryInput): Promise<string> =
     try {
         const { firstName, lastName, phone, phoneCountryCode = '', email, checkIn, checkOut, adults, children, message = '' } = data;
         
-        let guestId = '';
-        let guestData: any = null;
-        
-        const guestsRef = collection(db, GUESTS_COLLECTION);
-        const queries = [];
-        
         const trimmedEmail = email ? email.trim().toLowerCase() : '';
-        const trimmedPhone = phone ? phone.trim() : '';
+        const trimmedPhone = phone ? phone.trim().replace(/\D/g, '') : '';
 
-        if (trimmedEmail) {
-            queries.push(where('email', '==', trimmedEmail));
-        }
-        if (trimmedPhone) {
-            queries.push(where('phone', '==', trimmedPhone));
-        }
-
-        // Search for existing guest
-        if (queries.length > 0) {
-            const q = queries.length === 2 
-                ? query(guestsRef, or(queries[0], queries[1])) 
-                : query(guestsRef, queries[0]);
-                
-            const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-                const docSnap = querySnapshot.docs[0];
-                guestId = docSnap.id;
-                guestData = docSnap.data();
-            }
-        }
-
+        // Generate a deterministic guest ID to avoid querying the collection (read permission restricted to admin)
+        const guestId = trimmedEmail 
+            ? `email_${trimmedEmail.replace(/[^a-z0-9._-]/g, '_')}` 
+            : `phone_${trimmedPhone}`;
+            
+        const guestDocRef = doc(db, GUESTS_COLLECTION, guestId);
         const now = Timestamp.now();
 
-        if (guestId && guestData) {
-            // Update existing guest
-            const updatedGuest = {
-                firstName: firstName || guestData.firstName,
-                lastName: lastName || guestData.lastName,
-                phone: trimmedPhone || guestData.phone,
-                phoneCountryCode: phoneCountryCode || guestData.phoneCountryCode || '',
-                email: trimmedEmail || guestData.email,
-                inquiryCount: (guestData.inquiryCount || 0) + 1,
-                updatedAt: now
-            };
-            await updateDoc(doc(db, GUESTS_COLLECTION, guestId), updatedGuest);
-        } else {
-            // Create new guest
-            const newGuest = {
-                firstName: firstName || '',
-                lastName: lastName || '',
-                phone: trimmedPhone || '',
-                phoneCountryCode: phoneCountryCode || '',
-                email: trimmedEmail || '',
-                inquiryCount: 1,
-                createdAt: now,
-                updatedAt: now
-            };
-            const docRef = await addDoc(collection(db, GUESTS_COLLECTION), newGuest);
-            guestId = docRef.id;
-        }
+        // Write guest information (create if new, update/merge if exists).
+        // Since we only create/update, this does not require READ permissions!
+        await setDoc(guestDocRef, {
+            firstName: firstName || '',
+            lastName: lastName || '',
+            phone: phone || '',
+            phoneCountryCode: phoneCountryCode || '',
+            email: trimmedEmail || '',
+            inquiryCount: increment(1),
+            updatedAt: now
+        }, { merge: true });
 
         // Create inquiry
         const newInquiry = {
             guestId,
             firstName: firstName || '',
             lastName: lastName || '',
-            phone: trimmedPhone || '',
+            phone: phone || '',
             phoneCountryCode: phoneCountryCode || '',
             email: trimmedEmail || '',
             checkIn,
