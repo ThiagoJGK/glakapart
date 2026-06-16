@@ -109,7 +109,7 @@ export default function RootLayout({
                 "ratingValue": "5.0",
                 "reviewCount": "8",
                 "bestRating": "5",
-                "worstRating": "3.5"
+                "worstRating": "1"
               },
               "priceRange": "$$"
             }

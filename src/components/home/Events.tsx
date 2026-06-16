@@ -69,6 +69,13 @@ const Events: React.FC = () => {
         setSelectedDate(parseISO(upcomingEvents[nextIdx].startDate));
     };
 
+    const handleReserveClick = () => {
+        const element = document.getElementById('reservas');
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     // Check if an annual event has a confirmed future date
     const hasUpcomingDate = (ev: Event) => {
         return new Date(ev.endDate) >= new Date();
@@ -99,15 +106,15 @@ const Events: React.FC = () => {
 
                         <style>{`
                             .rdp { --rdp-cell-size: 45px; margin: 0; }
-                            .rdp-day_selected:not([disabled]), .rdp-day_selected:focus-visible:not([disabled]), .rdp-day_selected:hover:not([disabled]) {
-                                background-color: #10595a; 
-                                color: white;
+                            .rdp-selected .rdp-day_button {
+                                background-color: #10595a !important; 
+                                color: white !important;
                             }
-                            .event-circle {
-                                background-color: #9dd1a6;
-                                color: white;
-                                border-radius: 50%;
-                                font-weight: bold;
+                            .event-circle .rdp-day_button {
+                                background-color: #9dd1a6 !important;
+                                color: #10595a !important;
+                                border-radius: 50% !important;
+                                font-weight: bold !important;
                             }
                             .rdp-caption_label {
                                 font-family: 'Montserrat', sans-serif;
@@ -189,7 +196,10 @@ const Events: React.FC = () => {
                                             </div>
                                         )}
 
-                                        <button className="text-xs font-bold tracking-[0.2em] text-sage border-b border-sage/30 pb-1 hover:text-forest hover:border-forest transition-all">
+                                        <button 
+                                            onClick={handleReserveClick}
+                                            className="text-xs font-bold tracking-[0.2em] text-sage border-b border-sage/30 pb-1 hover:text-forest hover:border-forest transition-all"
+                                        >
                                             RESERVAR PARA ESTA FECHA
                                         </button>
                                     </div>

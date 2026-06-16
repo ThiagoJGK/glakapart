@@ -32,6 +32,8 @@ const nextConfig: NextConfig = {
       { source: '/parque-santa-candida', destination: '/lugares', permanent: true },
       { source: '/nacarado', destination: '/apartamentos/nacarado', permanent: true },
       { source: '/arrebol', destination: '/apartamentos/arrebol', permanent: true },
+      { source: '/arje', destination: '/apartamentos/arje', permanent: true },
+      { source: '/apartamentos', destination: '/#apartamentos', permanent: true },
       { source: '/glak-apart', destination: '/', permanent: true },
     ];
   },

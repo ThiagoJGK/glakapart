@@ -12,7 +12,14 @@ const FloatingBookingButton: React.FC = () => {
 
     useEffect(() => {
         const toggleVisibility = () => {
-            if (window.scrollY > 300) {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            
+            // Hide if we are within 400px of the bottom of the page
+            const isNearBottom = documentHeight - (scrollPosition + windowHeight) < 400;
+            
+            if (scrollPosition > 300 && !isNearBottom) {
                 setIsVisible(true);
             } else {
                 setIsVisible(false);
@@ -20,7 +27,12 @@ const FloatingBookingButton: React.FC = () => {
         };
 
         window.addEventListener('scroll', toggleVisibility);
-        return () => window.removeEventListener('scroll', toggleVisibility);
+        window.addEventListener('resize', toggleVisibility);
+        toggleVisibility();
+        return () => {
+            window.removeEventListener('scroll', toggleVisibility);
+            window.removeEventListener('resize', toggleVisibility);
+        };
     }, []);
 
     const [isBookingOrFooterVisible, setIsBookingOrFooterVisible] = useState(false);

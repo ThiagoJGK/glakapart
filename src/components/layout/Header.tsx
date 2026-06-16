@@ -22,6 +22,7 @@ const Header: React.FC = () => {
     // Dynamic Hero Slide State
     const [heroSlideBg, setHeroSlideBg] = useState<string>("");
     const [heroSlideBlur, setHeroSlideBlur] = useState<string>("");
+    const [isSticky, setIsSticky] = useState(false);
 
     useEffect(() => {
         // Load settings and listen for updates
@@ -63,9 +64,20 @@ const Header: React.FC = () => {
         };
         window.addEventListener('HERO_SLIDE_CHANGE', slideHandler);
 
+        const handleScroll = () => {
+            if (window.scrollY > 200) {
+                setIsSticky(true);
+            } else {
+                setIsSticky(false);
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        handleScroll();
+
         return () => {
             window.removeEventListener('GLAK_CONTENT_UPDATE', updateHandler);
             window.removeEventListener('HERO_SLIDE_CHANGE', slideHandler);
+            window.removeEventListener('scroll', handleScroll);
         };
     }, []);
 
@@ -194,6 +206,22 @@ const Header: React.FC = () => {
                     </Link>
                 )}
             </div>
+        );
+    };
+
+    const StickyNavLink = ({ to, label, onClick }: { to?: string; label: string; onClick?: () => void }) => {
+        const isActive = to ? currentPath === to : false;
+
+        return (
+            <Link
+                href={to!}
+                onClick={onClick}
+                className={`relative px-4 py-2 text-xs tracking-[0.15em] uppercase rounded-full transition-all duration-300 text-[#10595a] font-medium hover:bg-[#10595a]/10 flex items-center justify-center ${
+                    isActive ? 'bg-[#10595a]/10 font-bold' : ''
+                }`}
+            >
+                {label}
+            </Link>
         );
     };
 
@@ -337,6 +365,60 @@ const Header: React.FC = () => {
                     <p>GLAK APART</p>
                 </div>
             </div>
+
+            {/* Curved Sticky Header */}
+            <motion.div
+                initial={{ y: '-100%' }}
+                animate={{ y: isSticky ? 0 : '-100%' }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className={`fixed top-0 left-0 w-full z-[70] bg-white/90 backdrop-blur-xl border-b border-white/20 rounded-b-[2rem] shadow-lg shadow-black/5 h-16 md:h-20 flex items-center transition-all ${isSticky ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
+            >
+                {/* Mobile/Tablet Sticky Header Layout */}
+                <div className="lg:hidden flex items-center justify-between w-full px-6">
+                    <div className="w-8"></div>
+                    <Link href="/" aria-label="Ir al inicio" className="flex items-center cursor-pointer">
+                        <div className="rounded-full bg-[#165959] p-1 flex items-center justify-center shadow-md">
+                            <Logo className="w-12 h-auto" />
+                        </div>
+                    </Link>
+                    <button
+                        className="text-[#10595a] relative focus:outline-none pointer-events-auto z-[80]"
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        aria-label="Toggle Menu"
+                    >
+                        <div className="w-8 h-8 flex flex-col justify-center items-center gap-[6px]">
+                            <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 rotate-45 translate-y-[9px]' : 'w-8'} bg-[#10595a]`}></span>
+                            <span className={`block h-[3px] rounded-full transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'w-0 opacity-0' : 'w-6'} bg-[#10595a]`}></span>
+                            <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 -rotate-45 -translate-y-[9px]' : 'w-5'} bg-[#10595a]`}></span>
+                        </div>
+                    </button>
+                </div>
+
+                {/* Desktop Sticky Header Layout */}
+                <div className="hidden lg:flex items-center justify-between w-full px-10">
+                    <Link href="/" aria-label="Ir al inicio" className="flex items-center cursor-pointer">
+                        <div className="rounded-full bg-[#165959] p-1.5 flex items-center justify-center shadow-md">
+                            <Logo className="w-14 h-auto" />
+                        </div>
+                    </Link>
+
+                    <nav className="flex items-center gap-6">
+                        <StickyNavLink to="/" label="Inicio" />
+                        <StickyNavLink to="/gastronomia" label="Gastronomía" />
+                        <StickyNavLink to="/lugares" label="Lugares" />
+                        <StickyNavLink to="/eventos" label="Eventos" />
+                    </nav>
+
+                    <div>
+                        <button
+                            onClick={scrollToReservas}
+                            className="px-6 py-2.5 bg-[#10595a] hover:bg-[#093334] text-white text-xs font-semibold tracking-[0.15em] uppercase rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                        >
+                            Reservar
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
         </header>
     );
 };

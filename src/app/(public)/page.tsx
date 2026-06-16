@@ -8,13 +8,25 @@ export async function generateMetadata(): Promise<Metadata> {
     const seo = await getContent('seo').catch(() => null);
     const title = seo?.['home.title'] || 'Glak Apart | Apartamentos turísticos en Urdinarrain, Entre Ríos';
     const description = seo?.['home.description'] || 'Viví la experiencia Glak Apart entre paisaje y naturaleza. Alojamientos turísticos pensados para desconectar y disfrutar con los tuyos.';
-    const imageUrl = seo?.['home.image'];
+    const imageUrl = seo?.['home.image'] || 'https://glakapart.com.ar/icon.svg';
     return {
         title,
         description,
         alternates: { canonical: 'https://glakapart.com.ar/' },
-        openGraph: { title, description, images: [{ url: imageUrl, width: 1200, height: 630 }], locale: 'es_AR', type: 'website', siteName: 'Glak Apart' },
-        twitter: { card: 'summary_large_image', title, description, images: [imageUrl] },
+        openGraph: { 
+            title, 
+            description, 
+            images: imageUrl ? [{ url: imageUrl, width: 1200, height: 630 }] : [], 
+            locale: 'es_AR', 
+            type: 'website', 
+            siteName: 'Glak Apart' 
+        },
+        twitter: { 
+            card: 'summary_large_image', 
+            title, 
+            description, 
+            images: imageUrl ? [imageUrl] : [] 
+        },
     };
 }
 

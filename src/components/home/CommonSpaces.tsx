@@ -40,6 +40,14 @@ const CommonSpaces: React.FC = () => {
         return () => clearInterval(interval);
     }, [galleriesLoaded, poolGallery.length]);
 
+    useEffect(() => {
+        if (!galleriesLoaded || gardenGallery.length <= 1) return;
+        const interval = setInterval(() => {
+            setGardenIndex((prev) => (prev + 1) % gardenGallery.length);
+        }, 5000); // changes every 5 seconds
+        return () => clearInterval(interval);
+    }, [galleriesLoaded, gardenGallery.length]);
+
     const handleSwipe = (type: 'pool' | 'garden', direction: 1 | -1) => {
         if (type === 'pool') {
             if (poolGallery.length <= 1) return;
@@ -81,12 +89,6 @@ const CommonSpaces: React.FC = () => {
                 <div className="flex flex-col gap-16 lg:gap-24">
                     {/* --- POOL CARD (FULL WIDTH & HIGH IMPACT) --- */}
                     <div className="bg-white rounded-[40px] shadow-lg border border-gray-100 group hover:shadow-2xl transition-all duration-700 overflow-hidden flex flex-col lg:flex-row relative">
-                        
-                        {/* Unique Badge for Desktop */}
-                        <div className="hidden lg:flex absolute top-10 right-10 bg-gradient-to-r from-sage to-forest text-white text-xs font-ui font-bold px-6 py-3 rounded-full shadow-lg z-20 items-center gap-2 transform rotate-2 hover:rotate-0 transition-transform">
-                            <Star size={14} className="fill-current" />
-                            <Editable id="home.common.pool.badge" defaultValue="ÚNICO ALOJAMIENTO CON PISCINA" className="inline" label="Badge Piscina" />
-                        </div>
 
                         {/* Image Gallery */}
                         <div
@@ -134,12 +136,6 @@ const CommonSpaces: React.FC = () => {
                             
                             {/* Inner Shadow for better text/button contrast */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 opacity-0 group-hover/gallery:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-
-                            {/* Mobile Unique Badge */}
-                            <div className="absolute top-4 left-4 lg:hidden bg-gradient-to-r from-sage to-forest text-white text-[10px] font-ui font-bold px-4 py-2 rounded-full shadow-md z-20 flex items-center gap-1.5">
-                                <Star size={12} className="fill-current" />
-                                <Editable id="home.common.pool.badge.mobile" defaultValue="ÚNICO ALOJAMIENTO CON PISCINA" className="inline" label="Badge Piscina Móvil" />
-                            </div>
 
                             {poolGallery.length > 1 && (
                                 <div className="absolute inset-0 hidden md:flex items-center justify-between px-4 opacity-60 hover:opacity-100 transition-opacity z-10 pointer-events-none">
@@ -199,7 +195,7 @@ const CommonSpaces: React.FC = () => {
                         
                         {/* Image Gallery */}
                         <div
-                            className="h-[350px] lg:h-[500px] w-full lg:w-[45%] relative group/gallery isolate overflow-hidden bg-[#f4f1ea]"
+                            className="h-[400px] lg:h-[600px] w-full lg:w-[55%] relative group/gallery isolate overflow-hidden bg-[#f4f1ea]"
                             onTouchStart={(e) => { gardenTouchStart.current = e.touches[0].clientX; }}
                             onTouchEnd={(e) => {
                                 if (gardenTouchStart.current === null) return;
@@ -276,7 +272,7 @@ const CommonSpaces: React.FC = () => {
                         </div>
 
                         {/* Content */}
-                        <div className="p-8 lg:p-16 space-y-6 lg:w-[55%] flex flex-col justify-center bg-[#f9faf9] z-10">
+                        <div className="p-8 lg:p-16 space-y-6 lg:w-[45%] flex flex-col justify-center bg-[#f9faf9] z-10">
                             <div className="flex flex-col gap-2">
                                 <Editable id="home.common.garden.subbadge" defaultValue="Aire Libre" className="font-ui text-xs font-bold text-sage tracking-widest uppercase block" label="Subtítulo Parque" />
                                 <Editable id="home.common.garden.title" defaultValue="Parque y Asadores" className="font-script text-4xl md:text-5xl lg:text-6xl leading-tight text-forest block" label="Título Parque" />

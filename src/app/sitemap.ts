@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
         { url: `${baseUrl}/gastronomia`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
         { url: `${baseUrl}/lugares`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${baseUrl}/lugares/arenas-blancas`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
         { url: `${baseUrl}/eventos`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
         ...apartments.map(id => ({
             url: `${baseUrl}/apartamentos/${id}`,

@@ -76,22 +76,24 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                 }
                 
                 /* Selected Day Override - TARGETING ATTRIBUTES TO ENSURE HIT */
-                .event-calendar-custom [aria-selected="true"],
-                .event-calendar-custom [data-selected="true"],
-                .event-calendar-custom [aria-selected="true"]:hover,
-                .event-calendar-custom [data-selected="true"]:hover { 
+                .event-calendar-custom [aria-selected="true"] .rdp-day_button,
+                .event-calendar-custom [data-selected="true"] .rdp-day_button,
+                .event-calendar-custom .rdp-selected .rdp-day_button,
+                .event-calendar-custom [aria-selected="true"]:hover .rdp-day_button,
+                .event-calendar-custom [data-selected="true"]:hover .rdp-day_button,
+                .event-calendar-custom .rdp-selected:hover .rdp-day_button { 
                     color: #ffffff !important;
                     background-color: #10595a !important;
                     border: none !important;
                 }
                 
                 /* AGGRESSIVELY Force WHITE text on everything inside selected day */
-                .event-calendar-custom [aria-selected="true"] *,
-                .event-calendar-custom [data-selected="true"] *,
-                .event-calendar-custom [aria-selected="true"] button,
-                .event-calendar-custom [data-selected="true"] button,
-                .event-calendar-custom [aria-selected="true"] span,
-                .event-calendar-custom [data-selected="true"] span {
+                .event-calendar-custom [aria-selected="true"] .rdp-day_button *,
+                .event-calendar-custom [data-selected="true"] .rdp-day_button *,
+                .event-calendar-custom .rdp-selected .rdp-day_button *,
+                .event-calendar-custom [aria-selected="true"] .rdp-day_button,
+                .event-calendar-custom [data-selected="true"] .rdp-day_button,
+                .event-calendar-custom .rdp-selected .rdp-day_button {
                     color: #ffffff !important;
                     fill: #ffffff !important;
                     z-index: 50 !important;

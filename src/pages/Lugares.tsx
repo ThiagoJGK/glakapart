@@ -32,32 +32,34 @@ const Lugares: React.FC = () => {
                         className="font-script text-7xl md:text-9xl text-forest relative z-20 drop-shadow-sm block"
                         label="Título Principal"
                     />
+                </div>
+
+                {/* Hero Image in Frame with Badge */}
+                <div className="relative w-full max-w-6xl mx-auto mb-16 group">
+                    <div className="relative h-[500px] w-full rounded-[3rem] overflow-hidden shadow-2xl border-[8px] border-white transform hover:rotate-0 transition-transform duration-500">
+                        <Editable
+                            id="lugares.heroImage"
+                            type="image"
+                            defaultValue=""
+                            className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-1000"
+                            label="Imagen Hero Lugares"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                        <div className="absolute bottom-10 left-0 w-full text-center px-4">
+                            <Editable
+                                id="lugares.hero.description"
+                                type="textarea"
+                                defaultValue='"Urdinarrain combina la vida rural con experiencias auténticas. Donde el silbato del tren marcó el inicio de una historia de progreso e identidad."'
+                                className="text-white/90 text-xl font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md block font-sans"
+                                label="Descripción Hero"
+                            />
+                        </div>
+                    </div>
                     {/* Badge Overlay */}
-                    <div className="absolute -top-6 -right-4 md:-top-12 md:-right-16 w-24 h-24 md:w-40 md:h-40 bg-white rounded-full shadow-xl flex flex-col items-center justify-center p-2 md:p-4 transform rotate-12 animate-float border-2 md:border-4 border-[#e8d5b5]">
+                    <div className="absolute -bottom-6 -right-4 md:-bottom-12 md:-right-12 w-24 h-24 md:w-40 md:h-40 bg-white rounded-full shadow-2xl flex flex-col items-center justify-center p-2 md:p-4 transform rotate-12 animate-float border-2 md:border-4 border-[#e8d5b5] z-30">
                         <Editable id="lugares.hero.badge.1" defaultValue="UN TURISMO" className="text-[6px] md:text-[10px] uppercase tracking-widest text-forest font-bold mb-0.5 md:mb-1 block" label="Badge L1" />
                         <Editable id="lugares.hero.badge.2" defaultValue="BEST TOURISM VILLAGE" className="font-ui font-bold text-[6px] md:text-xs tracking-[0.3em] uppercase bg-[#10595a] text-white px-2 py-1 md:px-4 md:py-2 rounded-full text-center leading-tight block" label="Badge L2" />
                         <Editable id="lugares.hero.badge.3" defaultValue="2024" className="text-sm md:text-xl font-bold text-forest mt-0.5 md:mt-1 block" label="Badge L3" />
-                    </div>
-                </div>
-
-                {/* Hero Image in Frame */}
-                <div className="relative h-[500px] w-full max-w-6xl mx-auto rounded-[3rem] overflow-hidden shadow-2xl border-[8px] border-white transform hover:rotate-0 transition-transform duration-500 mb-16 group">
-                    <Editable
-                        id="lugares.heroImage"
-                        type="image"
-                        defaultValue=""
-                        className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-1000"
-                        label="Imagen Hero Lugares"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    <div className="absolute bottom-10 left-0 w-full text-center px-4">
-                        <Editable
-                            id="lugares.hero.description"
-                            type="textarea"
-                            defaultValue='"Urdinarrain combina la vida rural con experiencias auténticas. Donde el silbato del tren marcó el inicio de una historia de progreso e identidad."'
-                            className="text-white/90 text-xl font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md block font-sans"
-                            label="Descripción Hero"
-                        />
                     </div>
                 </div>
 

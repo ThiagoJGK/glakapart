@@ -94,7 +94,7 @@ const Footer: React.FC = () => {
             </div>
 
             {/* Main Footer Content - Forest Background */}
-            <div className="w-full bg-[#10595a] text-white relative overflow-hidden mt-[-1px]">
+            <div className="w-full bg-[#10595a] text-white relative overflow-visible mt-[-1px]">
                  
                 <button
                     onClick={scrollToTop}

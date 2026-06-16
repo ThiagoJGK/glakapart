@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'react-day-picker/style.css';
 import { trackEvent } from '@/services/analytics';
+import { ShieldCheck } from 'lucide-react';
 
 
 const GeneralBookingForm: React.FC = () => {
@@ -409,7 +410,7 @@ Espero su respuesta, gracias!`;
     `;
 
     const renderFormContent = (isMobile: boolean) => {
-        const inputClass = `w-full bg-gray-50 border-none rounded-xl text-sm text-[#10595a] placeholder-gray-300 focus:ring-1 focus:ring-[#10595a] transition-all ${
+        const inputClass = `w-full bg-white border border-gray-200 rounded-xl text-sm text-[#10595a] placeholder-gray-400 focus:border-[#10595a]/50 focus:ring-1 focus:ring-[#10595a]/30 transition-all ${
             isMobile ? 'px-3 py-2' : 'px-4 py-2'
         }`;
         
@@ -596,8 +597,9 @@ Espero su respuesta, gracias!`;
                 </button>
 
                 {/* AVISO DE PRIVACIDAD INLINE */}
-                <div className="p-2 px-3 bg-[#f3f9f5] border border-[#d6ebd9] rounded-xl text-[9.5px] text-gray-600 leading-relaxed">
-                    <span>✅ Al enviar tu consulta, guardaremos tus datos para poder comunicarnos contigo. Si no envías el mensaje por WhatsApp, igualmente nos pondremos en contacto.</span>
+                <div className="p-2 px-3 bg-[#f3f9f5] border border-[#d6ebd9] rounded-xl text-xs text-gray-600 leading-relaxed flex items-start gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#10595a] shrink-0 mt-0.5" />
+                    <span>Al enviar tu consulta, guardaremos tus datos para poder comunicarnos contigo. Si no envías el mensaje por WhatsApp, igualmente nos pondremos en contacto.</span>
                 </div>
 
                 <p className="text-[9px] text-gray-300 text-center tracking-wide mt-1">Redirige a WhatsApp</p>

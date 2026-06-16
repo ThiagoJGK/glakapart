@@ -27,7 +27,8 @@ import {
     Archive,
     Check,
     Save,
-    ExternalLink
+    ExternalLink,
+    X
 } from 'lucide-react';
 import { Toast } from '../ui/Toast';
 
@@ -309,7 +310,7 @@ export const AdminGuests: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
                     {/* Left Column: Search, Filters & Inquiries List */}
-                    <div className="lg:col-span-2 space-y-4">
+                    <div className={`lg:col-span-2 space-y-4 ${selectedInquiryId ? 'hidden lg:block' : 'block'}`}>
                         {/* Filters Card */}
                         <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-4">
                             {/* Search bar */}
@@ -412,41 +413,50 @@ export const AdminGuests: React.FC = () => {
                     </div>
 
                     {/* Right Column: Detailed Inquiry View */}
-                    <div className="lg:col-span-1">
+                    <div className={`lg:col-span-1 ${selectedInquiryId ? 'block' : 'hidden lg:block'}`}>
                         {selectedInquiry ? (
                             <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden sticky top-6">
                                 {/* Detail Header */}
                                 <div className="bg-gray-50 px-5 py-4 border-b border-gray-100 flex justify-between items-center">
-                                    <h3 className="font-bold text-gray-700 text-xs tracking-wider uppercase">Detalle de Solicitud</h3>
-                                    <span className={`px-2.5 py-0.5 text-[10px] font-bold rounded-full border ${STATUS_COLORS[selectedInquiry.status].bg} ${STATUS_COLORS[selectedInquiry.status].text} ${STATUS_COLORS[selectedInquiry.status].border}`}>
-                                        {STATUS_LABELS[selectedInquiry.status]}
-                                    </span>
+                                    <h3 className="font-bold text-gray-800 text-xs tracking-wider uppercase">Detalle de Solicitud</h3>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full border ${STATUS_COLORS[selectedInquiry.status].bg} ${STATUS_COLORS[selectedInquiry.status].text} ${STATUS_COLORS[selectedInquiry.status].border}`}>
+                                            {STATUS_LABELS[selectedInquiry.status]}
+                                        </span>
+                                        <button
+                                            onClick={() => setSelectedInquiryId(null)}
+                                            className="lg:hidden text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-150 transition-colors"
+                                            aria-label="Cerrar detalle"
+                                        >
+                                            <X size={18} />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Detail Body */}
                                 <div className="p-5 space-y-6">
                                     {/* Guest Card */}
                                     <div className="space-y-3">
-                                        <h4 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Huésped</h4>
+                                        <h4 className="text-xs font-bold text-gray-500 tracking-widest uppercase">Huésped</h4>
                                         <div className="bg-gray-50 p-4 rounded-xl space-y-2.5 border border-gray-100">
-                                            <p className="font-bold text-gray-800 text-base leading-none">
+                                            <p className="font-bold text-gray-850 text-base leading-none">
                                                 {selectedInquiry.firstName} {selectedInquiry.lastName}
                                             </p>
-                                            <div className="space-y-1.5 text-xs text-gray-600">
+                                            <div className="space-y-1.5 text-sm text-gray-600">
                                                 <a href={`tel:${selectedInquiry.phone}`} className="flex items-center gap-2 hover:text-forest transition-colors">
-                                                    <Phone size={13} className="text-gray-400" />
+                                                    <Phone size={14} className="text-gray-400" />
                                                     {selectedInquiry.phone}
                                                 </a>
                                                 <a href={`mailto:${selectedInquiry.email}`} className="flex items-center gap-2 hover:text-forest transition-colors truncate">
-                                                    <Mail size={13} className="text-gray-400" />
+                                                    <Mail size={14} className="text-gray-400" />
                                                     {selectedInquiry.email}
                                                 </a>
                                             </div>
                                             <button
                                                 onClick={() => handleViewHistoryLink(selectedInquiry.phone)}
-                                                className="w-full flex items-center justify-center gap-1.5 text-[10px] font-bold text-[#10595a] bg-[#10595a]/5 hover:bg-[#10595a]/10 px-3 py-2 rounded-lg transition-colors mt-2"
+                                                className="w-full flex items-center justify-center gap-1.5 text-xs font-bold text-[#10595a] bg-[#10595a]/5 hover:bg-[#10595a]/10 px-3 py-2.5 rounded-xl transition-colors mt-2"
                                             >
-                                                <ExternalLink size={12} />
+                                                <ExternalLink size={13} />
                                                 VER HISTORIAL EN AGENDA
                                             </button>
                                         </div>
@@ -455,20 +465,29 @@ export const AdminGuests: React.FC = () => {
                                     {/* Dates & Guest Counts */}
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <h5 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-1">Check-In</h5>
-                                            <div className="bg-gray-50 px-3 py-2 rounded-lg font-mono text-sm text-gray-700 font-bold border border-gray-100">
+                                            <h5 className="text-xs font-bold text-gray-500 tracking-widest uppercase mb-1.5 flex items-center gap-1">
+                                                <Calendar size={13} className="text-gray-400" />
+                                                Check-In
+                                            </h5>
+                                            <div className="bg-gray-50 px-3 py-2.5 rounded-xl font-mono text-sm text-gray-800 font-bold border border-gray-100">
                                                 {selectedInquiry.checkIn}
                                             </div>
                                         </div>
                                         <div>
-                                            <h5 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-1">Check-Out</h5>
-                                            <div className="bg-gray-50 px-3 py-2 rounded-lg font-mono text-sm text-gray-700 font-bold border border-gray-100">
+                                            <h5 className="text-xs font-bold text-gray-500 tracking-widest uppercase mb-1.5 flex items-center gap-1">
+                                                <Calendar size={13} className="text-gray-400" />
+                                                Check-Out
+                                            </h5>
+                                            <div className="bg-gray-50 px-3 py-2.5 rounded-xl font-mono text-sm text-gray-800 font-bold border border-gray-100">
                                                 {selectedInquiry.checkOut}
                                             </div>
                                         </div>
                                         <div className="col-span-2">
-                                            <h5 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-1">Huéspedes</h5>
-                                            <div className="bg-gray-50 px-3 py-2 rounded-lg text-sm text-gray-700 font-semibold border border-gray-100">
+                                            <h5 className="text-xs font-bold text-gray-500 tracking-widest uppercase mb-1.5 flex items-center gap-1">
+                                                <Users size={13} className="text-gray-400" />
+                                                Huéspedes
+                                            </h5>
+                                            <div className="bg-gray-50 px-3 py-2.5 rounded-xl text-sm text-gray-800 font-semibold border border-gray-100">
                                                 {selectedInquiry.adults} Adultos {selectedInquiry.children > 0 && `· ${selectedInquiry.children} Niños`}
                                             </div>
                                         </div>
@@ -476,9 +495,9 @@ export const AdminGuests: React.FC = () => {
 
                                     {/* Optional message */}
                                     {selectedInquiry.message && (
-                                        <div className="space-y-1">
-                                            <h5 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Mensaje del Huésped</h5>
-                                            <p className="bg-gray-50 p-3.5 rounded-xl text-xs text-gray-600 italic leading-relaxed border border-gray-100">
+                                        <div className="space-y-1.5">
+                                            <h5 className="text-xs font-bold text-gray-500 tracking-widest uppercase">Mensaje del Huésped</h5>
+                                            <p className="bg-gray-50 p-3.5 rounded-xl text-sm text-gray-700 italic leading-relaxed border border-gray-100">
                                                 "{selectedInquiry.message}"
                                             </p>
                                         </div>
@@ -486,13 +505,13 @@ export const AdminGuests: React.FC = () => {
 
                                     {/* Status Switcher */}
                                     <div className="space-y-2">
-                                        <h5 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Actualizar Estado</h5>
+                                        <h5 className="text-xs font-bold text-gray-500 tracking-widest uppercase">Actualizar Estado</h5>
                                         <div className="grid grid-cols-2 gap-1.5">
                                             {(Object.keys(STATUS_LABELS) as Array<Inquiry['status']>).map((st) => (
                                                 <button
                                                     key={st}
                                                     onClick={() => handleStatusChange(selectedInquiry.id, st)}
-                                                    className={`px-2 py-2 rounded-lg text-xs font-bold transition-colors border text-center ${
+                                                    className={`px-2 py-2.5 rounded-xl text-sm font-semibold transition-colors border text-center ${
                                                         selectedInquiry.status === st
                                                             ? 'bg-[#10595a] text-white border-[#10595a] shadow-sm'
                                                             : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
@@ -507,9 +526,9 @@ export const AdminGuests: React.FC = () => {
                                     {/* Admin Notes */}
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-center">
-                                            <h5 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Notas Administrativas</h5>
+                                            <h5 className="text-xs font-bold text-gray-500 tracking-widest uppercase">Notas Administrativas</h5>
                                             {savingNotesId === selectedInquiry.id && (
-                                                <span className="text-[9px] text-[#10595a] animate-pulse">Guardando...</span>
+                                                <span className="text-[10px] text-[#10595a] animate-pulse">Guardando...</span>
                                             )}
                                         </div>
                                         <div className="relative">
@@ -517,7 +536,7 @@ export const AdminGuests: React.FC = () => {
                                                 rows={3}
                                                 value={adminNotes}
                                                 onChange={(e) => setAdminNotes(e.target.value)}
-                                                className="w-full bg-white border border-gray-200 rounded-xl p-3 text-xs text-gray-700 placeholder-gray-300 focus:outline-none focus:border-forest resize-none"
+                                                className="w-full bg-white border border-gray-200 rounded-xl p-3.5 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:border-forest resize-none"
                                                 placeholder="Ej. Ya se le pasó presupuesto / Esperando seña..."
                                             />
                                             <button
@@ -541,9 +560,9 @@ export const AdminGuests: React.FC = () => {
                                                 handleStatusChange(selectedInquiry.id, 'contacted');
                                             }
                                         }}
-                                        className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 px-4 rounded-xl text-xs font-bold tracking-widest hover:bg-[#20ba5a] transition-all shadow-md hover:shadow-lg uppercase text-center"
+                                        className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 px-4 rounded-xl text-sm font-bold tracking-widest hover:bg-[#20ba5a] transition-all shadow-md hover:shadow-lg uppercase text-center"
                                     >
-                                        <MessageCircle size={15} />
+                                        <MessageCircle size={16} />
                                         Contactar por WhatsApp
                                     </a>
                                 </div>

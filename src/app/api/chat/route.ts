@@ -52,34 +52,31 @@ export async function POST(req: Request) {
         const userContext = chatbotConfig.systemPrompt || '';
         const systemInstruction = IDENTITY_PROMPT + (userContext ? `\n\n**Información del Establecimiento (proporcionada por el dueño):**\n${userContext}` : '');
 
-        // Initialize new GoogleGenAI client
-        const client = new GoogleGenAI({ apiKey });
+        // Convert the message history into the contents format expected by standard Gemini API
+        const contents = messages.map((m: any) => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: m.content }]
+        }));
 
-        const latestMessage = messages[messages.length - 1].content;
+        // Initialize new GoogleGenAI client using the standard modern API
+        const ai = new GoogleGenAI({ apiKey });
 
-        // Ensure we pass the previous interaction if available
-        let params: any = {
-            model: 'gemini-3-flash-preview',
-            input: latestMessage,
-            system_instruction: systemInstruction,
-            generation_config: {
-                max_output_tokens: 1200,
+        // Call standard generateContent method with gemini-2.5-flash
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: contents,
+            config: {
+                systemInstruction: systemInstruction,
                 temperature: 0.9,
+                maxOutputTokens: 1200,
             }
-        };
+        });
 
-        if (previousInteractionId) {
-            params.previous_interaction_id = previousInteractionId;
-        }
-
-        const interaction = await client.interactions.create(params);
-
-        const lastOutput: any = interaction?.outputs?.[interaction.outputs.length - 1];
-        const responseText = lastOutput?.text || "Lo siento, no pude generar una respuesta. Intentá de nuevo.";
+        const responseText = response.text || "Lo siento, no pude generar una respuesta. Intentá de nuevo.";
 
         return NextResponse.json({
             response: responseText,
-            interactionId: interaction.id
+            interactionId: previousInteractionId || "interaction-id"
         });
 
     } catch (error: any) {
