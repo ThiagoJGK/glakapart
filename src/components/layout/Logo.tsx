@@ -20,7 +20,7 @@ export const Logo: React.FC<{ className?: string }> = ({ className = "w-32" }) =
     // Render Dynamic Content if available
     if (settings) {
         if (settings.logoType === 'image' && settings.logoUrl) {
-            return <img width={800} height={600} src={settings.logoUrl} alt="Logo" className={`${className} object-contain`} />;
+            return <img width={800} height={600} src={settings.logoUrl} decoding="async" alt="Logo" className={`${className} object-contain`} />;
         }
 
         if (settings.logoType === 'svg' && settings.logoSvg) {
@@ -38,6 +38,7 @@ export const Logo: React.FC<{ className?: string }> = ({ className = "w-32" }) =
     return (
         <img width={800} height={600}
             src="/logo.svg"
+            decoding="async"
             alt="Glak Apart"
             className={`${className} object-contain`}
         />

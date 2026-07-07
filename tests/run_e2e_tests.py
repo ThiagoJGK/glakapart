@@ -145,6 +145,25 @@ class E2ETestRunner:
 
         # 1. Docker daemon availability
         res = self.run_cmd("docker info", check=False)
+        if res is None or res.returncode != 0:
+            print("[INFO] Docker daemon is not running. Attempting to start Docker Desktop...")
+            docker_path = "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe"
+            if os.path.exists(docker_path):
+                try:
+                    subprocess.Popen([docker_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    print("[INFO] Launched Docker Desktop. Waiting for daemon to become ready (up to 60s)...")
+                    for _ in range(60):
+                        time.sleep(1)
+                        check_res = self.run_cmd("docker info", check=False)
+                        if check_res is not None and check_res.returncode == 0:
+                            print("[INFO] Docker daemon is now running and responsive.")
+                            res = check_res
+                            break
+                except Exception as e:
+                    print(f"[ERROR] Failed to start Docker Desktop programmatically: {e}")
+            else:
+                print(f"[WARN] Docker Desktop not found at default path: {docker_path}")
+        
         self.assert_true(res is not None and res.returncode == 0, "Docker daemon is running and responsive")
 
         # 2. Port conflict checks

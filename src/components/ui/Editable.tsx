@@ -79,7 +79,7 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
                     content ? (
                         <>
                             {/* Hidden img to track loading state for background images */}
-                            <img src={getOptimizedCloudinaryUrl(content, width)} onLoad={() => setImgLoaded(true)} className="hidden" alt="preload" />
+                            <img src={getOptimizedCloudinaryUrl(content, width)} decoding="async" onLoad={() => setImgLoaded(true)} className="hidden" alt="preload" />
                             <div
                                 className={`w-full h-full bg-cover bg-center bg-fixed absolute inset-0 transition-opacity duration-1000 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
                                 style={{ backgroundImage: `url(${getOptimizedCloudinaryUrl(content, width)})`, backgroundColor: '#10595a' }}
@@ -98,6 +98,7 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
                                 height={600} 
                                 src={getOptimizedCloudinaryUrl(content, width)} 
                                 alt={label} 
+                                decoding="async"
                                 onLoad={() => setImgLoaded(true)}
                                 className={`w-full h-full object-cover transition-opacity duration-1000 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} 
                             />

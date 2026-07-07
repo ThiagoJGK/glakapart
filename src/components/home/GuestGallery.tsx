@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Editable from '../ui/Editable';
 import { Star, Quote, ExternalLink } from 'lucide-react';
 import { getContent } from '@/services/content';
+import { getOptimizedCloudinaryUrl } from '@/utils/cloudinaryHelper';
 
 const DUMMY_GUESTS = [
     { id: 1, image: '' },
@@ -280,8 +281,9 @@ const GuestGallery: React.FC = () => {
                             <div className="w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl bg-[#10595a]/10 flex items-center justify-center">
                                 {card.image ? (
                                     <img
-                                        src={card.image}
+                                        src={getOptimizedCloudinaryUrl(card.image, 400)}
                                         alt="Huésped de Glak Apart"
+                                        decoding="async"
                                         className="w-full h-full object-cover"
                                         loading="lazy"
                                         draggable={false}

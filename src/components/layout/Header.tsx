@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Logo } from '@/components/layout/Logo';
 import Editable from '@/components/ui/Editable';
 import { getContent } from '@/services/content';
+import { getOptimizedCloudinaryUrl } from '@/utils/cloudinaryHelper';
 
 
 const Header: React.FC = () => {
@@ -111,7 +112,7 @@ const Header: React.FC = () => {
 
     // Helper to get BG style for frosted elements
     const getFrostedStyle = () => currentBlurUrl ? {
-        backgroundImage: `url('${currentBlurUrl}')`,
+        backgroundImage: `url('${getOptimizedCloudinaryUrl(currentBlurUrl, 300)}')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
@@ -244,7 +245,7 @@ const Header: React.FC = () => {
     return (
         <header className={headerClasses}>
             {currentBgUrl && (
-                <link rel="preload" as="image" href={currentBgUrl} fetchPriority="high" />
+                <link rel="preload" as="image" href={getOptimizedCloudinaryUrl(currentBgUrl, 1600)} fetchPriority="high" />
             )}
             {/* SVG Definitions for Clip Paths (Invisible) */}
             <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
@@ -261,7 +262,7 @@ const Header: React.FC = () => {
             <div
                 className={`absolute top-0 left-0 w-full overflow-hidden pointer-events-none header-curved-bg transition-all duration-[1500ms] ease-in-out ${isHome ? 'z-0 extended' : 'z-20'}`}
                 style={useCustomHeader ? {
-                    backgroundImage: `url('${currentBgUrl}')`,
+                    backgroundImage: `url('${getOptimizedCloudinaryUrl(currentBgUrl, 1600)}')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundAttachment: 'fixed',

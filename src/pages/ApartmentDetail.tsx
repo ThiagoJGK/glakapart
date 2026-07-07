@@ -8,6 +8,7 @@ import ScrollReveal from '@/components/ui/ScrollReveal';
 import Editable from '@/components/ui/Editable';
 import { ChevronLeft, ChevronRight, X, View } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getOptimizedCloudinaryUrl } from '@/utils/cloudinaryHelper';
 
 const ApartmentDetail: React.FC = () => {
     const params = useParams();
@@ -99,8 +100,9 @@ const ApartmentDetail: React.FC = () => {
                 <div className="relative h-[60vh] md:h-[500px] w-full max-w-6xl mx-auto overflow-hidden rounded-[3rem] shadow-2xl border-[8px] border-white cursor-pointer transform hover:rotate-1 transition-transform duration-500" onClick={() => displayGallery.length > 0 && openLightbox(0)}>
                     {displayGallery[0] && (
                         <img
-                            src={displayGallery[0]}
+                            src={getOptimizedCloudinaryUrl(displayGallery[0], 1200)}
                             alt={`${apt.name} — vista principal, Glak Apart Urdinarrain`}
+                            decoding="async"
                             className="w-full h-full object-cover"
                         />
                     )}
@@ -201,7 +203,7 @@ const ApartmentDetail: React.FC = () => {
                                         className="min-w-[85vw] h-[400px] rounded-[2rem] overflow-hidden shadow-xl relative snap-center cursor-pointer flex-shrink-0"
                                         onClick={() => openLightbox(idx)}
                                     >
-                                        <img src={img} className="w-full h-full object-cover" alt={`${apt.name} — galería foto ${idx + 1}, Glak Apart`} />
+                                        <img src={getOptimizedCloudinaryUrl(img, 600)} decoding="async" className="w-full h-full object-cover" alt={`${apt.name} — galería foto ${idx + 1}, Glak Apart`} />
                                         <div className="absolute inset-0 bg-black/10 active:bg-black/20 transition-colors pointer-events-none"></div>
                                         <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md rounded-full px-3 py-1 pointer-events-none">
                                             <span className="text-white text-xs font-ui tracking-widest">{idx + 1} / {displayGallery.length}</span>
@@ -217,7 +219,7 @@ const ApartmentDetail: React.FC = () => {
                                     className="col-span-2 row-span-2 rounded-[2.5rem] overflow-hidden shadow-2xl relative cursor-pointer group"
                                     onClick={() => openLightbox(0)}
                                 >
-                                    <img src={displayGallery[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={`${apt.name} — foto principal, Glak Apart`} />
+                                    <img src={getOptimizedCloudinaryUrl(displayGallery[0], 800)} decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={`${apt.name} — foto principal, Glak Apart`} />
                                     <div className="absolute inset-0 bg-black/5 group-hover:bg-black/20 transition-colors duration-500 flex items-center justify-center">
                                         <div className="bg-white/20 backdrop-blur-md rounded-full p-4 opacity-0 group-hover:opacity-100 transition-opacity transform scale-50 group-hover:scale-100 duration-300 pointer-events-none">
                                             <View className="text-white w-8 h-8" />
@@ -237,7 +239,7 @@ const ApartmentDetail: React.FC = () => {
                                             className="col-span-1 row-span-1 rounded-[2rem] overflow-hidden shadow-xl relative cursor-pointer group"
                                             onClick={() => openLightbox(actualIndex)}
                                         >
-                                            <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={`${apt.name} — detalle ${actualIndex + 1}, Glak Apart`} />
+                                            <img src={getOptimizedCloudinaryUrl(img, 600)} decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={`${apt.name} — detalle ${actualIndex + 1}, Glak Apart`} />
                                             <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500 pointer-events-none flex items-center justify-center">
                                                 {!isLastShown || !hasMore ? (
                                                      <div className="bg-white/20 backdrop-blur-md rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -325,7 +327,8 @@ const ApartmentDetail: React.FC = () => {
                         {/* Image */}
                         <motion.img
                             key={lightboxIndex}
-                            src={displayGallery[lightboxIndex]}
+                            src={getOptimizedCloudinaryUrl(displayGallery[lightboxIndex], 1600)}
+                            decoding="async"
                             alt={`${apt.name} - Foto ${lightboxIndex + 1}`}
                             initial={{ opacity: 0, scale: 0.9, x: 0 }}
                             animate={{ opacity: 1, scale: 1, x: 0 }}
@@ -364,7 +367,7 @@ const ApartmentDetail: React.FC = () => {
                                         onClick={e => { e.stopPropagation(); setLightboxIndex(i); }}
                                         className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${i === lightboxIndex ? 'border-white scale-110' : 'border-transparent opacity-50 hover:opacity-80'}`}
                                     >
-                                        <img src={img} alt={`${apt.name} — miniatura`} className="w-full h-full object-cover" />
+                                        <img src={getOptimizedCloudinaryUrl(img, 150)} decoding="async" alt={`${apt.name} — miniatura`} className="w-full h-full object-cover" />
                                     </button>
                                 ))}
                             </div>

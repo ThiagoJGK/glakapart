@@ -15,6 +15,7 @@ import { SeasonSpring } from '@/components/events/SeasonSpring';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import Editable from '@/components/ui/Editable';
+import { getOptimizedCloudinaryUrl } from '@/utils/cloudinaryHelper';
 
 const EventsPage: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
@@ -165,7 +166,8 @@ const EventsPage: React.FC = () => {
                                             <div className="absolute inset-0 bg-[#90c69e]/20 rounded-[2.5rem] transform rotate-3 scale-105 transition-transform group-hover:rotate-6"></div>
                                             <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden shadow-lg border-2 border-white">
                                                 <img
-                                                    src={selectedEvent.image || ""}
+                                                    src={getOptimizedCloudinaryUrl(selectedEvent.image || "", 800)}
+                                                    decoding="async"
                                                     className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                                                     alt={selectedEvent.title || 'Evento en Urdinarrain — Glak Apart'}
                                                 />
@@ -259,7 +261,8 @@ const EventsPage: React.FC = () => {
                                 <div className="h-52 rounded-[2rem] overflow-hidden mb-6 relative z-0">
                                     <div className="absolute inset-0 bg-[#10595a]/20 group-hover:bg-transparent transition-colors duration-500 z-10 hidden"></div>
                                     <img
-                                        src={ev.image || ""}
+                                        src={getOptimizedCloudinaryUrl(ev.image || "", 600)}
+                                        decoding="async"
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                         alt={ev.title || 'Evento en Urdinarrain — Glak Apart'}
                                         onError={(e) => (e.currentTarget.src = "")}

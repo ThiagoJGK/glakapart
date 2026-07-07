@@ -118,6 +118,7 @@ const CommonSpaces: React.FC = () => {
                                             alt={`Piscina ${idx + 1}`}
                                             width="800"
                                             height="600"
+                                            decoding="async"
                                             loading={isActive || isNext ? "eager" : "lazy"}
                                             className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out will-change-transform will-change-opacity ${
                                                 isActive ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'
@@ -221,6 +222,7 @@ const CommonSpaces: React.FC = () => {
                                             alt={`Parque ${idx + 1}`}
                                             width="800"
                                             height="600"
+                                            decoding="async"
                                             loading={isActive || isNext ? "eager" : "lazy"}
                                             className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out will-change-transform will-change-opacity ${
                                                 isActive ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0'

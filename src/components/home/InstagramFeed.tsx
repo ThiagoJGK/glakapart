@@ -102,6 +102,7 @@ const InstagramFeed: React.FC = () => {
                         >
                             <img width={800} height={600}
                                 src={post.mediaUrl}
+                                decoding="async"
                                 alt={post.caption || "Instagram Post"}
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
