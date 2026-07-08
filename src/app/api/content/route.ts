@@ -1,40 +1,11 @@
 import { NextResponse } from 'next/server';
-import { initializeApp, getApps, cert, App } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/services/firebase';
 
-let adminApp: App;
+// Forzar render dinámico (nunca cachear estáticamente)
+export const dynamic = 'force-dynamic';
 
-/**
- * Inicializa Firebase Admin SDK (solo corre en el servidor).
- * Usa las credenciales de la variable de entorno FIREBASE_SERVICE_ACCOUNT_KEY
- * o bien las Application Default Credentials si está en GCP/Cloud Run.
- */
-function getAdminApp(): App {
-    if (adminApp) return adminApp;
-    if (getApps().length > 0) {
-        adminApp = getApps()[0];
-        return adminApp;
-    }
-
-    const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-
-    if (serviceAccountKey) {
-        const serviceAccount = JSON.parse(serviceAccountKey);
-        adminApp = initializeApp({
-            credential: cert(serviceAccount),
-            projectId: serviceAccount.project_id,
-        });
-    } else {
-        // En Cloud Run / GCE usa las credenciales del ambiente automáticamente
-        adminApp = initializeApp({
-            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'apart-glak',
-        });
-    }
-
-    return adminApp;
-}
-
-// Cache en memoria del servidor (se resetea con cada deploy / reinicio)
+// Cache en memoria del servidor (se resetea con cada deploy)
 let serverCache: Record<string, unknown> | null = null;
 let serverCacheTimestamp = 0;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
@@ -53,11 +24,10 @@ export async function GET() {
             });
         }
 
-        const app = getAdminApp();
-        const db = getFirestore(app);
-        const docSnap = await db.collection('content').doc('main').get();
+        const docRef = doc(db, 'content', 'main');
+        const docSnap = await getDoc(docRef);
 
-        if (!docSnap.exists) {
+        if (!docSnap.exists()) {
             return NextResponse.json({}, {
                 headers: { 'Cache-Control': 'public, s-maxage=60' },
             });
