@@ -1,0 +1,42 @@
+name: Deploy a Hostinger VPS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: 🚀 Deploy a producción
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Conectar al VPS y deployar
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+
+            echo "📦 Entrando al directorio del proyecto..."
+            cd ${{ secrets.VPS_PROJECT_PATH }}
+
+            echo "🔄 Actualizando código desde GitHub..."
+            git pull origin master
+
+            echo "🔑 Actualizando variables de entorno..."
+            cat > .env.local << 'ENVEOF'
+            GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+            RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+            FIREBASE_SERVICE_ACCOUNT_KEY=${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+            ENVEOF
+
+            echo "🐳 Rebuildeando y reiniciando Docker..."
+            docker compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.prod.yml up --build -d
+
+            echo "✅ Deploy completado exitosamente!"
+            docker compose -f docker-compose.prod.yml ps
