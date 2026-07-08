@@ -14,6 +14,8 @@ interface EditableProps {
     label?: string; // Label for the modal
     withBlur?: boolean; // Enable blur generation for images
     width?: number; // Target width for Cloudinary optimization
+    /** Marcar como true para imágenes above-the-fold (Hero). Aplica fetchpriority=high y loading=eager */
+    eager?: boolean;
 }
 
 // Helper to parse "collection.document.field" or "section.field"
@@ -27,7 +29,7 @@ const parseId = (id: string) => {
 
 import MissingImagePlaceholder from './MissingImagePlaceholder';
 
-const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', className = '', label = 'Editar Contenido', withBlur, width = 800 }) => {
+const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', className = '', label = 'Editar Contenido', withBlur, width = 800, eager = false }) => {
     const { isAdminMode } = useAdmin();
     const [content, setContent] = useState(defaultValue);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -98,7 +100,10 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
                                 height={600} 
                                 src={getOptimizedCloudinaryUrl(content, width)} 
                                 alt={label} 
-                                decoding="async"
+                                decoding={eager ? 'sync' : 'async'}
+                                loading={eager ? 'eager' : undefined}
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                {...(eager ? { fetchpriority: 'high' } : {}) as any}
                                 onLoad={() => setImgLoaded(true)}
                                 className={`w-full h-full object-cover transition-opacity duration-1000 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} 
                             />

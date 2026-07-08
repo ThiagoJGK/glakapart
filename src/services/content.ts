@@ -3,28 +3,43 @@ import { db } from '@/services/firebase';
 import { applySampleData, SAMPLE_DATA } from '@/data/sampleData';
 
 const CACHE_KEY = 'site_content';
-let memCache: any = null;
+let memCache: Record<string, unknown> | null = null;
+let fetchPromise: Promise<void> | null = null; // Evitar múltiples fetches simultáneos
 
 /**
- * Pre-fetch ALL content from Firebase into memory cache.
+ * Pre-fetch ALL content desde el API route server-side.
+ * Al ir a /api/content (mismo origen), el browser nunca bloquea el request.
  * Call this once at app startup so all Editable components
  * can read from cache instantly without individual network requests.
  */
 export const prefetchContent = async (): Promise<void> => {
-    try {
-        const docRef = doc(db, "content", "main");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            memCache = docSnap.data();
+    // Durante SSR/SSG (build time) las URLs relativas no funcionan → usar defaults y cargar en el cliente
+    if (typeof window === 'undefined') return;
+
+    // Si ya hay un fetch en progreso, esperar al mismo
+    if (fetchPromise) return fetchPromise;
+
+    fetchPromise = (async () => {
+        try {
+            const res = await fetch('/api/content', {
+                // next.js cache: revalidar cada 5 min en el browser
+                next: { revalidate: 300 },
+            } as RequestInit);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            memCache = await res.json();
+        } catch (e) {
+            console.warn('Prefetch failed, components will fetch individually:', e);
+        } finally {
+            fetchPromise = null;
         }
-    } catch (e) {
-        console.warn("Prefetch failed, components will fetch individually:", e);
-    }
+    })();
+
+    return fetchPromise;
 };
 
 export const getContent = async (section: string) => {
     // Return mock data for initial load/dev if DB fails or is empty
-    const defaults: any = {
+    const defaults: Record<string, unknown> = {
         hero: {
             title: "natural",
             subtitle: "URDINARRAIN",
@@ -40,32 +55,31 @@ export const getContent = async (section: string) => {
     };
 
     try {
+        // Si el cache ya está populado, usarlo directamente
         if (memCache) {
-            const rawData = memCache[section] || defaults[section];
-            const isSampleMode = memCache?.settings?.sampleMode === true;
+            const rawData = (memCache[section] as Record<string, unknown>) || defaults[section];
+            const isSampleMode = (memCache?.settings as Record<string, unknown>)?.sampleMode === true;
             if (isSampleMode && SAMPLE_DATA[section]) {
                 return applySampleData(rawData, SAMPLE_DATA[section]);
             }
             return rawData;
         }
 
-        const docRef = doc(db, "content", "main");
-        const docSnap = await getDoc(docRef);
+        // Si no hay cache, disparar prefetch y esperar
+        await prefetchContent();
 
-        if (docSnap.exists()) {
-            memCache = docSnap.data();
-            const rawData = memCache[section] || defaults[section];
-            const isSampleMode = memCache?.settings?.sampleMode === true;
+        if (memCache) {
+            const rawData = (memCache[section] as Record<string, unknown>) || defaults[section];
+            const isSampleMode = (memCache?.settings as Record<string, unknown>)?.sampleMode === true;
             if (isSampleMode && SAMPLE_DATA[section]) {
                 return applySampleData(rawData, SAMPLE_DATA[section]);
             }
             return rawData;
-        } else {
-            console.log("No such document! using defaults");
-            return defaults[section];
         }
+
+        return defaults[section];
     } catch (e) {
-        console.error("Error fetching document: ", e);
+        console.error('Error fetching content:', e);
         return defaults[section];
     }
 };

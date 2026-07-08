@@ -242,6 +242,7 @@ const Hero: React.FC = () => {
                                     label="Imagen Principal"
                                     withBlur={true}
                                     width={1200}
+                                    eager={true}
                                 />
                                 {/* Gradient to blend image into text part - Modified to use fully opaque base color to avoid beige tone mismatches */}
                                 <div className="absolute bottom-0 left-0 w-full h-12 bg-[#f4f1ea]"></div>
@@ -314,6 +315,7 @@ const Hero: React.FC = () => {
                                             label="Imagen Principal"
                                             withBlur={true}
                                             width={1200}
+                                            eager={true}
                                         />
                                     </motion.div>
                                 </AnimatePresence>

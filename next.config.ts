@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Evita que Next.js intente bundlear firebase-admin (usa módulos nativos de Node.js)
+  serverExternalPackages: ['firebase-admin', '@google-cloud/firestore', '@opentelemetry/api'],
 
   turbopack: {
     root: __dirname,
