@@ -103,7 +103,7 @@ const Editable: React.FC<EditableProps> = ({ id, defaultValue, type = 'text', cl
                                 decoding={eager ? 'sync' : 'async'}
                                 loading={eager ? 'eager' : undefined}
                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                {...(eager ? { fetchpriority: 'high' } : {}) as any}
+                                {...(eager ? { fetchPriority: 'high' } : {}) as any}
                                 onLoad={() => setImgLoaded(true)}
                                 className={`w-full h-full object-cover transition-opacity duration-1000 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} 
                             />
