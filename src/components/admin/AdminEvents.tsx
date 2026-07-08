@@ -133,7 +133,7 @@ const AdminEvents: React.FC = () => {
         setSyncStatus('Eliminando eventos del municipio...');
         setSyncProgress(20);
         try {
-            const manualEvents = events.filter(ev => !ev.source || ev.source === 'manual');
+            const manualEvents = events.filter(ev => ev.source !== 'urdinarrain' && !ev.id.startsWith('sync-urdinarrain-'));
             setSyncProgress(60);
             const success = await saveToDb(manualEvents);
             if (success) {

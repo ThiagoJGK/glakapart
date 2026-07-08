@@ -304,6 +304,24 @@ export function isTouristOrCulturalEvent(wpEvent: any): boolean {
             }
         }
 
+        // 2. Palabras clave de interés puramente local o para residentes a descartar automaticamente
+        const localResidentKeywords = [
+            'carreras', 'oferta academica', 'oferta académica', 'estudiante', 
+            'inscripcion', 'inscripción', 'inscripciones', 'ciclo lectivo', 'vacunacion', 'vacunación', 
+            'castracion', 'castración', 'antirrabica', 'antirrábica', 'quirófano', 'quirofano',
+            'campaña de salud', 'capacitacion', 'capacitación', 'charla informativa', 
+            'curso de', 'taller de empleo', 'bolsa de trabajo', 'taller municipal', 
+            'talleres municipales', 'clases de', 'donacion de sangre', 'donación de sangre',
+            'colecta', 'rifa', 'sorteo'
+        ];
+
+        for (const kw of localResidentKeywords) {
+            if (title.includes(kw) || content.includes(kw)) {
+                console.log(`🚫 Filtrado por interés puramente local/residente: "${wpEvent.title?.rendered}"`);
+                return false;
+            }
+        }
+
         // 2. Comprobar tags o categorías asignadas por el WordPress
         let categories: string[] = [];
         if (wpEvent._embedded && wpEvent._embedded['wp:term'] && wpEvent._embedded['wp:term'][1]) {
