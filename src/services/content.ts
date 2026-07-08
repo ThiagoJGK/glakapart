@@ -3,43 +3,28 @@ import { db } from '@/services/firebase';
 import { applySampleData, SAMPLE_DATA } from '@/data/sampleData';
 
 const CACHE_KEY = 'site_content';
-let memCache: Record<string, unknown> | null = null;
-let fetchPromise: Promise<void> | null = null; // Evitar múltiples fetches simultáneos
+let memCache: any = null;
 
 /**
- * Pre-fetch ALL content desde el API route server-side.
- * Al ir a /api/content (mismo origen), el browser nunca bloquea el request.
+ * Pre-fetch ALL content from Firebase into memory cache.
  * Call this once at app startup so all Editable components
  * can read from cache instantly without individual network requests.
  */
 export const prefetchContent = async (): Promise<void> => {
-    // Durante SSR/SSG (build time) las URLs relativas no funcionan → usar defaults y cargar en el cliente
-    if (typeof window === 'undefined') return;
-
-    // Si ya hay un fetch en progreso, esperar al mismo
-    if (fetchPromise) return fetchPromise;
-
-    fetchPromise = (async () => {
-        try {
-            const res = await fetch('/api/content', {
-                // next.js cache: revalidar cada 5 min en el browser
-                next: { revalidate: 300 },
-            } as RequestInit);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            memCache = await res.json();
-        } catch (e) {
-            console.warn('Prefetch failed, components will fetch individually:', e);
-        } finally {
-            fetchPromise = null;
+    try {
+        const docRef = doc(db, "content", "main");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            memCache = docSnap.data();
         }
-    })();
-
-    return fetchPromise;
+    } catch (e) {
+        console.warn("Prefetch failed, components will fetch individually:", e);
+    }
 };
 
 export const getContent = async (section: string) => {
     // Return mock data for initial load/dev if DB fails or is empty
-    const defaults: Record<string, unknown> = {
+    const defaults: any = {
         hero: {
             title: "natural",
             subtitle: "URDINARRAIN",
@@ -55,31 +40,32 @@ export const getContent = async (section: string) => {
     };
 
     try {
-        // Si el cache ya está populado, usarlo directamente
         if (memCache) {
-            const rawData = (memCache[section] as Record<string, unknown>) || defaults[section];
-            const isSampleMode = (memCache?.settings as Record<string, unknown>)?.sampleMode === true;
+            const rawData = memCache[section] || defaults[section];
+            const isSampleMode = memCache?.settings?.sampleMode === true;
             if (isSampleMode && SAMPLE_DATA[section]) {
                 return applySampleData(rawData, SAMPLE_DATA[section]);
             }
             return rawData;
         }
 
-        // Si no hay cache, disparar prefetch y esperar
-        await prefetchContent();
+        const docRef = doc(db, "content", "main");
+        const docSnap = await getDoc(docRef);
 
-        if (memCache) {
-            const rawData = (memCache[section] as Record<string, unknown>) || defaults[section];
-            const isSampleMode = (memCache?.settings as Record<string, unknown>)?.sampleMode === true;
+        if (docSnap.exists()) {
+            memCache = docSnap.data();
+            const rawData = memCache[section] || defaults[section];
+            const isSampleMode = memCache?.settings?.sampleMode === true;
             if (isSampleMode && SAMPLE_DATA[section]) {
                 return applySampleData(rawData, SAMPLE_DATA[section]);
             }
             return rawData;
+        } else {
+            console.log("No such document! using defaults");
+            return defaults[section];
         }
-
-        return defaults[section];
     } catch (e) {
-        console.error('Error fetching content:', e);
+        console.error("Error fetching document: ", e);
         return defaults[section];
     }
 };
@@ -107,5 +93,3 @@ export const updateContent = async (section: string, key: string, value: any) =>
         return false;
     }
 };
-
-
