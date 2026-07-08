@@ -1,16 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '@/context/AdminContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { auth } from '@/services/firebase';
-import AdminBranding from '@/components/admin/branding/AdminBranding';
-import AdminEvents from '@/components/admin/events/AdminEvents';
-import AdminFAQ from '@/components/admin/faq/AdminFAQ';
-import AdminImages from '@/components/admin/images/AdminImages';
-import AdminTexts from '@/components/admin/texts/AdminTexts';
-import AdminStats from '@/components/admin/stats/AdminStats';
-import AdminSEO from '@/components/admin/seo/AdminSEO';
 import { Logo } from '@/components/layout/Logo';
 import { 
     LayoutDashboard, 
@@ -25,7 +19,6 @@ import {
     Lock,
     Users
 } from 'lucide-react';
-import { AdminGuests } from '@/components/admin/guests/AdminGuests';
 import { subscribeToNewInquiriesCount } from '@/services/inquiries';
 
 const ALLOWED_EMAILS = [
@@ -106,13 +99,26 @@ const AdminLogin: React.FC = () => {
     );
 };
 
-// ─── Admin Panel ───
-const Admin: React.FC = () => {
-    const [activeTab, setActiveTab] = useState('dashboard');
+// ─── Admin Panel Layout ───
+const Admin: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const pathname = usePathname();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [newInquiriesCount, setNewInquiriesCount] = useState(0);
     const { toggleDraftMode, authLoading, user } = useAdmin();
     const router = useRouter();
+
+    const getActiveTab = (path: string) => {
+        if (path.endsWith('/admin/huespedes')) return 'guests';
+        if (path.endsWith('/admin/imagenes')) return 'images-manager';
+        if (path.endsWith('/admin/textos')) return 'texts-manager';
+        if (path.endsWith('/admin/eventos')) return 'events';
+        if (path.endsWith('/admin/faq')) return 'faq';
+        if (path.endsWith('/admin/seo')) return 'seo';
+        if (path.endsWith('/admin/configuracion')) return 'settings';
+        return 'dashboard';
+    };
+
+    const activeTab = getActiveTab(pathname);
 
     useEffect(() => {
         if (user && ALLOWED_EMAILS.includes(user.email?.toLowerCase() || '')) {
@@ -141,11 +147,6 @@ const Admin: React.FC = () => {
         await signOut(auth);
     };
 
-    const handleTabChange = (tab: string) => {
-        setActiveTab(tab);
-        setMobileMenuOpen(false);
-    };
-
     const navButtonClass = (tab: string) =>
         `w-full flex items-center gap-3 px-5 py-2.5 text-xs font-semibold tracking-wider text-white/70 hover:text-white hover:bg-white/5 transition-all rounded-xl relative ${
             activeTab === tab 
@@ -155,12 +156,14 @@ const Admin: React.FC = () => {
 
     const NavButton: React.FC<{
         tab: string;
+        path: string;
         icon: React.ReactNode;
         label: string;
         badge?: React.ReactNode;
-    }> = ({ tab, icon, label, badge }) => (
-        <button
-            onClick={() => handleTabChange(tab)}
+    }> = ({ tab, path, icon, label, badge }) => (
+        <Link
+            href={path}
+            onClick={() => setMobileMenuOpen(false)}
             className={navButtonClass(tab)}
         >
             {activeTab === tab && (
@@ -169,18 +172,20 @@ const Admin: React.FC = () => {
             {icon}
             <span className="flex-1 text-left">{label}</span>
             {badge}
-        </button>
+        </Link>
     );
 
     const NavContent = () => (
         <>
             <NavButton
                 tab="dashboard"
+                path="/admin"
                 icon={<LayoutDashboard size={14} className={activeTab === 'dashboard' ? 'text-sage' : 'text-white/40'} />}
                 label="PANEL PRINCIPAL"
             />
             <NavButton
                 tab="guests"
+                path="/admin/huespedes"
                 icon={<Users size={14} className={activeTab === 'guests' ? 'text-sage' : 'text-white/40'} />}
                 label="HUÉSPEDES"
                 badge={newInquiriesCount > 0 && (
@@ -201,11 +206,13 @@ const Admin: React.FC = () => {
 
             <NavButton
                 tab="images-manager"
+                path="/admin/imagenes"
                 icon={<ImageIcon size={14} className={activeTab === 'images-manager' ? 'text-sage' : 'text-white/40'} />}
                 label="GESTIÓN DE IMÁGENES"
             />
             <NavButton
                 tab="texts-manager"
+                path="/admin/textos"
                 icon={<FileText size={14} className={activeTab === 'texts-manager' ? 'text-sage' : 'text-white/40'} />}
                 label="GESTIÓN DE TEXTOS"
             />
@@ -214,11 +221,13 @@ const Admin: React.FC = () => {
 
             <NavButton
                 tab="events"
+                path="/admin/eventos"
                 icon={<Calendar size={14} className={activeTab === 'events' ? 'text-sage' : 'text-white/40'} />}
                 label="EVENTOS & EXP"
             />
             <NavButton
                 tab="faq"
+                path="/admin/faq"
                 icon={<HelpCircle size={14} className={activeTab === 'faq' ? 'text-sage' : 'text-white/40'} />}
                 label="PREGUNTAS FRECUENTES"
             />
@@ -227,11 +236,13 @@ const Admin: React.FC = () => {
 
             <NavButton
                 tab="settings"
+                path="/admin/configuracion"
                 icon={<Settings size={14} className={activeTab === 'settings' ? 'text-sage' : 'text-white/40'} />}
                 label="AJUSTES GENERALES"
             />
             <NavButton
                 tab="seo"
+                path="/admin/seo"
                 icon={<Globe size={14} className={activeTab === 'seo' ? 'text-sage' : 'text-white/40'} />}
                 label="SEO / OPEN GRAPH"
             />
@@ -321,22 +332,7 @@ const Admin: React.FC = () => {
                         {TAB_TITLES[activeTab] || ''}
                     </h2>
 
-                    {/* Dashboard */}
-                    {activeTab === 'dashboard' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group col-span-1 md:col-span-2 lg:col-span-3">
-                                <AdminStats />
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'guests' && <AdminGuests />}
-                    {activeTab === 'images-manager' && <AdminImages />}
-                    {activeTab === 'texts-manager' && <AdminTexts />}
-                    {activeTab === 'events' && <AdminEvents />}
-                    {activeTab === 'faq' && <AdminFAQ />}
-                    {activeTab === 'seo' && <AdminSEO />}
-                    {activeTab === 'settings' && <AdminBranding />}
+                    {children}
                 </main>
             </div>
         </div>
