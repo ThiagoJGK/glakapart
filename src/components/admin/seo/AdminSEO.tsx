@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { getContent, updateContent } from '@/services/content';
 import { uploadImage } from '@/services/images';
-import { Toast } from '../ui/Toast';
+import { Toast } from '../../ui/Toast';
 import { Globe, Save, Image as ImageIcon, ExternalLink, Home } from 'lucide-react';
 
 const PAGES = [

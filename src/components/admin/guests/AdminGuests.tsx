@@ -30,7 +30,7 @@ import {
     ExternalLink,
     X
 } from 'lucide-react';
-import { Toast } from '../ui/Toast';
+import { Toast } from '../../ui/Toast';
 
 const STATUS_LABELS: Record<Inquiry['status'], string> = {
     new: 'Nueva',

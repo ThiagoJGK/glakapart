@@ -1,10 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { getContent, updateContent } from '@/services/content';
-import SingleImageManager from './SingleImageManager';
-import GalleryManager from './GalleryManager';
+import SingleImageManager from '../shared/SingleImageManager';
+import GalleryManager from '../shared/GalleryManager';
 import { apartmentData, ApartmentKey } from '@/data/apartments';
-import { Toast } from '../ui/Toast';
+import { Toast } from '../../ui/Toast';
 import { Image as ImageIcon, Sparkles, Navigation, Layers, Compass, Loader2 } from 'lucide-react';
 
 const SECTIONS = [

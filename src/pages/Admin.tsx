@@ -4,13 +4,13 @@ import { useAdmin } from '@/context/AdminContext';
 import { useRouter } from 'next/navigation';
 import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { auth } from '@/services/firebase';
-import AdminBranding from '@/components/admin/AdminBranding';
-import AdminEvents from '@/components/admin/AdminEvents';
-import AdminFAQ from '@/components/admin/AdminFAQ';
-import AdminImages from '@/components/admin/AdminImages';
-import AdminTexts from '@/components/admin/AdminTexts';
-import AdminStats from '@/components/admin/AdminStats';
-import AdminSEO from '@/components/admin/AdminSEO';
+import AdminBranding from '@/components/admin/branding/AdminBranding';
+import AdminEvents from '@/components/admin/events/AdminEvents';
+import AdminFAQ from '@/components/admin/faq/AdminFAQ';
+import AdminImages from '@/components/admin/images/AdminImages';
+import AdminTexts from '@/components/admin/texts/AdminTexts';
+import AdminStats from '@/components/admin/stats/AdminStats';
+import AdminSEO from '@/components/admin/seo/AdminSEO';
 import { Logo } from '@/components/layout/Logo';
 import { 
     LayoutDashboard, 
@@ -25,7 +25,7 @@ import {
     Lock,
     Users
 } from 'lucide-react';
-import { AdminGuests } from '@/components/admin/AdminGuests';
+import { AdminGuests } from '@/components/admin/guests/AdminGuests';
 import { subscribeToNewInquiriesCount } from '@/services/inquiries';
 
 const ALLOWED_EMAILS = [

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '@/context/AdminContext';
 import { getContent, updateContent } from '@/services/content';
-import EditModal from '../admin/EditModal';
+import EditModal from '../admin/shared/EditModal';
 import { getOptimizedCloudinaryUrl } from '@/utils/cloudinaryHelper';
 
 interface EditableProps {

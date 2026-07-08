@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { getContent } from '@/services/content';
 import { useAdmin } from '@/context/AdminContext';
-import EditModal from '../admin/EditModal';
+import EditModal from '../admin/shared/EditModal';
 import { updateContent } from '@/services/content';
 import { FAQItem } from '@/types';
 import { trackEvent } from '@/services/analytics';

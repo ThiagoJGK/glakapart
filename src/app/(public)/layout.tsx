@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import AdminDraftControls from '@/components/admin/AdminDraftControls';
+import AdminDraftControls from '@/components/admin/draft/AdminDraftControls';
 import GeneralBookingSection from '@/components/booking/GeneralBookingSection';
 import FloatingBookingButton from '@/components/events/FloatingBookingButton';
 import { trackEvent } from '@/services/analytics';

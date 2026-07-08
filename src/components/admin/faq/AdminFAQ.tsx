@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { getContent, updateContent } from '@/services/content';
 import { FAQItem } from '@/types';
-import { Toast } from '../ui/Toast';
+import { Toast } from '../../ui/Toast';
 
 const DEFAULT_FAQS: FAQItem[] = [
     { id: 'default-1', order: 0, question: '¿Dónde queda Glak Apart?', answer: 'Glak Apart se encuentra en Salta 435, Urdinarrain, Entre Ríos, Argentina (CP 2812). Estamos en el corazón del campo entrerriano, a pocos minutos del centro de Urdinarrain.' },

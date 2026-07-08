@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { getContent, updateContent } from '@/services/content';
-import Editable from '../ui/Editable';
+import Editable from '../../ui/Editable';
 import { Event } from '@/types';
 import { DayPicker, DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
@@ -9,7 +9,7 @@ import { es } from 'date-fns/locale';
 import { CalendarHeart, Play, Image as ImageIcon, Star, Trash2, RefreshCw, MapPin } from 'lucide-react';
 import { uploadImage } from '@/services/images';
 import 'react-day-picker/style.css';
-import GalleryManager from './GalleryManager';
+import GalleryManager from '../shared/GalleryManager';
 
 const SEASON_OPTIONS = ['Verano', 'Otoño', 'Invierno', 'Primavera', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 

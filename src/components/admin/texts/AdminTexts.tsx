@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { getContent, updateContent } from '@/services/content';
-import { Toast } from '../ui/Toast';
+import { Toast } from '../../ui/Toast';
 import { apartmentData, ApartmentKey } from '@/data/apartments';
 import { Save, Loader2, Sparkles, Navigation, Layers, Compass, BookOpen } from 'lucide-react';
 

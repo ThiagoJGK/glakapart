@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getContent, updateContent } from '@/services/content';
 import { uploadImage } from '@/services/images';
 import { generateBlurredImage } from '@/utils/imageUtils';
-import { Toast } from '../ui/Toast';
+import { Toast } from '../../ui/Toast';
 import { Bot, Save, Palette, Image as ImageIcon, Link as LinkIcon, AlertTriangle, Mail, Trash2, Plus } from 'lucide-react';
 
 const AdminBranding: React.FC = () => {
