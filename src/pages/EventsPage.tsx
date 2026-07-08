@@ -16,13 +16,49 @@ import { motion, useAnimation, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import Editable from '@/components/ui/Editable';
 import { getOptimizedCloudinaryUrl } from '@/utils/cloudinaryHelper';
+import { MapPin } from 'lucide-react';
 
 const EventsPage: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [selectedEventIndex, setSelectedEventIndex] = useState<number>(0);
     const [blurBg, setBlurBg] = useState<string>('');
     const [seasonImages, setSeasonImages] = useState<Record<string, string>>({});
+
+    const formatDateSafely = (dateStr: string, formatPattern: string) => {
+        try {
+            if (!dateStr) return 'Sin fecha';
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return 'Fecha inválida';
+            return format(date, formatPattern, { locale: es });
+        } catch (e) {
+            return 'Fecha inválida';
+        }
+    };
+
+    const formatEventRange = (startStr: string, endStr: string) => {
+        try {
+            if (!startStr) return 'Sin fecha';
+            const start = new Date(startStr);
+            if (isNaN(start.getTime())) return 'Fecha inválida';
+            
+            if (!endStr) return format(start, 'dd MMM', { locale: es });
+            const end = new Date(endStr);
+            if (isNaN(end.getTime()) || isSameDay(start, end)) {
+                return format(start, 'dd MMM', { locale: es });
+            }
+            
+            // Si son del mismo mes: "27 - 31 jul"
+            if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+                return `${format(start, 'dd', { locale: es })} - ${format(end, 'dd MMM', { locale: es })}`;
+            }
+            
+            // Diferente mes: "27 jun - 01 ago"
+            return `${format(start, 'dd MMM', { locale: es })} - ${format(end, 'dd MMM', { locale: es })}`;
+        } catch (e) {
+            return 'Fecha inválida';
+        }
+    };
 
     // Controlled animation states for the 4 season cards
     const [activeSeason, setActiveSeason] = useState<string | null>(null);
@@ -44,7 +80,7 @@ const EventsPage: React.FC = () => {
 
                 if (upcoming) {
                     setSelectedDate(new Date(upcoming.startDate));
-                    setSelectedEvent(upcoming);
+                    setSelectedEventIndex(0);
                 }
             } else if (Array.isArray(eventsData)) {
                 setEvents(eventsData);
@@ -71,16 +107,20 @@ const EventsPage: React.FC = () => {
 
     const handleDateSelect = (date: Date | undefined) => {
         setSelectedDate(date);
-        if (date) {
-            // Find event on this date
-            const ev = events.find(e =>
-                isSameDay(date, new Date(e.startDate)) ||
-                (new Date(e.startDate) <= date && new Date(e.endDate) >= date)
-            );
-            setSelectedEvent(ev || null);
-        } else {
-            setSelectedEvent(null);
-        }
+        setSelectedEventIndex(0);
+    };
+
+    const handleSelectEvent = (ev: Event) => {
+        const date = new Date(ev.startDate);
+        setSelectedDate(date);
+        
+        // Calcular los eventos de ese día
+        const dayEvs = events.filter(e =>
+            isSameDay(date, new Date(e.startDate)) ||
+            (new Date(e.startDate) <= date && new Date(e.endDate) >= date)
+        );
+        const idx = dayEvs.findIndex(e => e.id === ev.id);
+        setSelectedEventIndex(idx >= 0 ? idx : 0);
     };
 
     const handleSeasonInteractionStart = (season: string) => {
@@ -90,6 +130,22 @@ const EventsPage: React.FC = () => {
     const handleSeasonInteractionEnd = (season: string) => {
         setActiveSeason(null);
     };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const upcomingEvents = events
+        .filter(e => new Date(e.endDate) >= today)
+        .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+    const pastEvents = events
+        .filter(e => new Date(e.endDate) < today)
+        .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+
+    const selectedDateEvents = selectedDate ? events.filter(e =>
+        isSameDay(selectedDate, new Date(e.startDate)) ||
+        (new Date(e.startDate) <= selectedDate && new Date(e.endDate) >= selectedDate)
+    ) : [];
+
+    const selectedEvent = selectedDateEvents[selectedEventIndex] || selectedDateEvents[0] || null;
 
     return (
         <main className="min-h-screen pt-52 md:pt-[480px] pb-20 relative z-30 overflow-hidden selection:bg-[#90c69e] selection:text-white">
@@ -124,7 +180,7 @@ const EventsPage: React.FC = () => {
                 <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 max-w-7xl mx-auto">
 
                     {/* LEFT: Calendar "Notebook" Style */}
-                    <div className="lg:col-span-5 relative z-10 flex flex-col">
+                    <div className="lg:col-span-4 relative z-10 flex flex-col">
                         <div className="bg-white/80 backdrop-blur-md p-8 rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(16,89,90,0.15)] border border-white/50 relative group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_25px_70px_-12px_rgba(16,89,90,0.2)] h-full flex flex-col justify-between">
 
                             {/* Decorative Binding Effect */}
@@ -149,56 +205,98 @@ const EventsPage: React.FC = () => {
                             </div>
 
                             <div className="text-center mt-8">
-                                <Editable id="events.calendar.hint" defaultValue="¡Hacé click en una fecha!" className="font-script text-[#10595a]/60 text-5xl md:text-6xl animate-pulse-slow block" label="Pista Calendario" />
+                                <Editable id="events.calendar.hint" defaultValue="¡Hacé click en una fecha!" className="font-ui text-xs tracking-[0.2em] uppercase font-bold text-[#10595a]/50 mt-4 animate-pulse block" label="Pista Calendario" />
                             </div>
                         </div>
                     </div>
 
                     {/* RIGHT: Active Event "Floating Note" */}
-                    <div className="lg:col-span-7 relative z-10 flex flex-col">
+                    <div className="lg:col-span-8 relative z-10 flex flex-col">
                         {selectedEvent ? (
-                            <div className="relative animate-fade-in-up h-full">
-                                {/* Solid Container */}
-                                <div className="bg-white/90 backdrop-blur-sm rounded-[3rem] p-6 md:p-8 shadow-[0_20px_50px_-10px_rgba(16,89,90,0.15)] border border-white/60 relative overflow-hidden transition-all duration-500 h-full flex flex-col justify-center">
-                                    <div className="flex flex-col md:flex-row gap-8 items-center h-full">
-                                        {/* Image - Clean & Sharp with Offset Border */}
-                                        <div className="w-full md:w-1/2 h-64 md:h-80 rounded-[2.5rem] relative group shrink-0">
-                                            <div className="absolute inset-0 bg-[#90c69e]/20 rounded-[2.5rem] transform rotate-3 scale-105 transition-transform group-hover:rotate-6"></div>
-                                            <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden shadow-lg border-2 border-white">
+                            <div className="relative animate-fade-in-up h-fit min-h-[500px]">
+                                {/* Solid Container with Adaptive Height and Premium Shadow */}
+                                <div className="bg-white/90 backdrop-blur-md rounded-[3rem] p-6 md:p-8 shadow-[0_20px_60px_-15px_rgba(16,89,90,0.12)] border border-white/80 relative overflow-hidden transition-all duration-500 min-h-[500px] h-fit flex flex-col justify-between">
+                                    <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch h-full">
+                                        {/* Image Container with Blur Background Effect */}
+                                        <div className="w-full md:w-1/2 min-h-[320px] md:min-h-[380px] rounded-[2.5rem] relative overflow-hidden group shrink-0 shadow-inner bg-[#10595a]/15 flex items-center justify-center">
+                                            {/* Blurred background flyer */}
+                                            {selectedEvent.image && (
                                                 <img
-                                                    src={getOptimizedCloudinaryUrl(selectedEvent.image || "", 800)}
-                                                    decoding="async"
-                                                    className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
-                                                    alt={selectedEvent.title || 'Evento en Urdinarrain — Glak Apart'}
+                                                    src={getOptimizedCloudinaryUrl(selectedEvent.image, 100)}
+                                                    className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-80 scale-125 pointer-events-none"
+                                                    alt="Fondo difuminado"
                                                 />
-                                            </div>
-                                            <div className="absolute top-6 left-6 bg-white/95 px-5 py-2 rounded-2xl shadow-lg border border-[#10595a]/5">
-                                                <span className="font-bold text-[#10595a] text-sm tracking-widest uppercase">
-                                                    {format(new Date(selectedEvent.startDate), 'dd MMM', { locale: es })}
+                                            )}
+                                            {/* Front sharp flyer */}
+                                            <img
+                                                src={getOptimizedCloudinaryUrl(selectedEvent.image || "", 800)}
+                                                decoding="async"
+                                                className="relative z-10 w-full h-full max-h-[300px] md:max-h-[360px] object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-700 group-hover:scale-102"
+                                                alt={selectedEvent.title || 'Evento en Urdinarrain'}
+                                            />
+                                            <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-sm px-4 py-1.5 rounded-xl shadow-md border border-gray-100">
+                                                <span className="font-bold text-[#10595a] text-xs tracking-wider">
+                                                    {formatEventRange(selectedEvent.startDate, selectedEvent.endDate)}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        {/* Text Content */}
-                                        <div className="w-full md:w-1/2 text-left flex flex-col justify-center h-full">
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <span className="inline-block px-4 py-1.5 rounded-full bg-[#10595a]/5 text-[#10595a] text-[11px] font-bold tracking-widest uppercase border border-[#10595a]/10">
-                                                    {format(new Date(selectedEvent.startDate), 'EEEE', { locale: es })}
-                                                </span>
+                                        {/* Text Content - Responsive Flex-1 Layout */}
+                                        <div className="w-full md:flex-1 text-left flex flex-col justify-between py-2 min-w-0">
+                                            <div>
+                                                {/* Selector para múltiples eventos en el mismo día */}
+                                                {selectedDateEvents.length > 1 && (
+                                                    <div className="flex flex-wrap gap-1.5 mb-4 border-b border-[#10595a]/10 pb-3">
+                                                        {selectedDateEvents.map((ev, idx) => (
+                                                            <button
+                                                                key={ev.id}
+                                                                onClick={() => setSelectedEventIndex(idx)}
+                                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-bold tracking-wider transition-all duration-300 ${
+                                                                    selectedEventIndex === idx
+                                                                        ? 'bg-[#10595a] text-white shadow-sm'
+                                                                        : 'bg-[#10595a]/5 text-[#10595a] hover:bg-[#10595a]/10'
+                                                                }`}
+                                                            >
+                                                                {ev.title.split(' | ').pop() || ev.title}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                <div className="flex flex-wrap items-center gap-2 mb-4">
+                                                    <span className="inline-block px-4 py-1.5 rounded-full bg-[#10595a]/5 text-[#10595a] text-[11px] font-bold tracking-widest uppercase border border-[#10595a]/10">
+                                                        {formatDateSafely(selectedEvent.startDate, 'EEEE')}
+                                                    </span>
+                                                    {selectedEvent.location ? (
+                                                        <span className="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold tracking-wider uppercase border border-blue-100 truncate max-w-[200px] sm:max-w-[280px]">
+                                                            📍 {selectedEvent.location}
+                                                        </span>
+                                                    ) : selectedEvent.source === 'urdinarrain' && (
+                                                        <span className="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold tracking-wider uppercase border border-blue-100">
+                                                            📍 Urdinarrain
+                                                        </span>
+                                                    )}
+                                                    {selectedEvent.category && (
+                                                        <span className="inline-block px-3 py-1 rounded-full bg-gray-50 text-gray-600 text-[10px] font-bold tracking-widest uppercase border border-gray-100">
+                                                            {selectedEvent.category}
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                <h2 className="font-ui font-bold text-2xl md:text-2xl text-[#10595a] leading-snug mb-4 tracking-tight">
+                                                    {selectedEvent.title}
+                                                </h2>
+
+                                                <p className="text-[#10595a]/80 font-medium text-sm leading-relaxed mb-6 whitespace-pre-line max-h-[160px] overflow-y-auto pr-2 scrollbar-thin">
+                                                    {selectedEvent.description}
+                                                </p>
                                             </div>
 
-                                            <h2 className="font-ui font-black text-3xl md:text-3xl text-[#10595a] leading-tight mb-4 drop-shadow-sm">
-                                                {selectedEvent.title}
-                                            </h2>
-                                            <p className="text-[#10595a]/80 font-medium text-sm leading-relaxed mb-8 line-clamp-5">
-                                                {selectedEvent.description}
-                                            </p>
                                             <button
                                                 onClick={() => document.getElementById('reservas')?.scrollIntoView({ behavior: 'smooth' })}
-                                                className="bg-gradient-to-r from-[#10595a] to-[#157173] text-white px-8 py-3.5 rounded-2xl font-bold tracking-widest text-xs uppercase hover:shadow-[0_10px_30px_-10px_rgba(16,89,90,0.4)] hover:-translate-y-1 transition-all duration-300 w-full md:w-auto overflow-hidden relative group mt-auto"
+                                                className="bg-[#10595a] hover:bg-[#157173] text-white px-8 py-3.5 rounded-2xl font-bold tracking-widest text-xs uppercase shadow-md hover:shadow-lg transition-all duration-300 w-full md:w-auto overflow-hidden relative group mt-6"
                                             >
                                                 <span className="relative z-10"><Editable id="events.detail.btnText" defaultValue="¡Me sumo!" className="inline" label="Botón Registrarse" /></span>
-                                                <div className="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                                                <div className="absolute inset-0 bg-white/10 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
                                             </button>
                                         </div>
                                     </div>
@@ -248,12 +346,11 @@ const EventsPage: React.FC = () => {
                     </div>
 
                     <div className="flex md:grid md:grid-cols-3 gap-8 overflow-x-auto snap-x snap-mandatory pb-12 md:pb-0 px-4 md:px-0 scrollbar-hide">
-                        {events.slice(0, 3).map((ev, i) => (
+                        {upcomingEvents.slice(0, 3).map((ev, i) => (
                             <div
                                 key={ev.id}
                                 onClick={() => {
-                                    setSelectedDate(new Date(ev.startDate));
-                                    setSelectedEvent(ev);
+                                    handleSelectEvent(ev);
                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }}
                                 className="min-w-[300px] md:min-w-0 snap-center bg-white rounded-[2.5rem] p-4 shadow-sm hover:shadow-2xl transition-all duration-500 group cursor-pointer border border-[#10595a]/5 hover:border-[#90c69e]/30 hover:-translate-y-3"
@@ -270,13 +367,13 @@ const EventsPage: React.FC = () => {
                                     <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
                                     <div className="absolute top-4 left-4 bg-white/95 px-4 py-2 rounded-xl shadow-lg z-20">
                                         <span className="font-bold text-[#10595a] text-xs tracking-widest uppercase">
-                                            {format(new Date(ev.startDate), 'dd MMM', { locale: es })}
+                                            {formatDateSafely(ev.startDate, 'dd MMM')}
                                         </span>
                                     </div>
                                 </div>
                                 <div className="px-4 pb-4">
                                     <h4 className="font-ui font-black text-xl text-[#10595a] mb-3 line-clamp-1 group-hover:text-[#90c69e] transition-colors">{ev.title}</h4>
-                                    <p className="text-[#10595a]/60 text-sm line-clamp-2 leading-relaxed">{ev.description}</p>
+                                    <p className="text-[#10595a]/60 text-sm line-clamp-2 leading-relaxed whitespace-pre-line">{ev.description}</p>
                                     <div className="mt-6 flex items-center justify-between">
                                         <div className="h-px flex-grow bg-[#f4f1ea] group-hover:bg-[#90c69e]/30 transition-colors"></div>
                                         <Editable
@@ -291,6 +388,61 @@ const EventsPage: React.FC = () => {
                         ))}
                     </div>
                 </div>
+
+                {/* VISUAL PAST EVENTS */}
+                {pastEvents.length > 0 && (
+                    <div className="mt-20 max-w-7xl mx-auto opacity-80 hover:opacity-100 transition-opacity duration-500">
+                        <div className="flex items-end justify-between mb-12 px-4 relative">
+                            <div>
+                                <Editable
+                                    id="events.past.subtitle"
+                                    defaultValue="Lo que pasó..."
+                                    className="font-script text-4xl md:text-5xl text-gray-400 block mb-2 -rotate-2"
+                                    label="Subtítulo Pasados"
+                                />
+                                <Editable
+                                    id="events.past.title"
+                                    defaultValue="EVENTOS PASADOS"
+                                    className="font-ui text-xl font-black text-gray-500 tracking-tight block"
+                                    label="Título Pasados"
+                                />
+                            </div>
+                            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-gray-300 via-gray-200 to-transparent"></div>
+                        </div>
+
+                        <div className="flex md:grid md:grid-cols-4 gap-6 overflow-x-auto snap-x snap-mandatory pb-12 md:pb-0 px-4 md:px-0 scrollbar-hide grayscale-[30%] hover:grayscale-0 transition-all duration-500">
+                            {pastEvents.slice(0, 4).map((ev, i) => (
+                                <div
+                                    key={ev.id}
+                                    onClick={() => {
+                                        handleSelectEvent(ev);
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    className="min-w-[260px] md:min-w-0 snap-center bg-gray-50 rounded-[2rem] p-3 shadow-sm hover:shadow-lg transition-all duration-500 group cursor-pointer border border-gray-200 hover:border-gray-300 hover:-translate-y-2"
+                                >
+                                    <div className="h-40 rounded-[1.5rem] overflow-hidden mb-4 relative z-0">
+                                        <img
+                                            src={getOptimizedCloudinaryUrl(ev.image || "", 400)}
+                                            decoding="async"
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            alt={ev.title || 'Evento pasado'}
+                                            onError={(e) => (e.currentTarget.src = "")}
+                                        />
+                                        <div className="absolute top-3 left-3 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm z-20">
+                                            <span className="font-bold text-gray-600 text-[10px] tracking-widest uppercase">
+                                                {formatDateSafely(ev.startDate, 'dd MMM yyyy')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="px-3 pb-3">
+                                        <h4 className="font-ui font-bold text-base text-gray-700 mb-2 line-clamp-1">{ev.title}</h4>
+                                        <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed whitespace-pre-line">{ev.description}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* NEW SECTION: SEASONS OF URDINARRAIN */}
                 <div className="my-32 max-w-7xl mx-auto px-4">

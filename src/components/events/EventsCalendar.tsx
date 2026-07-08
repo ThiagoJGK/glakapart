@@ -50,7 +50,8 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                 modifiersStyles={modifiersStyles}
                 modifiersClassNames={{
                     selected: 'bg-[#10595a] text-white rounded-full transition-all duration-300 transform scale-110 shadow-lg shadow-[#10595a]/20',
-                    today: 'text-[#90c69e] font-black border-none relative after:content-[""] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-[#90c69e] after:rounded-full'
+                    today: 'text-[#90c69e] font-black border-none relative after:content-[""] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-[#90c69e] after:rounded-full',
+                    hasEvent: 'has-event-day'
                 }}
                 styles={{
                     caption: { color: colors.text, fontFamily: '"Outfit", sans-serif', fontWeight: 'bold' },
@@ -62,17 +63,27 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                 className="font-ui event-calendar-custom"
             />
 
-            <style>{`
+             <style>{`
                 .event-calendar-custom {
                     --rdp-cell-size: 45px;
                     margin: 0;
                 }
-                /* Force Text Colors */
+                /* Force Text Colors on all calendar components including day buttons */
                 .event-calendar-custom .rdp-day, 
                 .event-calendar-custom .rdp-caption_label,
                 .event-calendar-custom .rdp-nav_button,
-                .event-calendar-custom .rdp-head_cell {
+                .event-calendar-custom .rdp-head_cell,
+                .event-calendar-custom td button,
+                .event-calendar-custom td button * {
                     color: #10595a !important;
+                }
+                
+                /* Highlighting days with events */
+                .event-calendar-custom .has-event-day:not([aria-selected="true"]):not(.rdp-day_selected) {
+                    color: #e88d67 !important;
+                    font-weight: 900 !important;
+                    background-color: rgba(232, 141, 103, 0.1) !important;
+                    border-radius: 50%;
                 }
                 
                 /* Selected Day Override - TARGETING ATTRIBUTES TO ENSURE HIT */
@@ -81,7 +92,9 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                 .event-calendar-custom .rdp-selected .rdp-day_button,
                 .event-calendar-custom [aria-selected="true"]:hover .rdp-day_button,
                 .event-calendar-custom [data-selected="true"]:hover .rdp-day_button,
-                .event-calendar-custom .rdp-selected:hover .rdp-day_button { 
+                .event-calendar-custom .rdp-selected:hover .rdp-day_button,
+                .event-calendar-custom td[aria-selected="true"] button,
+                .event-calendar-custom td[aria-selected="true"] button * { 
                     color: #ffffff !important;
                     background-color: #10595a !important;
                     border: none !important;
@@ -101,10 +114,10 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                     opacity: 1 !important;
                     text-shadow: 0 1px 2px rgba(0,0,0,0.1);
                 }
-
+ 
                 /* Hover Effect */
-                .event-calendar-custom .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
-                    background-color: #f4f1ea;
+                .event-calendar-custom .rdp-button:hover:not([disabled]):not(.rdp-day_selected):not([aria-selected="true"]) {
+                    background-color: #f4f1ea !important;
                     color: #90c69e !important;
                     border-radius: 50%;
                     font-weight: bold;
@@ -113,7 +126,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                 }
                 
                 /* Today style correction if needed */
-                .event-calendar-custom .rdp-day_today:not(.rdp-day_selected) {
+                .event-calendar-custom .rdp-day_today:not(.rdp-day_selected):not([aria-selected="true"]) {
                     color: #90c69e !important;
                     font-weight: 900;
                     background-color: transparent !important;
