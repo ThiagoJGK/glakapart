@@ -13,6 +13,19 @@ interface EventsCalendarProps {
     selectedEvent?: Event | null;
 }
 
+const parseLocalDate = (dateStr: string): Date => {
+    if (!dateStr) return new Date();
+    const cleanStr = dateStr.split('T')[0];
+    const parts = cleanStr.split('-');
+    if (parts.length === 3) {
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // 0-indexed
+        const day = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+    }
+    return new Date(dateStr);
+};
+
 const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, onSelectDate, theme = 'light', selectedEvent }) => {
     const isDark = theme === 'dark';
 
@@ -28,20 +41,20 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
     // Modifiers
     const modifiers = {
         hasEvent: (date: Date) => events.some(ev =>
-            isSameDay(date, new Date(ev.startDate)) ||
-            (new Date(ev.startDate) <= date && new Date(ev.endDate) >= date)
+            isSameDay(date, parseLocalDate(ev.startDate)) ||
+            (parseLocalDate(ev.startDate) <= date && parseLocalDate(ev.endDate) >= date)
         ),
         hasMultipleEvents: (date: Date) => {
             const count = events.filter(ev =>
-                isSameDay(date, new Date(ev.startDate)) ||
-                (new Date(ev.startDate) <= date && new Date(ev.endDate) >= date)
+                isSameDay(date, parseLocalDate(ev.startDate)) ||
+                (parseLocalDate(ev.startDate) <= date && parseLocalDate(ev.endDate) >= date)
             ).length;
             return count > 1;
         },
         isSelectedRange: (date: Date) => {
             if (!selectedEvent || !selectedEvent.startDate) return false;
-            const start = new Date(selectedEvent.startDate);
-            const end = selectedEvent.endDate ? new Date(selectedEvent.endDate) : start;
+            const start = parseLocalDate(selectedEvent.startDate);
+            const end = selectedEvent.endDate ? parseLocalDate(selectedEvent.endDate) : start;
             
             const checkTime = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
             const startTime = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime();

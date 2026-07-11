@@ -48,7 +48,17 @@ export function stripHtml(html: string): string {
     const cleaned = text
         .replace(/&nbsp;/g, ' ')
         .replace(/&#8211;/g, '–')
-        .replace(/&#8217;/g, "'")
+        .replace(/&ndash;/g, '–')
+        .replace(/&#8212;/g, '—')
+        .replace(/&mdash;/g, '—')
+        .replace(/&#8216;/g, '‘')
+        .replace(/&#8217;/g, '’')
+        .replace(/&rsquo;/g, '’')
+        .replace(/&#8220;/g, '“')
+        .replace(/&ldquo;/g, '“')
+        .replace(/&#8221;/g, '”')
+        .replace(/&rdquo;/g, '”')
+        .replace(/&#038;/g, '&')
         .replace(/&amp;/g, '&')
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
@@ -159,22 +169,43 @@ export async function fetchEventDates(eventUrl: string): Promise<{ startDate: st
 
 // Auxiliar para descargar una imagen y convertirla a Base64
 async function fetchImageAsBase64(url: string): Promise<{ data: string, mimeType: string } | null> {
-    try {
-        const response = await fetch(url, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-        });
-        if (!response.ok) return null;
-        const arrayBuffer = await response.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const mimeType = response.headers.get('content-type') || 'image/jpeg';
-        return {
-            data: buffer.toString('base64'),
-            mimeType
-        };
-    } catch (error) {
-        console.error(`Error fetching image from ${url} for vision fallback:`, error);
-        return null;
+    const maxAttempts = 2;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+            
+            const response = await fetch(url, {
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                console.warn(`[Image Fetch] Intento ${attempt} fallido con status ${response.status} para ${url}`);
+                if (attempt < maxAttempts) {
+                    await new Promise(r => setTimeout(r, 2000));
+                    continue;
+                }
+                return null;
+            }
+            
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            const mimeType = response.headers.get('content-type') || 'image/jpeg';
+            return {
+                data: buffer.toString('base64'),
+                mimeType
+            };
+        } catch (error: any) {
+            console.warn(`[Image Fetch] Intento ${attempt} fallido por error para ${url}:`, error.message || error);
+            if (attempt < maxAttempts) {
+                await new Promise(r => setTimeout(r, 2000));
+                continue;
+            }
+        }
     }
+    return null;
 }
 
 // Llamar a Gemini para reescribir la descripción y adaptarla al tono turístico de Urdinarrain
@@ -192,7 +223,11 @@ export async function rewriteDescriptionWithAI(
         try {
             const ai = new GoogleGenAI({ apiKey });
             
+            const currentYear = new Date().getFullYear();
+            const todayStr = new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
             let systemPrompt = `Sos un redactor publicitario y turístico profesional. Tu tarea es redactar o reescribir la descripción de un evento local para que sea sumamente atractiva, bien redactada, clara y entusiasta para cualquier visitante o turista que esté en Urdinarrain.
+- REFERENCIA TEMPORAL: Hoy es ${todayStr} (año ${currentYear}). Utiliza esta referencia para deducir correctamente el año de los eventos (por ejemplo, si el texto del evento o flyer dice "sábado 27 de junio" o "vacaciones de invierno", asume que se refiere a fechas de este año ${currentYear} o del año entrante según corresponda, y nunca a años pasados).
 - Mantené un tono cálido, alegre y profesional.
 - Estructurá la descripción de manera clara utilizando Markdown (títulos '###' para secciones importantes como horarios o actividades, negritas '**' para destacar datos clave, y un uso amigable y moderado de emojis).
 - Asegúrate de limpiar cualquier carácter extraño, enlaces rotos, o textos mal formateados para maximizar la compatibilidad y legibilidad.
@@ -567,8 +602,12 @@ export async function rewriteEventsBatchWithGroq(
         try {
             onStatus?.(`Procesando lote de ${eventsList.length} eventos con Groq (Llama 3.1)...`);
             
+            const currentYear = new Date().getFullYear();
+            const todayStr = new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
             const systemPrompt = `Sos un redactor publicitario y turístico profesional. Tu tarea es procesar un lote (batch) de eventos locales y reescribir la descripción de cada uno para que sea sumamente atractiva, bien redactada, clara y entusiasta para cualquier visitante o turista que esté en Urdinarrain.
 Reglas para cada evento:
+- REFERENCIA TEMPORAL: Hoy es ${todayStr} (año ${currentYear}). Utiliza esta referencia para deducir correctamente el año de los eventos (por ejemplo, si el texto del evento dice "sábado 27 de junio" o "vacaciones de invierno", asume que se refiere a fechas de este año ${currentYear} o del año entrante según corresponda, y nunca a años pasados).
 - Mantené un tono cálido, alegre y profesional.
 - Estructurá la descripción de manera clara utilizando Markdown (títulos '###' para secciones importantes como horarios o actividades, negritas '**' para destacar datos clave, y un uso amigable y moderado de emojis).
 - Asegúrate de limpiar cualquier carácter extraño, enlaces rotos, o textos mal formateados para maximizar la compatibilidad y legibilidad.

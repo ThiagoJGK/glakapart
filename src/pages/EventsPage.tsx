@@ -27,6 +27,19 @@ const stripMarkdown = (md: string) => {
         .trim();
 };
 
+const parseLocalDate = (dateStr: string): Date => {
+    if (!dateStr) return new Date();
+    const cleanStr = dateStr.split('T')[0];
+    const parts = cleanStr.split('-');
+    if (parts.length === 3) {
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // 0-indexed
+        const day = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+    }
+    return new Date(dateStr);
+};
+
 const EventsPage: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -37,7 +50,7 @@ const EventsPage: React.FC = () => {
     const formatDateSafely = (dateStr: string, formatPattern: string) => {
         try {
             if (!dateStr) return 'Sin fecha';
-            const date = new Date(dateStr);
+            const date = parseLocalDate(dateStr);
             if (isNaN(date.getTime())) return 'Fecha inválida';
             return format(date, formatPattern, { locale: es });
         } catch (e) {
@@ -48,11 +61,11 @@ const EventsPage: React.FC = () => {
     const formatEventRange = (startStr: string, endStr: string) => {
         try {
             if (!startStr) return 'Sin fecha';
-            const start = new Date(startStr);
+            const start = parseLocalDate(startStr);
             if (isNaN(start.getTime())) return 'Fecha inválida';
             
             if (!endStr) return format(start, 'dd MMM', { locale: es });
-            const end = new Date(endStr);
+            const end = parseLocalDate(endStr);
             if (isNaN(end.getTime()) || isSameDay(start, end)) {
                 return format(start, 'dd MMM', { locale: es });
             }
@@ -83,12 +96,12 @@ const EventsPage: React.FC = () => {
                 setEvents(eventsData.items);
                 // Try to find an event today or the next upcoming one
                 const upcoming = eventsData.items
-                    .map((e: Event) => ({ ...e, start: new Date(e.startDate) }))
+                    .map((e: Event) => ({ ...e, start: parseLocalDate(e.startDate) }))
                     .filter((e: any) => e.start >= new Date().setHours(0, 0, 0, 0))
                     .sort((a: any, b: any) => a.start.getTime() - b.start.getTime())[0];
 
                 if (upcoming) {
-                    setSelectedDate(new Date(upcoming.startDate));
+                    setSelectedDate(parseLocalDate(upcoming.startDate));
                     setSelectedEventIndex(0);
                 }
             } else if (Array.isArray(eventsData)) {
@@ -120,13 +133,13 @@ const EventsPage: React.FC = () => {
     };
 
     const handleSelectEvent = (ev: Event) => {
-        const date = new Date(ev.startDate);
+        const date = parseLocalDate(ev.startDate);
         setSelectedDate(date);
         
         // Calcular los eventos de ese día
         const dayEvs = events.filter(e =>
-            isSameDay(date, new Date(e.startDate)) ||
-            (new Date(e.startDate) <= date && new Date(e.endDate) >= date)
+            isSameDay(date, parseLocalDate(e.startDate)) ||
+            (parseLocalDate(e.startDate) <= date && parseLocalDate(e.endDate) >= date)
         );
         const idx = dayEvs.findIndex(e => e.id === ev.id);
         setSelectedEventIndex(idx >= 0 ? idx : 0);
@@ -143,15 +156,15 @@ const EventsPage: React.FC = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const upcomingEvents = events
-        .filter(e => new Date(e.endDate) >= today)
-        .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+        .filter(e => parseLocalDate(e.endDate) >= today)
+        .sort((a, b) => parseLocalDate(a.startDate).getTime() - parseLocalDate(b.startDate).getTime());
     const pastEvents = events
-        .filter(e => new Date(e.endDate) < today)
-        .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+        .filter(e => parseLocalDate(e.endDate) < today)
+        .sort((a, b) => parseLocalDate(b.startDate).getTime() - parseLocalDate(a.startDate).getTime());
 
     const selectedDateEvents = selectedDate ? events.filter(e =>
-        isSameDay(selectedDate, new Date(e.startDate)) ||
-        (new Date(e.startDate) <= selectedDate && new Date(e.endDate) >= selectedDate)
+        isSameDay(selectedDate, parseLocalDate(e.startDate)) ||
+        (parseLocalDate(e.startDate) <= selectedDate && parseLocalDate(e.endDate) >= selectedDate)
     ) : [];
 
     const selectedEvent = selectedDateEvents[selectedEventIndex] || selectedDateEvents[0] || null;

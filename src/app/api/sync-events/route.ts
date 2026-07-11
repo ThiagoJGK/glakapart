@@ -5,7 +5,8 @@ import {
     rewriteEventsBatchWithAI, 
     rewriteEventsBatchWithGroq,
     fetchEventDates, 
-    normalizeIsoDateString 
+    normalizeIsoDateString,
+    stripHtml
 } from '@/services/eventSync';
 import { Event } from '@/types';
 
@@ -73,7 +74,7 @@ export async function GET(req: Request) {
                 for (const wpEvent of candidateEvents) {
                     const wpId = wpEvent.id;
                     const exists = !force && existingIds.includes(`sync-urdinarrain-${wpId}`);
-                    const cleanTitle = wpEvent.title.rendered.replace(/<[^>]+>/g, '').trim();
+                    const cleanTitle = stripHtml(wpEvent.title.rendered);
 
                     if (exists) {
                         skippedEvents.push({
@@ -118,7 +119,7 @@ export async function GET(req: Request) {
                     try {
                         const batchInputs = list.map(ev => ({
                             id: String(ev.id),
-                            title: ev.title.rendered.replace(/<[^>]+>/g, '').trim(),
+                            title: stripHtml(ev.title.rendered),
                             rawDescription: ev.content.rendered.replace(/<[^>]+>/g, '').trim()
                         }));
 
@@ -179,7 +180,7 @@ export async function GET(req: Request) {
 
                                 parsedEvents.push({
                                     id: `sync-urdinarrain-${ev.id}`,
-                                    title: ev.title.rendered.replace(/<[^>]+>/g, '').trim(),
+                                    title: stripHtml(ev.title.rendered),
                                     startDate: normalizeIsoDateString(dates.startDate),
                                     endDate: normalizeIsoDateString(dates.endDate),
                                     description: res.description,
@@ -202,7 +203,7 @@ export async function GET(req: Request) {
                             return {
                                 parsed: [],
                                 failed: [{
-                                    title: list[0].title.rendered.replace(/<[^>]+>/g, '').trim(),
+                                    title: stripHtml(list[0].title.rendered),
                                     error: err.message || 'Error en Gemini',
                                     sourceId: list[0].id
                                 }]
@@ -250,7 +251,7 @@ export async function GET(req: Request) {
                 const failedVisionEvents: { title: string, error: string, sourceId: number }[] = [];
 
                 for (const ev of visionEvents) {
-                    const cleanTitle = ev.title.rendered.replace(/<[^>]+>/g, '').trim();
+                    const cleanTitle = stripHtml(ev.title.rendered);
                     sendEvent('progress', {
                         message: `Analizando flyer del evento "${cleanTitle}" con visión artificial...`,
                         progress: 60 + Math.round((parsedVisionEvents.length / Math.max(1, visionEvents.length)) * 25)
