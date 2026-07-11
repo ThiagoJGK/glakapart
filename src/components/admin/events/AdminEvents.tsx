@@ -36,6 +36,24 @@ const normalizeIsoDateString = (dateStr: string): string => {
     return dateStr;
 };
 
+const parseLocalDate = (dateStr: string): Date => {
+    if (!dateStr) return new Date();
+    const cleanStr = dateStr.split('T')[0];
+    const parts = cleanStr.split('-');
+    if (parts.length === 3) {
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // 0-indexed
+        const day = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+    }
+    return new Date(dateStr);
+};
+
+const isSameDayLocal = (d1: Date, d2: Date) => 
+    d1.getFullYear() === d2.getFullYear() && 
+    d1.getMonth() === d2.getMonth() && 
+    d1.getDate() === d2.getDate();
+
 const AdminEvents: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [isEditing, setIsEditing] = useState(false);
@@ -301,8 +319,8 @@ const AdminEvents: React.FC = () => {
         if (ev) {
             setCurrentEvent(ev);
             setSelectedRange({
-                from: new Date(normalizeIsoDateString(ev.startDate)),
-                to: new Date(normalizeIsoDateString(ev.endDate))
+                from: parseLocalDate(ev.startDate),
+                to: parseLocalDate(ev.endDate)
             });
         } else {
             setCurrentEvent({});
@@ -354,10 +372,33 @@ const AdminEvents: React.FC = () => {
     const formatDateSafely = (dateStr: string, formatPattern: string) => {
         try {
             if (!dateStr) return 'Sin fecha';
-            const normalized = normalizeIsoDateString(dateStr);
-            const date = new Date(normalized);
+            const date = parseLocalDate(dateStr);
             if (isNaN(date.getTime())) return 'Fecha inválida';
             return format(date, formatPattern, { locale: es });
+        } catch (e) {
+            return 'Fecha inválida';
+        }
+    };
+
+    const formatAdminEventRange = (startStr: string, endStr: string) => {
+        try {
+            if (!startStr) return 'Sin fecha';
+            const start = parseLocalDate(startStr);
+            if (isNaN(start.getTime())) return 'Fecha inválida';
+            
+            if (!endStr) return format(start, 'dd MMM yyyy', { locale: es });
+            const end = parseLocalDate(endStr);
+            if (isNaN(end.getTime()) || isSameDayLocal(start, end)) {
+                return format(start, 'dd MMM yyyy', { locale: es });
+            }
+            
+            // Si son del mismo mes: "27 - 31 jul 2026"
+            if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+                return `${format(start, 'dd', { locale: es })} - ${format(end, 'dd MMM yyyy', { locale: es })}`;
+            }
+            
+            // Diferente mes o año: "27 jun - 01 ago 2026"
+            return `${format(start, 'dd MMM', { locale: es })} - ${format(end, 'dd MMM yyyy', { locale: es })}`;
         } catch (e) {
             return 'Fecha inválida';
         }
@@ -674,7 +715,7 @@ const AdminEvents: React.FC = () => {
                                 </div>
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm text-gray-500 mt-1">
                                     <p>
-                                        {formatDateSafely(ev.startDate, 'dd MMM')} - {formatDateSafely(ev.endDate, 'dd MMM yyyy')}
+                                        {formatAdminEventRange(ev.startDate, ev.endDate)}
                                         {ev.estimatedSeason && <span className="ml-2 text-amber-600 text-xs">· Estimado: {ev.estimatedSeason}</span>}
                                     </p>
                                     {ev.location && (
