@@ -26,7 +26,7 @@ const Gastronomia: React.FC = () => {
             {/* Hero Section */}
             <div className="container mx-auto px-6 mb-24 text-center">
                 {/* Mobile: H2 first (overlapping header), then Span. Desktop: Span then H2 (default flow) */}
-                <div className="flex flex-col md:block relative z-30">
+                <div className="flex flex-col items-center md:block relative z-30">
                     <Editable
                         id="gastronomia.hero.title"
                         defaultValue="Ruta de Sabores"
@@ -36,7 +36,7 @@ const Gastronomia: React.FC = () => {
                     <Editable
                         id="gastronomia.hero.badge"
                         defaultValue="De la Tierra a la Mesa"
-                        className="order-2 md:order-none font-ui text-[10px] md:text-xs font-bold tracking-[0.3em] bg-[#10595a] text-white px-4 py-2 rounded-full uppercase mb-12 md:mb-6 block w-fit"
+                        className="order-2 md:order-none font-ui text-[10px] md:text-xs font-bold tracking-[0.3em] bg-[#10595a] text-white px-4 py-2 rounded-full uppercase mb-12 md:mb-6 block w-fit mx-auto"
                         label="Insignia Principal"
                     />
                 </div>
@@ -56,7 +56,7 @@ const Gastronomia: React.FC = () => {
                             id="gastronomia.hero.description"
                             type="textarea"
                             defaultValue='"Una identidad culinaria forjada entre la pampa criolla y la herencia de los alemanes del Volga. Un modelo de &apos;kilómetro cero&apos; donde la historia se saborea."'
-                            className="text-white/90 text-lg font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md block font-sans"
+                            className="text-white/90 text-sm md:text-lg font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md block font-sans"
                             label="Descripción Hero"
                         />
                     </div>

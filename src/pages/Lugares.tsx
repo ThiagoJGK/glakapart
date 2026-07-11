@@ -50,7 +50,7 @@ const Lugares: React.FC = () => {
                                 id="lugares.hero.description"
                                 type="textarea"
                                 defaultValue='"Urdinarrain combina la vida rural con experiencias auténticas. Donde el silbato del tren marcó el inicio de una historia de progreso e identidad."'
-                                className="text-white/90 text-xl font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md block font-sans"
+                                className="text-white/90 text-sm md:text-xl font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md block font-sans"
                                 label="Descripción Hero"
                             />
                         </div>

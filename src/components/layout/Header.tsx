@@ -275,22 +275,22 @@ const Header: React.FC = () => {
 
                         {/* Title Badges */}
                         {currentPath.includes('gastronomia') && (
-                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30">
+                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
                                 <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">SABORES DE NUESTRA TIERRA</span>
                             </div>
                         )}
                         {currentPath.includes('lugares') && (
-                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30">
+                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
                                 <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">DESCUBRÍ LA REGIÓN</span>
                             </div>
                         )}
                         {currentPath.includes('eventos') && (
-                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30">
+                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
                                 <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">PRÓXIMOS EVENTOS</span>
                             </div>
                         )}
                         {currentPath.includes('apartamentos') && (
-                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30">
+                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
                                 <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">NUESTROS APARTAMENTOS</span>
                             </div>
                         )}
