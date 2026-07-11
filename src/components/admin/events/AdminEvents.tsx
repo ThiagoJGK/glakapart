@@ -45,14 +45,21 @@ const AdminEvents: React.FC = () => {
     const [isSyncing, setIsSyncing] = useState(false);
     const [syncProgress, setSyncProgress] = useState(0);
     const [syncStatus, setSyncStatus] = useState('');
+    const [forceSync, setForceSync] = useState(false);
+    const [syncSummary, setSyncSummary] = useState<{
+        updated: string[];
+        failed: { title: string; reason: string; sourceId?: number }[];
+        skipped: string[];
+    } | null>(null);
 
     const handleSync = () => {
         setIsSyncing(true);
         setSyncProgress(0);
         setSyncStatus('Iniciando sincronización...');
+        setSyncSummary(null);
 
         const existingIds = events.map(e => e.id).join(',');
-        const eventSource = new EventSource(`/api/sync-events?existingIds=${encodeURIComponent(existingIds)}`);
+        const eventSource = new EventSource(`/api/sync-events?existingIds=${encodeURIComponent(existingIds)}&force=${forceSync}`);
 
         eventSource.addEventListener('progress', (e: MessageEvent) => {
             try {
@@ -69,9 +76,9 @@ const AdminEvents: React.FC = () => {
                 const data = JSON.parse(e.data);
                 eventSource.close();
                 
-                // Unir eventos
+                // Unir eventos (filtrando eventos de muestra para que no se guarden como manuales)
                 const syncedResults: Event[] = data.events;
-                const manualEvents = events.filter(ev => !ev.source || ev.source === 'manual');
+                const manualEvents = events.filter(ev => (!ev.source || ev.source === 'manual') && !ev.id.startsWith('sample-'));
                 const previousSyncedEvents = events.filter(ev => ev.source === 'urdinarrain');
 
                 const finalSyncedList: Event[] = [];
@@ -100,13 +107,9 @@ const AdminEvents: React.FC = () => {
                 const success = await saveToDb(combinedEvents);
                 if (success) {
                     setEvents(combinedEvents);
-                    setSyncStatus('¡Sincronización exitosa!');
+                    setSyncSummary(data.summary);
+                    setSyncStatus('¡Sincronización finalizada!');
                     setSyncProgress(100);
-                    setTimeout(() => {
-                        setIsSyncing(false);
-                        setSyncStatus('');
-                        setSyncProgress(0);
-                    }, 2000);
                 } else {
                     alert('Error de permisos al guardar en Firestore. Asegurate de estar logueado.');
                     setIsSyncing(false);
@@ -120,9 +123,91 @@ const AdminEvents: React.FC = () => {
 
         eventSource.addEventListener('error', (e: any) => {
             console.error('SSE Error:', e);
-            let errMsg = 'Ocurrió un error en la conexión.';
             eventSource.close();
-            alert(`Error de sincronización: ${errMsg}`);
+            alert('Error de sincronización. Ocurrió un error en la conexión.');
+            setIsSyncing(false);
+        });
+    };
+
+    const handleRetryFailed = () => {
+        if (!syncSummary || syncSummary.failed.length === 0) return;
+        const failedIds = syncSummary.failed
+            .map(f => f.sourceId)
+            .filter(Boolean)
+            .join(',');
+        
+        setIsSyncing(true);
+        setSyncProgress(0);
+        setSyncStatus('Iniciando reintento de fallidos...');
+        setSyncSummary(null);
+
+        const existingIds = events.map(e => e.id).join(',');
+        // Forzar re-sincronización porque queremos re-procesar los fallidos
+        const eventSource = new EventSource(`/api/sync-events?existingIds=${encodeURIComponent(existingIds)}&force=true&targetIds=${encodeURIComponent(failedIds)}`);
+
+        eventSource.addEventListener('progress', (e: MessageEvent) => {
+            try {
+                const data = JSON.parse(e.data);
+                if (data.message) setSyncStatus(data.message);
+                if (data.progress !== undefined) setSyncProgress(data.progress);
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        eventSource.addEventListener('complete', async (e: MessageEvent) => {
+            try {
+                const data = JSON.parse(e.data);
+                eventSource.close();
+                
+                const syncedResults: Event[] = data.events;
+                const manualEvents = events.filter(ev => (!ev.source || ev.source === 'manual') && !ev.id.startsWith('sample-'));
+                const previousSyncedEvents = events.filter(ev => ev.source === 'urdinarrain');
+
+                const finalSyncedList: Event[] = [];
+
+                for (const item of syncedResults) {
+                    if ((item as any)._keepExisting) {
+                        const found = previousSyncedEvents.find(pe => pe.id === item.id);
+                        if (found) finalSyncedList.push(found);
+                    } else {
+                        finalSyncedList.push(item);
+                    }
+                }
+
+                const fetchedIds = syncedResults.map(r => r.id);
+                const olderSynced = previousSyncedEvents.filter(pe => !fetchedIds.includes(pe.id));
+
+                const combinedEvents = [
+                    ...manualEvents,
+                    ...finalSyncedList,
+                    ...olderSynced
+                ];
+
+                setSyncStatus('Guardando cambios en base de datos...');
+                setSyncProgress(98);
+
+                const success = await saveToDb(combinedEvents);
+                if (success) {
+                    setEvents(combinedEvents);
+                    setSyncSummary(data.summary);
+                    setSyncStatus('¡Reintento finalizado!');
+                    setSyncProgress(100);
+                } else {
+                    alert('Error al guardar cambios.');
+                    setIsSyncing(false);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error al procesar reintento.');
+                setIsSyncing(false);
+            }
+        });
+
+        eventSource.addEventListener('error', (e: any) => {
+            console.error('SSE Error:', e);
+            eventSource.close();
+            alert('Error en conexión de reintento.');
             setIsSyncing(false);
         });
     };
@@ -133,7 +218,11 @@ const AdminEvents: React.FC = () => {
         setSyncStatus('Eliminando eventos del municipio...');
         setSyncProgress(20);
         try {
-            const manualEvents = events.filter(ev => ev.source !== 'urdinarrain' && !ev.id.startsWith('sync-urdinarrain-'));
+            const manualEvents = events.filter(ev => 
+                ev.source !== 'urdinarrain' && 
+                !ev.id.startsWith('sync-urdinarrain-') &&
+                !ev.id.startsWith('sample-')
+            );
             setSyncProgress(60);
             const success = await saveToDb(manualEvents);
             if (success) {
@@ -279,7 +368,16 @@ const AdminEvents: React.FC = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <h3 className="text-2xl font-script text-forest">Gestión de Eventos</h3>
                 {!isEditing && (
-                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
+                        <label className="flex items-center gap-2 text-xs font-bold text-gray-500 cursor-pointer mr-2 select-none">
+                            <input 
+                                type="checkbox" 
+                                checked={forceSync} 
+                                onChange={e => setForceSync(e.target.checked)} 
+                                className="rounded border-gray-300 text-forest focus:ring-forest cursor-pointer"
+                            />
+                            FORZAR RE-SINCRONIZACIÓN
+                        </label>
                         <button
                             onClick={handleClearSynced}
                             disabled={isSyncing}
@@ -307,17 +405,79 @@ const AdminEvents: React.FC = () => {
             </div>
 
             {isSyncing && (
-                <div className="bg-forest/5 border border-forest/10 rounded-xl p-4 space-y-2">
-                    <div className="flex justify-between items-center text-xs font-bold text-forest">
-                        <span className="animate-pulse">{syncStatus}</span>
-                        <span>{syncProgress}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-gray-200/50 rounded-full overflow-hidden">
-                        <div 
-                            className="h-full bg-sage transition-all duration-300 rounded-full"
-                            style={{ width: `${syncProgress}%` }}
-                        ></div>
-                    </div>
+                <div className="bg-forest/5 border border-forest/10 rounded-xl p-6 space-y-4">
+                    {syncSummary ? (
+                        <div className="space-y-4">
+                            <h4 className="font-bold text-forest text-sm uppercase tracking-wider">Resumen de Sincronización</h4>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-lg">
+                                    <span className="font-bold text-emerald-800 block mb-1">ACTUALIZADOS ({syncSummary.updated.length})</span>
+                                    {syncSummary.updated.length > 0 ? (
+                                        <ul className="list-disc pl-4 space-y-1 text-emerald-700 max-h-32 overflow-y-auto">
+                                            {syncSummary.updated.map((t, idx) => <li key={idx}>{t}</li>)}
+                                        </ul>
+                                    ) : <p className="text-gray-400">Ningún evento nuevo o actualizado.</p>}
+                                </div>
+
+                                <div className="bg-gray-50 border border-gray-100 p-3 rounded-lg">
+                                    <span className="font-bold text-gray-700 block mb-1">OMITIDOS ({syncSummary.skipped.length})</span>
+                                    {syncSummary.skipped.length > 0 ? (
+                                        <ul className="list-disc pl-4 space-y-1 text-gray-600 max-h-32 overflow-y-auto">
+                                            {syncSummary.skipped.map((t, idx) => <li key={idx}>{t}</li>)}
+                                        </ul>
+                                    ) : <p className="text-gray-400">Ninguno omitido.</p>}
+                                </div>
+
+                                <div className="bg-rose-50 border border-rose-100 p-3 rounded-lg">
+                                    <span className="font-bold text-rose-800 block mb-1">FALLIDOS ({syncSummary.failed.length})</span>
+                                    {syncSummary.failed.length > 0 ? (
+                                        <ul className="list-disc pl-4 space-y-1 text-rose-700 max-h-32 overflow-y-auto">
+                                            {syncSummary.failed.map((f, idx) => (
+                                                <li key={idx}>
+                                                    <span className="font-bold">{f.title}</span>: {f.reason}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : <p className="text-emerald-700">¡Ningún fallo!</p>}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 justify-end pt-2">
+                                {syncSummary.failed.length > 0 && (
+                                    <button
+                                        onClick={handleRetryFailed}
+                                        className="bg-forest text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-forest/90 transition-colors flex items-center gap-1 cursor-pointer"
+                                    >
+                                        <RefreshCw size={12} />
+                                        REINTENTAR FALLIDOS
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        setIsSyncing(false);
+                                        setSyncSummary(null);
+                                    }}
+                                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-300 transition-colors cursor-pointer"
+                                >
+                                    CERRAR
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center text-xs font-bold text-forest">
+                                <span className="animate-pulse">{syncStatus}</span>
+                                <span>{syncProgress}%</span>
+                            </div>
+                            <div className="w-full h-2 bg-gray-200/50 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-sage transition-all duration-300 rounded-full"
+                                    style={{ width: `${syncProgress}%` }}
+                                ></div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 

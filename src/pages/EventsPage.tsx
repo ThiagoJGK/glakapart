@@ -16,7 +16,16 @@ import { motion, useAnimation, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import Editable from '@/components/ui/Editable';
 import { getOptimizedCloudinaryUrl } from '@/utils/cloudinaryHelper';
-import { MapPin } from 'lucide-react';
+import { MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+
+const stripMarkdown = (md: string) => {
+    if (!md) return '';
+    return md
+        .replace(/[#*`_-]/g, '') // remove markdown symbols
+        .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // remove links but keep text
+        .trim();
+};
 
 const EventsPage: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
@@ -201,6 +210,7 @@ const EventsPage: React.FC = () => {
                                     selectedDate={selectedDate}
                                     onSelectDate={handleDateSelect}
                                     theme="light"
+                                    selectedEvent={selectedEvent}
                                 />
                             </div>
 
@@ -246,20 +256,28 @@ const EventsPage: React.FC = () => {
                                             <div>
                                                 {/* Selector para múltiples eventos en el mismo día */}
                                                 {selectedDateEvents.length > 1 && (
-                                                    <div className="flex flex-wrap gap-1.5 mb-4 border-b border-[#10595a]/10 pb-3">
-                                                        {selectedDateEvents.map((ev, idx) => (
+                                                    <div className="flex items-center gap-4 mb-4 border-b border-[#10595a]/10 pb-3 w-fit">
+                                                        <div className="flex items-center gap-1">
                                                             <button
-                                                                key={ev.id}
-                                                                onClick={() => setSelectedEventIndex(idx)}
-                                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-bold tracking-wider transition-all duration-300 ${
-                                                                    selectedEventIndex === idx
-                                                                        ? 'bg-[#10595a] text-white shadow-sm'
-                                                                        : 'bg-[#10595a]/5 text-[#10595a] hover:bg-[#10595a]/10'
-                                                                }`}
+                                                                onClick={() => setSelectedEventIndex(prev => (prev - 1 + selectedDateEvents.length) % selectedDateEvents.length)}
+                                                                className="p-1.5 rounded-xl bg-[#10595a]/5 text-[#10595a] hover:bg-[#10595a]/10 transition-all active:scale-95"
+                                                                aria-label="Evento anterior"
                                                             >
-                                                                {ev.title.split(' | ').pop() || ev.title}
+                                                                <ChevronLeft size={14} className="stroke-[3]" />
                                                             </button>
-                                                        ))}
+                                                            
+                                                            <span className="text-[10px] font-black text-[#10595a] tracking-widest uppercase px-2 min-w-[120px] text-center select-none">
+                                                                EVENTO {selectedEventIndex + 1} DE {selectedDateEvents.length}
+                                                            </span>
+                                                            
+                                                            <button
+                                                                onClick={() => setSelectedEventIndex(prev => (prev + 1) % selectedDateEvents.length)}
+                                                                className="p-1.5 rounded-xl bg-[#10595a]/5 text-[#10595a] hover:bg-[#10595a]/10 transition-all active:scale-95"
+                                                                aria-label="Siguiente evento"
+                                                            >
+                                                                <ChevronRight size={14} className="stroke-[3]" />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 )}
                                                 <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -286,9 +304,9 @@ const EventsPage: React.FC = () => {
                                                     {selectedEvent.title}
                                                 </h2>
 
-                                                <p className="text-[#10595a]/80 font-medium text-sm leading-relaxed mb-6 whitespace-pre-line max-h-[160px] overflow-y-auto pr-2 scrollbar-thin">
-                                                    {selectedEvent.description}
-                                                </p>
+                                                <div className="text-[#10595a]/80 font-medium text-sm leading-relaxed mb-6 max-h-[160px] overflow-y-auto pr-2 scrollbar-thin markdown-description">
+                                                    <ReactMarkdown>{selectedEvent.description}</ReactMarkdown>
+                                                </div>
                                             </div>
 
                                             <button
@@ -373,7 +391,7 @@ const EventsPage: React.FC = () => {
                                 </div>
                                 <div className="px-4 pb-4">
                                     <h4 className="font-ui font-black text-xl text-[#10595a] mb-3 line-clamp-1 group-hover:text-[#90c69e] transition-colors">{ev.title}</h4>
-                                    <p className="text-[#10595a]/60 text-sm line-clamp-2 leading-relaxed whitespace-pre-line">{ev.description}</p>
+                                    <p className="text-[#10595a]/60 text-sm line-clamp-2 leading-relaxed">{stripMarkdown(ev.description)}</p>
                                     <div className="mt-6 flex items-center justify-between">
                                         <div className="h-px flex-grow bg-[#f4f1ea] group-hover:bg-[#90c69e]/30 transition-colors"></div>
                                         <Editable
@@ -436,7 +454,7 @@ const EventsPage: React.FC = () => {
                                     </div>
                                     <div className="px-3 pb-3">
                                         <h4 className="font-ui font-bold text-base text-gray-700 mb-2 line-clamp-1">{ev.title}</h4>
-                                        <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed whitespace-pre-line">{ev.description}</p>
+                                        <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed">{stripMarkdown(ev.description)}</p>
                                     </div>
                                 </div>
                             ))}
@@ -654,7 +672,32 @@ const EventsPage: React.FC = () => {
             </div>
 
             <FloatingBookingButton />
-            <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
+            <style>{`
+                .markdown-description h3 {
+                    font-weight: bold;
+                    font-size: 1.1rem;
+                    margin-top: 0.75rem;
+                    margin-bottom: 0.25rem;
+                    color: #10595a;
+                }
+                .markdown-description p {
+                    margin-bottom: 0.5rem;
+                }
+                .markdown-description strong {
+                    font-weight: bold;
+                    color: #10595a;
+                }
+                .markdown-description ul {
+                    list-style-type: disc;
+                    padding-left: 1.25rem;
+                    margin-bottom: 0.5rem;
+                }
+                .markdown-description li {
+                    margin-bottom: 0.25rem;
+                }
+                .scrollbar-hide::-webkit-scrollbar { display: none; } 
+                .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+            `}</style>
         </main >
     );
 };

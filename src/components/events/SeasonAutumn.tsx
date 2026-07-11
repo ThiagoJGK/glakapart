@@ -3,49 +3,62 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 export const SeasonAutumn: React.FC = () => {
-    // Generate arrays for different types of leaves and particles
+    const [isMounted, setIsMounted] = React.useState(false);
+    
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
-    // 1. Large foreground leaves (maple-ish) - fast, blurred, heavy
-    const largeLeaves = Array.from({ length: 4 }).map((_, i) => ({
-        id: `large-${i}`,
-        left: `${10 + Math.random() * 80}%`,
-        delay: Math.random() * 0.5,
-        duration: 3.0 + Math.random() * 1.5,
-        scale: 1.2 + Math.random() * 0.5,
-        rotationStart: Math.random() * 90,
-        color: ['text-[#7f1d1d]', 'text-[#9a3412]', 'text-[#b45309]'][Math.floor(Math.random() * 3)],
-    }));
+    // Generate arrays for different types of leaves and particles only on the client
+    const { largeLeaves, mediumLeaves, smallLeaves, pollen } = React.useMemo(() => {
+        if (!isMounted) {
+            return { largeLeaves: [], mediumLeaves: [], smallLeaves: [], pollen: [] };
+        }
+        
+        // 1. Large foreground leaves (maple-ish) - fast, blurred, heavy
+        const large = Array.from({ length: 4 }).map((_, i) => ({
+            id: `large-${i}`,
+            left: `${10 + Math.random() * 80}%`,
+            delay: Math.random() * 0.5,
+            duration: 3.0 + Math.random() * 1.5,
+            scale: 1.2 + Math.random() * 0.5,
+            rotationStart: Math.random() * 90,
+            color: ['text-[#7f1d1d]', 'text-[#9a3412]', 'text-[#b45309]'][Math.floor(Math.random() * 3)],
+        }));
 
-    // 2. Medium midground leaves (oak-ish) - sharp, medium speed, zigzag
-    const mediumLeaves = Array.from({ length: 6 }).map((_, i) => ({
-        id: `med-${i}`,
-        left: `${5 + Math.random() * 90}%`,
-        delay: Math.random() * 0.6,
-        duration: 3.5 + Math.random() * 1.0,
-        scale: 0.7 + Math.random() * 0.3,
-        rotationStart: Math.random() * 180,
-        color: ['text-[#d97736]', 'text-[#ca8a04]', 'text-[#ea580c]'][Math.floor(Math.random() * 3)],
-    }));
+        // 2. Medium midground leaves (oak-ish) - sharp, medium speed, zigzag
+        const medium = Array.from({ length: 6 }).map((_, i) => ({
+            id: `med-${i}`,
+            left: `${5 + Math.random() * 90}%`,
+            delay: Math.random() * 0.6,
+            duration: 3.5 + Math.random() * 1.0,
+            scale: 0.7 + Math.random() * 0.3,
+            rotationStart: Math.random() * 180,
+            color: ['text-[#d97736]', 'text-[#ca8a04]', 'text-[#ea580c]'][Math.floor(Math.random() * 3)],
+        }));
 
-    // 3. Small background leaves (generic) - slow, small, spiraling
-    const smallLeaves = Array.from({ length: 4 }).map((_, i) => ({
-        id: `small-${i}`,
-        left: `${Math.random() * 100}%`,
-        delay: Math.random() * 0.8,
-        duration: 4.0 + Math.random() * 1.5,
-        scale: 0.3 + Math.random() * 0.2,
-        rotationStart: Math.random() * 360,
-        color: ['text-[#eab308]', 'text-[#f59e0b]', 'text-[#d97736]'][Math.floor(Math.random() * 3)],
-    }));
+        // 3. Small background leaves (generic) - slow, small, spiraling
+        const small = Array.from({ length: 4 }).map((_, i) => ({
+            id: `small-${i}`,
+            left: `${Math.random() * 100}%`,
+            delay: Math.random() * 0.8,
+            duration: 4.0 + Math.random() * 1.5,
+            scale: 0.3 + Math.random() * 0.2,
+            rotationStart: Math.random() * 360,
+            color: ['text-[#eab308]', 'text-[#f59e0b]', 'text-[#d97736]'][Math.floor(Math.random() * 3)],
+        }));
 
-    // 4. Wind pollen particles
-    const pollen = Array.from({ length: 8 }).map((_, i) => ({
-        id: `pollen-${i}`,
-        top: `${Math.random() * 100}%`,
-        delay: Math.random() * 0.4,
-        duration: 2.5 + Math.random() * 1.5,
-        size: Math.random() > 0.5 ? 'w-1 h-1' : 'w-2 h-2',
-    }));
+        // 4. Wind pollen particles
+        const poll = Array.from({ length: 8 }).map((_, i) => ({
+            id: `pollen-${i}`,
+            top: `${Math.random() * 100}%`,
+            delay: Math.random() * 0.4,
+            duration: 2.5 + Math.random() * 1.5,
+            size: Math.random() > 0.5 ? 'w-1 h-1' : 'w-2 h-2',
+        }));
+
+        return { largeLeaves: large, mediumLeaves: medium, smallLeaves: small, pollen: poll };
+    }, [isMounted]);
 
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">

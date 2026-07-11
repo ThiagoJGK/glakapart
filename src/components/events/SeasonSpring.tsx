@@ -3,16 +3,25 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 export const SeasonSpring: React.FC = () => {
-    // Generate fireflies / rising pollen
-    const fireflies = Array.from({ length: 10 }).map((_, i) => ({
-        id: `firefly-${i}`,
-        left: `${Math.random() * 100}%`,
-        bottom: `${-10 + Math.random() * 20}%`,
-        delay: Math.random() * 0.4,
-        duration: 2.5 + Math.random() * 1.5,
-        size: Math.random() > 0.5 ? 'w-1.5 h-1.5' : 'w-2 h-2',
-        color: ['bg-yellow-200', 'bg-lime-200', 'bg-white', 'bg-pink-200'][Math.floor(Math.random() * 4)],
-    }));
+    const [isMounted, setIsMounted] = React.useState(false);
+    
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // Generate fireflies / rising pollen only on the client
+    const fireflies = React.useMemo(() => {
+        if (!isMounted) return [];
+        return Array.from({ length: 10 }).map((_, i) => ({
+            id: `firefly-${i}`,
+            left: `${Math.random() * 100}%`,
+            bottom: `${-10 + Math.random() * 20}%`,
+            delay: Math.random() * 0.4,
+            duration: 2.5 + Math.random() * 1.5,
+            size: Math.random() > 0.5 ? 'w-1.5 h-1.5' : 'w-2 h-2',
+            color: ['bg-yellow-200', 'bg-lime-200', 'bg-white', 'bg-pink-200'][Math.floor(Math.random() * 4)],
+        }));
+    }, [isMounted]);
 
 
 

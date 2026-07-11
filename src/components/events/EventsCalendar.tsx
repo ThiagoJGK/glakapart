@@ -10,9 +10,10 @@ interface EventsCalendarProps {
     selectedDate: Date | undefined;
     onSelectDate: (date: Date | undefined) => void;
     theme?: 'light' | 'dark';
+    selectedEvent?: Event | null;
 }
 
-const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, onSelectDate, theme = 'light' }) => {
+const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, onSelectDate, theme = 'light', selectedEvent }) => {
     const isDark = theme === 'dark';
 
     // Organic Palette - Forced High Contrast
@@ -24,12 +25,30 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
         highlight: '#e8d5b5'
     };
 
-    // Modifier: Days with events
+    // Modifiers
     const modifiers = {
         hasEvent: (date: Date) => events.some(ev =>
             isSameDay(date, new Date(ev.startDate)) ||
             (new Date(ev.startDate) <= date && new Date(ev.endDate) >= date)
-        )
+        ),
+        hasMultipleEvents: (date: Date) => {
+            const count = events.filter(ev =>
+                isSameDay(date, new Date(ev.startDate)) ||
+                (new Date(ev.startDate) <= date && new Date(ev.endDate) >= date)
+            ).length;
+            return count > 1;
+        },
+        isSelectedRange: (date: Date) => {
+            if (!selectedEvent || !selectedEvent.startDate) return false;
+            const start = new Date(selectedEvent.startDate);
+            const end = selectedEvent.endDate ? new Date(selectedEvent.endDate) : start;
+            
+            const checkTime = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+            const startTime = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime();
+            const endTime = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime();
+            
+            return checkTime >= startTime && checkTime <= endTime;
+        }
     };
 
     const modifiersStyles = {
@@ -51,7 +70,9 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                 modifiersClassNames={{
                     selected: 'bg-[#10595a] text-white rounded-full transition-all duration-300 transform scale-110 shadow-lg shadow-[#10595a]/20',
                     today: 'text-[#90c69e] font-black border-none relative after:content-[""] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-[#90c69e] after:rounded-full',
-                    hasEvent: 'has-event-day'
+                    hasEvent: 'has-event-day',
+                    hasMultipleEvents: 'multiple-events-day',
+                    isSelectedRange: 'selected-range-day'
                 }}
                 styles={{
                     caption: { color: colors.text, fontFamily: '"Outfit", sans-serif', fontWeight: 'bold' },
@@ -78,12 +99,86 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                     color: #10595a !important;
                 }
                 
-                /* Highlighting days with events */
+                /* Low opacity for unselected/unhighlighted days to stand out the event selection */
+                .event-calendar-custom .rdp-day:not([aria-selected="true"]):not(.rdp-day_selected):not(.selected-range-day) {
+                    opacity: 0.5;
+                    transition: opacity 0.3s ease;
+                }
+                
+                .event-calendar-custom .rdp-day:hover {
+                    opacity: 1 !important;
+                }
+                
+                /* Highlighting days with events - Smaller, light green circle */
                 .event-calendar-custom .has-event-day:not([aria-selected="true"]):not(.rdp-day_selected) {
-                    color: #e88d67 !important;
                     font-weight: 900 !important;
-                    background-color: rgba(232, 141, 103, 0.1) !important;
+                    position: relative;
+                }
+                
+                .event-calendar-custom .has-event-day:not([aria-selected="true"]):not(.rdp-day_selected)::after {
+                    content: '';
+                    position: absolute;
+                    width: 26px;
+                    height: 26px;
                     border-radius: 50%;
+                    background-color: rgba(144, 198, 158, 0.2) !important;
+                    border: 1.5px solid #90c69e !important;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    z-index: -1;
+                }
+                
+                /* Stack effect when more than one event on a date */
+                .event-calendar-custom .multiple-events-day:not([aria-selected="true"]):not(.rdp-day_selected)::before {
+                    content: '';
+                    position: absolute;
+                    width: 26px;
+                    height: 26px;
+                    border-radius: 50%;
+                    background-color: rgba(144, 198, 158, 0.1) !important;
+                    border: 1.5px dashed rgba(144, 198, 158, 0.6) !important;
+                    top: 54%;
+                    left: 54%;
+                    transform: translate(-50%, -50%);
+                    z-index: -2;
+                }
+                
+                /* Selected event date range style and pulsating animation */
+                @keyframes range-pulse {
+                    0% {
+                        box-shadow: 0 0 0 0px rgba(144, 198, 158, 0.5);
+                        background-color: rgba(144, 198, 158, 0.15);
+                    }
+                    50% {
+                        box-shadow: 0 0 0 4px rgba(144, 198, 158, 0);
+                        background-color: rgba(144, 198, 158, 0.35);
+                    }
+                    100% {
+                        box-shadow: 0 0 0 0px rgba(144, 198, 158, 0);
+                        background-color: rgba(144, 198, 158, 0.15);
+                    }
+                }
+                
+                .event-calendar-custom .selected-range-day:not([aria-selected="true"]):not(.rdp-day_selected) {
+                    opacity: 1 !important;
+                    font-weight: 900 !important;
+                    color: #10595a !important;
+                }
+                
+                .event-calendar-custom .selected-range-day:not([aria-selected="true"]):not(.rdp-day_selected)::after {
+                    content: '';
+                    position: absolute;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    border: 2px solid #90c69e !important;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    animation: range-pulse 2s infinite ease-in-out;
+                    z-index: -1;
+                    background-color: rgba(144, 198, 158, 0.2) !important;
                 }
                 
                 /* Selected Day Override - TARGETING ATTRIBUTES TO ENSURE HIT */
@@ -98,6 +193,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                     color: #ffffff !important;
                     background-color: #10595a !important;
                     border: none !important;
+                    opacity: 1 !important;
                 }
                 
                 /* AGGRESSIVELY Force WHITE text on everything inside selected day */
@@ -123,6 +219,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                     font-weight: bold;
                     transform: scale(1.1);
                     transition: all 0.2s ease;
+                    opacity: 1 !important;
                 }
                 
                 /* Today style correction if needed */
@@ -130,6 +227,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events, selectedDate, o
                     color: #90c69e !important;
                     font-weight: 900;
                     background-color: transparent !important;
+                    opacity: 1 !important;
                 }
             `}</style>
         </div>

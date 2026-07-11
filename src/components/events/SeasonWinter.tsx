@@ -3,27 +3,39 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 export const SeasonWinter: React.FC = () => {
-    // Generate arrays for wind trails and mist clouds
-    const windTrails = Array.from({ length: 15 }).map((_, i) => ({
-        id: `wind-${i}`,
-        top: `${10 + Math.random() * 80}%`,
-        // Generates from 10% to 90% down the card. 
-        // If not showing, I will check the styling of the container to make sure overflow isn't cutting it or its z-index is too low
-        height: Math.random() > 0.5 ? 'h-[2px]' : 'h-[3px]',
-        width: `${40 + Math.random() * 40}%`,
-        delay: Math.random() * 0.5,
-        duration: 0.3 + Math.random() * 0.6,
-        opacity: 0.5 + Math.random() * 0.5,
-    }));
+    const [isMounted, setIsMounted] = React.useState(false);
+    
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
-    const mistClouds = Array.from({ length: 4 }).map((_, i) => ({
-        id: `mist-${i}`,
-        left: `${-20 + Math.random() * 100}%`,
-        bottom: `${-10 + Math.random() * 20}%`,
-        width: `${40 + Math.random() * 60}%`,
-        delay: Math.random() * 0.3,
-        duration: 2.0 + Math.random() * 0.5,
-    }));
+    // Generate arrays for wind trails and mist clouds only on the client
+    const { windTrails, mistClouds } = React.useMemo(() => {
+        if (!isMounted) {
+            return { windTrails: [], mistClouds: [] };
+        }
+        
+        const trails = Array.from({ length: 15 }).map((_, i) => ({
+            id: `wind-${i}`,
+            top: `${10 + Math.random() * 80}%`,
+            height: Math.random() > 0.5 ? 'h-[2px]' : 'h-[3px]',
+            width: `${40 + Math.random() * 40}%`,
+            delay: Math.random() * 0.5,
+            duration: 0.3 + Math.random() * 0.6,
+            opacity: 0.5 + Math.random() * 0.5,
+        }));
+
+        const mists = Array.from({ length: 4 }).map((_, i) => ({
+            id: `mist-${i}`,
+            left: `${-20 + Math.random() * 100}%`,
+            bottom: `${-10 + Math.random() * 20}%`,
+            width: `${40 + Math.random() * 60}%`,
+            delay: Math.random() * 0.3,
+            duration: 2.0 + Math.random() * 0.5,
+        }));
+
+        return { windTrails: trails, mistClouds: mists };
+    }, [isMounted]);
 
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">

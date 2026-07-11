@@ -118,7 +118,7 @@ const Admin: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         return 'dashboard';
     };
 
-    const activeTab = getActiveTab(pathname);
+    const activeTab = getActiveTab(pathname || '');
 
     useEffect(() => {
         if (user && ALLOWED_EMAILS.includes(user.email?.toLowerCase() || '')) {

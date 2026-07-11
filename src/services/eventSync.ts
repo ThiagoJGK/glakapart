@@ -157,75 +157,162 @@ export async function fetchEventDates(eventUrl: string): Promise<{ startDate: st
     }
 }
 
-// Llamar a Gemini para reescribir la descripción y adaptarla al tono turístico de Urdinarrain
-export async function rewriteDescriptionWithAI(title: string, rawDescription: string, apiKey: string): Promise<{ description: string, startDate?: string, endDate?: string }> {
+// Auxiliar para descargar una imagen y convertirla a Base64
+async function fetchImageAsBase64(url: string): Promise<{ data: string, mimeType: string } | null> {
     try {
-        const ai = new GoogleGenAI({ apiKey });
-        
-        const systemPrompt = `Sos un redactor publicitario y turístico profesional. Tu tarea es reescribir la descripción de un evento local para que sea sumamente atractiva, bien redactada, clara y entusiasta para cualquier visitante o turista que esté en Urdinarrain.
-- Mantené un tono cálido, alegre y profesional.
-- Estructurá la descripción de manera clara (usa hasta 3 párrafos como máximo).
-- NO utilices múltiples saltos de línea innecesarios. Usa solo un salto de línea simple para separar párrafos. No agregues espacios en blanco excesivos.
-- No inventes información que no esté en el texto original.
-- Si el texto original está en mayúsculas sostenidas o tiene emojis excesivos de redes sociales, límpialos para dar una presentación impecable.
-- Escribí en español rioplatense (argentino).
-- NO hagas menciones obligatorias a "Glak Apart" ni promociones del hospedaje (enfócate en el EVENTO en sí de forma objetiva pero atractiva).
-- MUY IMPORTANTE: Asegurate de generar la respuesta completa y concluir el texto correctamente sin dejar oraciones a medias o cortadas. Si la descripción es muy extensa, sintetizala de forma elegante antes de finalizar para asegurar un cierre perfecto.
-- EXTRAE LAS FECHAS: Analiza el texto para deducir la fecha de inicio y fin (si existe). Devuelve la respuesta ESTRICTAMENTE en este formato JSON:
-{
-  "description": "Tu texto reescrito aquí...",
-  "startDate": "YYYY-MM-DD",
-  "endDate": "YYYY-MM-DD"
-}
-Si no encuentras una fecha, deja startDate y endDate como null.`;
-
-        const prompt = `Título del evento: ${title}\n\nDescripción original:\n${rawDescription}\n\nPor favor, reescribila siguiendo las reglas anteriores devolviendo el JSON solicitado:`;
-
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            config: {
-                systemInstruction: systemPrompt,
-                temperature: 0.7,
-                maxOutputTokens: 1000,
-                responseMimeType: "application/json"
-            }
+        const response = await fetch(url, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
         });
-
-        const text = response.text?.trim();
-        if (text) {
-            const parsed = JSON.parse(text);
-            return {
-                description: cleanNewlines(parsed.description || rawDescription),
-                startDate: parsed.startDate,
-                endDate: parsed.endDate
-            };
-        }
-        return { description: cleanNewlines(rawDescription) };
+        if (!response.ok) return null;
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const mimeType = response.headers.get('content-type') || 'image/jpeg';
+        return {
+            data: buffer.toString('base64'),
+            mimeType
+        };
     } catch (error) {
-        console.error('Error in rewriteDescriptionWithAI:', error);
-        return { description: cleanNewlines(rawDescription) }; // Fallback a la original limpia si falla la IA
+        console.error(`Error fetching image from ${url} for vision fallback:`, error);
+        return null;
     }
 }
 
+// Llamar a Gemini para reescribir la descripción y adaptarla al tono turístico de Urdinarrain
+export async function rewriteDescriptionWithAI(
+    title: string, 
+    rawDescription: string, 
+    apiKey: string, 
+    imageUrl?: string,
+    onStatus?: (status: string) => void
+): Promise<{ description: string, startDate?: string, endDate?: string }> {
+    const maxRetries = 2;
+    let delayMs = 4000;
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            const ai = new GoogleGenAI({ apiKey });
+            
+            let systemPrompt = `Sos un redactor publicitario y turístico profesional. Tu tarea es redactar o reescribir la descripción de un evento local para que sea sumamente atractiva, bien redactada, clara y entusiasta para cualquier visitante o turista que esté en Urdinarrain.
+- Mantené un tono cálido, alegre y profesional.
+- Estructurá la descripción de manera clara utilizando Markdown (títulos '###' para secciones importantes como horarios o actividades, negritas '**' para destacar datos clave, y un uso amigable y moderado de emojis).
+- Asegúrate de limpiar cualquier carácter extraño, enlaces rotos, o textos mal formateados para maximizar la compatibilidad y legibilidad.
+- Escribí en español rioplatense (argentino).
+- NO hagas menciones obligatorias a "Glak Apart" ni promociones del hospedaje (enfócate en el EVENTO en sí de forma objetiva pero atractiva).
+- MUY IMPORTANTE: Asegurate de generar la respuesta completa y concluir el texto correctamente sin dejar oraciones a medias o cortadas. Si la descripción es muy extensa, sintetizala de forma elegante antes de finalizar para asegurar un cierre perfecto.
+- EXTRAE LAS FECHAS: Analiza el texto (u opcionalmente la imagen provista) para deducir la fecha de inicio y fin (si existe). Devuelve la respuesta en formato JSON de acuerdo al esquema solicitado.
+Si no encuentras una fecha, deja startDate y endDate como null.`;
+
+            const parts: any[] = [];
+            let prompt = '';
+
+            if (!rawDescription && imageUrl) {
+                systemPrompt += `\n- ¡ATENCIÓN!: La descripción original del evento está vacía. Se te ha proporcionado la imagen/flyer oficial del evento. Debes analizar visualmente la imagen para extraer toda la información relevante (de qué trata el evento, qué actividades se realizarán, horarios, etc.) y redactar una descripción atractiva y completa basándote únicamente en ella. También debes deducir las fechas de inicio y fin a partir de los textos contenidos en la imagen y el contexto del año corriente (2026).`;
+                prompt = `Título del evento: ${title}\n\nAnaliza la imagen adjunta y redacta una descripción atractiva en Markdown, además de extraer las fechas de inicio y fin:`;
+                
+                const imageBase64 = await fetchImageAsBase64(imageUrl);
+                if (imageBase64) {
+                    parts.push({
+                        inlineData: {
+                            data: imageBase64.data,
+                            mimeType: imageBase64.mimeType
+                        }
+                    });
+                } else {
+                    prompt = `Título del evento: ${title}\n\nLa descripción original está vacía y no pudimos cargar la imagen del flyer. Redacta una invitación general y entusiasta para este evento a realizarse en Urdinarrain, animando a los visitantes a estar atentos a los canales oficiales del municipio para más detalles, y deja las fechas de inicio y fin como null si no se pueden inferir del título.`;
+                }
+            } else {
+                prompt = `Título del evento: ${title}\n\nDescripción original:\n${rawDescription}\n\nPor favor, reescribila siguiendo las reglas anteriores devolviendo el formato solicitado:`;
+            }
+
+            parts.push({ text: prompt });
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: [{ role: 'user', parts }],
+                config: {
+                    systemInstruction: systemPrompt,
+                    temperature: 0.7,
+                    maxOutputTokens: 1000,
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "object",
+                        properties: {
+                            description: {
+                                type: "string",
+                                description: "Descripción redactada o reescrita del evento estructurada con Markdown."
+                            },
+                            startDate: {
+                                type: "string",
+                                description: "Fecha de inicio del evento (formato YYYY-MM-DD), o null/vacío si no se puede determinar."
+                            },
+                            endDate: {
+                                type: "string",
+                                description: "Fecha de fin del evento (formato YYYY-MM-DD), o null/vacío si no se puede determinar."
+                            }
+                        },
+                        required: ["description"]
+                    }
+                }
+            });
+
+            const text = response.text?.trim();
+            if (text) {
+                const parsed = JSON.parse(text);
+                return {
+                    description: cleanNewlines(parsed.description || rawDescription),
+                    startDate: parsed.startDate || undefined,
+                    endDate: parsed.endDate || undefined
+                };
+            }
+            return { description: cleanNewlines(rawDescription) };
+        } catch (error: any) {
+            const isRateLimit = error.status === 429 || 
+                                (error.message && error.message.includes('429')) || 
+                                (error.message && error.message.includes('quota'));
+                                
+            if (isRateLimit && attempt < maxRetries) {
+                let waitTimeMs = 30000; // Por defecto 30 segundos
+                const match = error.message && error.message.match(/Please retry in (\d+(\.\d+)?)/i);
+                if (match) {
+                    waitTimeMs = Math.ceil(parseFloat(match[1]) * 1000) + 1500; // 1.5 segundos extra de margen
+                }
+                const waitSecs = Math.round(waitTimeMs / 1000);
+                onStatus?.(`Límite de cuota alcanzado. Esperando ${waitSecs}s para reintentar...`);
+                console.warn(`[Gemini API] Límite de cuota alcanzado para "${title}". Esperando ${waitTimeMs}ms antes de reintentar (intento ${attempt + 1}/${maxRetries})...`);
+                await new Promise(r => setTimeout(r, waitTimeMs));
+                continue;
+            }
+            console.error('Error in rewriteDescriptionWithAI:', error);
+            return { description: cleanNewlines(rawDescription) }; // Fallback a la original limpia si falla la IA
+        }
+    }
+    return { description: cleanNewlines(rawDescription) };
+}
+
 // Mapear un evento de la REST API de WP a la estructura de Event
-export async function parseWPEvent(wpEvent: any, apiKey: string): Promise<Event | null> {
+export async function parseWPEvent(wpEvent: any, apiKey: string, onStatus?: (status: string) => void): Promise<Event | null> {
     try {
         const cleanTitle = stripHtml(wpEvent.title.rendered).replace(/\s*\|\s*/g, ' | ');
         const rawDescription = stripHtml(wpEvent.content.rendered);
         
-        // 1. Obtener fechas exactas desde la página individual
-        let dates = await fetchEventDates(wpEvent.link);
+        // 1. Extraer imagen destacada primero para poder usarla en la IA si la descripción está vacía
+        let imageUrl = undefined;
+        if (wpEvent._embedded && wpEvent._embedded['wp:featuredmedia'] && wpEvent._embedded['wp:featuredmedia'][0]) {
+            imageUrl = wpEvent._embedded['wp:featuredmedia'][0].source_url;
+        }
 
-        // 2. Obtener descripción pulida con IA (y fechas como fallback)
-        const aiResult = await rewriteDescriptionWithAI(cleanTitle, rawDescription, apiKey);
+        // 2. Obtener descripción pulida con IA (e intentar extraer fechas desde la descripción/flyer)
+        const aiResult = await rewriteDescriptionWithAI(cleanTitle, rawDescription, apiKey, imageUrl, onStatus);
 
-        // Usar las fechas de la IA si la página no las tenía
-        if (!dates && aiResult.startDate) {
+        let dates = null;
+        if (aiResult.startDate) {
             dates = {
                 startDate: `${normalizeIsoDateString(aiResult.startDate)}T00:00:00Z`,
                 endDate: aiResult.endDate ? `${normalizeIsoDateString(aiResult.endDate)}T23:59:59Z` : `${normalizeIsoDateString(aiResult.startDate)}T23:59:59Z`
             };
+        } else {
+            // 3. Caso contrario: extraer fechas raspando la página web del evento
+            dates = await fetchEventDates(wpEvent.link);
         }
 
         if (!dates) {
@@ -234,13 +321,7 @@ export async function parseWPEvent(wpEvent: any, apiKey: string): Promise<Event 
         }
 
         const aiDescription = aiResult.description;
-
-        // 3. Extraer imagen destacada
-        let imageUrl = undefined;
-        if (wpEvent._embedded && wpEvent._embedded['wp:featuredmedia'] && wpEvent._embedded['wp:featuredmedia'][0]) {
-            imageUrl = wpEvent._embedded['wp:featuredmedia'][0].source_url;
-        }
-
+        
         // 4. Extraer categoría de wp:term
         let category = undefined;
         if (wpEvent._embedded && wpEvent._embedded['wp:term'] && wpEvent._embedded['wp:term'][1]) {
@@ -366,4 +447,192 @@ export function isTouristOrCulturalEvent(wpEvent: any): boolean {
         // En caso de error, dejamos pasar el evento preventivamente
         return true;
     }
+}
+
+export interface BatchInputEvent {
+    id: string;
+    title: string;
+    rawDescription: string;
+}
+
+export interface BatchOutputEvent {
+    id: string;
+    description: string;
+    startDate?: string | null;
+    endDate?: string | null;
+}
+
+// Procesar múltiples eventos de texto en una sola llamada a Gemini
+export async function rewriteEventsBatchWithAI(
+    eventsList: BatchInputEvent[],
+    apiKey: string,
+    onStatus?: (status: string) => void
+): Promise<BatchOutputEvent[]> {
+    if (eventsList.length === 0) return [];
+    
+    const maxRetries = 2;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            const ai = new GoogleGenAI({ apiKey });
+            
+            const systemPrompt = `Sos un redactor publicitario y turístico profesional. Tu tarea es procesar un lote (batch) de eventos locales y reescribir la descripción de cada uno para que sea sumamente atractiva, bien redactada, clara y entusiasta para cualquier visitante o turista que esté en Urdinarrain.
+Reglas para cada evento:
+- Mantené un tono cálido, alegre y profesional.
+- Estructurá la descripción de manera clara utilizando Markdown (títulos '###' para secciones importantes como horarios o actividades, negritas '**' para destacar datos clave, y un uso amigable y moderado de emojis).
+- Asegúrate de limpiar cualquier carácter extraño, enlaces rotos, o textos mal formateados para maximizar la compatibilidad y legibilidad.
+- Escribí en español rioplatense (argentino).
+- NO hagas menciones obligatorias a "Glak Apart" ni promociones del hospedaje (enfócate en el EVENTO en sí de forma objetiva pero atractiva).
+- EXTRAE LAS FECHAS: Analiza el texto para deducir la fecha de inicio y fin (si existe). Devuelve la respuesta en formato de objeto con startDate y endDate (en formato YYYY-MM-DD), o null/vacío si no se puede determinar.
+Devuelve los resultados en el arreglo correspondiente respetando el ID de cada evento.`;
+
+            const prompt = `Procesa el siguiente listado de eventos en formato JSON. Devuelve el resultado en formato JSON array con la estructura solicitada:\n\n${JSON.stringify(eventsList, null, 2)}`;
+
+            onStatus?.(`Procesando lote de ${eventsList.length} eventos con Gemini...`);
+            
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                config: {
+                    systemInstruction: systemPrompt,
+                    temperature: 0.7,
+                    maxOutputTokens: 2500,
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                id: {
+                                    type: "string",
+                                    description: "ID del evento recibido en la entrada."
+                                },
+                                description: {
+                                    type: "string",
+                                    description: "Descripción reescrita en Markdown en español rioplatense."
+                                },
+                                startDate: {
+                                    type: "string",
+                                    description: "Fecha de inicio (YYYY-MM-DD) o null si no se puede inferir."
+                                },
+                                endDate: {
+                                    type: "string",
+                                    description: "Fecha de fin (YYYY-MM-DD) o null si no se puede inferir."
+                                }
+                            },
+                            required: ["id", "description"]
+                        }
+                    }
+                }
+            });
+
+            const text = response.text?.trim();
+            if (text) {
+                const parsed = JSON.parse(text);
+                if (Array.isArray(parsed)) {
+                    return parsed as BatchOutputEvent[];
+                }
+            }
+            throw new Error("La respuesta de Gemini no es un arreglo válido");
+        } catch (error: any) {
+            const isRateLimit = error.status === 429 || (error.message && error.message.includes('429')) || (error.message && error.message.includes('Quota exceeded'));
+            if (isRateLimit && attempt < maxRetries) {
+                let waitTimeMs = 30000;
+                const match = error.message && error.message.match(/Please retry in (\d+(\.\d+)?)/i);
+                if (match) {
+                    waitTimeMs = Math.ceil(parseFloat(match[1]) * 1000) + 1500;
+                }
+                const waitSecs = Math.round(waitTimeMs / 1000);
+                onStatus?.(`Límite de cuota alcanzado. Esperando ${waitSecs}s para reintentar lote...`);
+                console.warn(`[Gemini API] Límite de cuota para lote. Esperando ${waitTimeMs}ms...`);
+                await new Promise(r => setTimeout(r, waitTimeMs));
+                continue;
+            }
+            console.error('Error in rewriteEventsBatchWithAI:', error);
+            throw error;
+        }
+    }
+    throw new Error("Superado el número de reintentos en lote");
+}
+
+// Procesar múltiples eventos de texto en una sola llamada a la API de Groq Cloud
+export async function rewriteEventsBatchWithGroq(
+    eventsList: BatchInputEvent[],
+    apiKey: string,
+    onStatus?: (status: string) => void
+): Promise<BatchOutputEvent[]> {
+    if (eventsList.length === 0) return [];
+    
+    const maxRetries = 2;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            onStatus?.(`Procesando lote de ${eventsList.length} eventos con Groq (Llama 3.1)...`);
+            
+            const systemPrompt = `Sos un redactor publicitario y turístico profesional. Tu tarea es procesar un lote (batch) de eventos locales y reescribir la descripción de cada uno para que sea sumamente atractiva, bien redactada, clara y entusiasta para cualquier visitante o turista que esté en Urdinarrain.
+Reglas para cada evento:
+- Mantené un tono cálido, alegre y profesional.
+- Estructurá la descripción de manera clara utilizando Markdown (títulos '###' para secciones importantes como horarios o actividades, negritas '**' para destacar datos clave, y un uso amigable y moderado de emojis).
+- Asegúrate de limpiar cualquier carácter extraño, enlaces rotos, o textos mal formateados para maximizar la compatibilidad y legibilidad.
+- Escribí en español rioplatense (argentino).
+- NO hagas menciones obligatorias a "Glak Apart" ni promociones del hospedaje (enfócate en el EVENTO en sí de forma objetiva pero atractiva).
+- EXTRAE LAS FECHAS: Analiza el texto para deducir la fecha de inicio y fin (si existe).
+
+Debes responder ÚNICAMENTE con un objeto JSON que tenga una propiedad "events" la cual contenga un array de objetos con el siguiente esquema exacto:
+{
+  "events": [
+    {
+      "id": "ID del evento recibido en la entrada",
+      "description": "Descripción reescrita en Markdown en español rioplatense",
+      "startDate": "Fecha de inicio (YYYY-MM-DD) o null si no se puede inferir",
+      "endDate": "Fecha de fin (YYYY-MM-DD) o null si no se puede inferir"
+    }
+  ]
+}`;
+
+            const prompt = `Procesa el siguiente listado de eventos en formato JSON. Devuelve el resultado en el formato JSON solicitado:\n\n${JSON.stringify(eventsList, null, 2)}`;
+
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.1-8b-instant',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: prompt }
+                    ],
+                    temperature: 0.7,
+                    response_format: { type: 'json_object' }
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Groq API respondió con error ${response.status}: ${errText}`);
+            }
+
+            const data = await response.json();
+            const content = data.choices?.[0]?.message?.content?.trim();
+            if (content) {
+                const parsed = JSON.parse(content);
+                if (parsed && Array.isArray(parsed.events)) {
+                    return parsed.events as BatchOutputEvent[];
+                }
+            }
+            throw new Error("La respuesta de Groq no contiene la estructura de eventos requerida");
+        } catch (error: any) {
+            const isRateLimit = error.status === 429 || (error.message && error.message.includes('429')) || (error.message && error.message.includes('Quota exceeded'));
+            if (isRateLimit && attempt < maxRetries) {
+                const waitTimeMs = 5000;
+                onStatus?.(`Límite de velocidad en Groq. Esperando 5s para reintentar...`);
+                console.warn(`[Groq API] Rate limit hit. Waiting 5s...`);
+                await new Promise(r => setTimeout(r, waitTimeMs));
+                continue;
+            }
+            console.error('Error in rewriteEventsBatchWithGroq:', error);
+            throw error;
+        }
+    }
+    throw new Error("Superado el número de reintentos en Groq");
 }
