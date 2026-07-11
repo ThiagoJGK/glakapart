@@ -5,7 +5,7 @@ import { Event } from '@/types';
 import EventsCalendar from '@/components/events/EventsCalendar';
 import EventCard from '@/components/events/EventCard';
 import FloatingBookingButton from '@/components/events/FloatingBookingButton';
-import { format, isSameDay } from 'date-fns';
+import { format, isSameDay, differenceInCalendarDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
 import { SeasonSummer } from '@/components/events/SeasonSummer';
@@ -27,6 +27,112 @@ const stripMarkdown = (md: string) => {
         .trim();
 };
 
+const cleanDescription = (description: string, title: string) => {
+    if (!description) return '';
+    let cleaned = description.trim();
+    if (!title) return cleaned;
+
+    const normalize = (str: string) => {
+        return str
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, '')
+            .trim();
+    };
+
+    const normTitle = normalize(title);
+    if (!normTitle) return cleaned;
+
+    let testDesc = cleaned;
+    const leadingCleanPattern = /^[#*_\-\s]+/;
+    while (leadingCleanPattern.test(testDesc)) {
+        testDesc = testDesc.replace(leadingCleanPattern, '');
+    }
+
+    const normDesc = normalize(testDesc);
+    if (normDesc.startsWith(normTitle)) {
+        let charCount = 0;
+        let normCount = 0;
+        const targetLen = normTitle.length;
+        
+        while (charCount < testDesc.length && normCount < targetLen) {
+            const char = testDesc[charCount].toLowerCase();
+            if (/[a-z0-9]/.test(char)) {
+                normCount++;
+            }
+            charCount++;
+        }
+        
+        const matchIndex = cleaned.indexOf(testDesc);
+        if (matchIndex !== -1) {
+            cleaned = cleaned.slice(matchIndex + charCount).trim();
+        }
+        
+        while (/^[#*_\-\s\r\n]+/.test(cleaned)) {
+            cleaned = cleaned.replace(/^[#*_\-\s\r\n]+/, '');
+        }
+    }
+
+    return cleaned;
+};
+
+const getEventStatusTag = (startDateStr: string, endDateStr: string): string | null => {
+    if (!startDateStr) return null;
+    try {
+        const start = parseLocalDate(startDateStr);
+        const end = endDateStr ? parseLocalDate(endDateStr) : start;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+        const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+        const diffDaysToStart = differenceInCalendarDays(startDay, today);
+        
+        // 1. Si el evento está vigente (hoy está en el rango)
+        if (today >= startDay && today <= endDay) {
+            const diffDaysToEnd = differenceInCalendarDays(endDay, today);
+            if (diffDaysToEnd === 0) {
+                return 'Termina hoy 🚨';
+            } else if (diffDaysToEnd === 1) {
+                return 'Termina mañana';
+            } else if (diffDaysToEnd === 2) {
+                return 'Termina en 2 días';
+            } else {
+                return 'Vigente';
+            }
+        }
+        
+        // 2. Si el evento es futuro
+        if (diffDaysToStart > 0) {
+            if (diffDaysToStart === 1) {
+                return 'Mañana';
+            } else if (diffDaysToStart === 2) {
+                return 'Pasado mañana';
+            } else if (diffDaysToStart > 2 && diffDaysToStart < 7) {
+                const weekday = format(startDay, 'EEEE', { locale: es }).toLowerCase();
+                return `Este ${weekday}`;
+            } else if (diffDaysToStart >= 7 && diffDaysToStart < 14) {
+                const weekday = format(startDay, 'EEEE', { locale: es }).toLowerCase();
+                return `Próximo ${weekday}`;
+            }
+        }
+    } catch (e) {
+        return null;
+    }
+    return null;
+};
+
+const getStatusBadgeClass = (tag: string) => {
+    if (!tag) return '';
+    if (tag.includes('hoy') || tag.includes('🚨')) {
+        return 'bg-red-500 text-white font-extrabold shadow-sm';
+    } else if (tag.includes('mañana') || tag.includes('2 días')) {
+        return 'bg-amber-500 text-white font-extrabold shadow-sm';
+    } else if (tag === 'Vigente') {
+        return 'bg-emerald-600 text-white font-extrabold shadow-sm';
+    }
+    return 'bg-[#90c69e] text-white';
+};
+
 const parseLocalDate = (dateStr: string): Date => {
     if (!dateStr) return new Date();
     const cleanStr = dateStr.split('T')[0];
@@ -46,6 +152,26 @@ const EventsPage: React.FC = () => {
     const [selectedEventIndex, setSelectedEventIndex] = useState<number>(0);
     const [blurBg, setBlurBg] = useState<string>('');
     const [seasonImages, setSeasonImages] = useState<Record<string, string>>({});
+
+    const detailRef = useRef<HTMLDivElement>(null);
+    const upcomingSliderRef = useRef<HTMLDivElement>(null);
+    const pastSliderRef = useRef<HTMLDivElement>(null);
+
+    const scrollSlider = (sliderRef: React.RefObject<HTMLDivElement>, direction: 'left' | 'right') => {
+        if (sliderRef.current) {
+            const container = sliderRef.current;
+            const scrollAmount = direction === 'left' ? -350 : 350;
+            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    };
+
+    const scrollToDetail = () => {
+        if (detailRef.current) {
+            const yOffset = -120; // offset para sticky header
+            const y = detailRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+    };
 
     const formatDateSafely = (dateStr: string, formatPattern: string) => {
         try {
@@ -130,6 +256,9 @@ const EventsPage: React.FC = () => {
     const handleDateSelect = (date: Date | undefined) => {
         setSelectedDate(date);
         setSelectedEventIndex(0);
+        if (date) {
+            setTimeout(scrollToDetail, 100);
+        }
     };
 
     const handleSelectEvent = (ev: Event) => {
@@ -143,6 +272,11 @@ const EventsPage: React.FC = () => {
         );
         const idx = dayEvs.findIndex(e => e.id === ev.id);
         setSelectedEventIndex(idx >= 0 ? idx : 0);
+    };
+
+    const handleSelectEventAndScroll = (ev: Event) => {
+        handleSelectEvent(ev);
+        setTimeout(scrollToDetail, 50);
     };
 
     const handleSeasonInteractionStart = (season: string) => {
@@ -234,7 +368,7 @@ const EventsPage: React.FC = () => {
                     </div>
 
                     {/* RIGHT: Active Event "Floating Note" */}
-                    <div className="lg:col-span-8 relative z-10 flex flex-col">
+                    <div ref={detailRef} className="lg:col-span-8 relative z-10 flex flex-col scroll-mt-28">
                         {selectedEvent ? (
                             <div className="relative animate-fade-in-up h-fit min-h-[500px]">
                                 {/* Solid Container with Adaptive Height and Premium Shadow */}
@@ -297,6 +431,15 @@ const EventsPage: React.FC = () => {
                                                     <span className="inline-block px-4 py-1.5 rounded-full bg-[#10595a]/5 text-[#10595a] text-[11px] font-bold tracking-widest uppercase border border-[#10595a]/10">
                                                         {formatDateSafely(selectedEvent.startDate, 'EEEE')}
                                                     </span>
+                                                    {getEventStatusTag(selectedEvent.startDate, selectedEvent.endDate) && (
+                                                        <span className={`inline-block px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest border border-black/5 font-extrabold ${
+                                                            getEventStatusTag(selectedEvent.startDate, selectedEvent.endDate) === 'Vigente' || getEventStatusTag(selectedEvent.startDate, selectedEvent.endDate)?.includes('Termina')
+                                                            ? getStatusBadgeClass(getEventStatusTag(selectedEvent.startDate, selectedEvent.endDate) || '')
+                                                            : 'bg-[#90c69e]/20 text-[#10595a] border-[#90c69e]/30'
+                                                        }`}>
+                                                            ✨ {getEventStatusTag(selectedEvent.startDate, selectedEvent.endDate)}
+                                                        </span>
+                                                    )}
                                                     {selectedEvent.location ? (
                                                         <span className="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold tracking-wider uppercase border border-blue-100 truncate max-w-[200px] sm:max-w-[280px]">
                                                             📍 {selectedEvent.location}
@@ -306,19 +449,17 @@ const EventsPage: React.FC = () => {
                                                             📍 Urdinarrain
                                                         </span>
                                                     )}
-                                                    {selectedEvent.category && (
-                                                        <span className="inline-block px-3 py-1 rounded-full bg-gray-50 text-gray-600 text-[10px] font-bold tracking-widest uppercase border border-gray-100">
-                                                            {selectedEvent.category}
-                                                        </span>
-                                                    )}
                                                 </div>
 
                                                 <h2 className="font-ui font-bold text-2xl md:text-2xl text-[#10595a] leading-snug mb-4 tracking-tight">
                                                     {selectedEvent.title}
                                                 </h2>
 
-                                                <div className="text-[#10595a]/80 font-medium text-sm leading-relaxed mb-6 max-h-[160px] overflow-y-auto pr-2 scrollbar-thin markdown-description">
-                                                    <ReactMarkdown>{selectedEvent.description}</ReactMarkdown>
+                                                <div 
+                                                    key={selectedEvent.id}
+                                                    className="text-[#10595a]/80 font-medium text-sm leading-relaxed mb-6 max-h-[160px] overflow-y-auto pr-2 scrollbar-thin markdown-description"
+                                                >
+                                                    <ReactMarkdown>{cleanDescription(selectedEvent.description, selectedEvent.title)}</ReactMarkdown>
                                                 </div>
                                             </div>
 
@@ -349,7 +490,6 @@ const EventsPage: React.FC = () => {
                         )}
                     </div>
                 </div>
-                       {/* VISUAL & FRIENDLY UPCOMING LIST */}
                 <div className="mt-20 max-w-7xl mx-auto">
                     <div className="flex items-end justify-between mb-12 px-4 relative">
                         <div>
@@ -368,51 +508,116 @@ const EventsPage: React.FC = () => {
                         </div>
                         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-[#10595a]/20 via-[#10595a]/5 to-transparent"></div>
 
-                        {/* Mobile Swipe Hint */}
-                        <div className="md:hidden flex gap-2 animate-pulse">
-                            <div className="w-2 h-2 rounded-full bg-[#10595a]"></div>
-                            <div className="w-2 h-2 rounded-full bg-[#10595a]/30"></div>
-                            <div className="w-2 h-2 rounded-full bg-[#10595a]/10"></div>
+                        {/* Navigation arrows */}
+                        <div className="flex items-center gap-2 mb-2 relative z-20">
+                            <button
+                                onClick={() => scrollSlider(upcomingSliderRef, 'left')}
+                                className="p-2.5 rounded-full border border-[#10595a]/20 text-[#10595a] hover:bg-[#10595a] hover:text-white transition-all duration-300 active:scale-90 bg-white/80 backdrop-blur-sm shadow-sm"
+                                aria-label="Anterior"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <button
+                                onClick={() => scrollSlider(upcomingSliderRef, 'right')}
+                                className="p-2.5 rounded-full border border-[#10595a]/20 text-[#10595a] hover:bg-[#10595a] hover:text-white transition-all duration-300 active:scale-90 bg-white/80 backdrop-blur-sm shadow-sm"
+                                aria-label="Siguiente"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
                         </div>
                     </div>
 
-                    <div className="flex md:grid md:grid-cols-3 gap-8 overflow-x-auto snap-x snap-mandatory pb-12 md:pb-0 px-4 md:px-0 scrollbar-hide">
-                        {upcomingEvents.slice(0, 3).map((ev, i) => (
+                    <div 
+                        ref={upcomingSliderRef}
+                        className="flex gap-8 overflow-x-auto snap-x snap-mandatory py-6 px-4 md:px-6 scrollbar-hide scroll-smooth"
+                        onWheel={(e) => {
+                            if (e.deltaY !== 0) {
+                                e.currentTarget.scrollLeft += e.deltaY;
+                            }
+                        }}
+                    >
+                        {upcomingEvents.map((ev, i) => (
                             <div
                                 key={ev.id}
-                                onClick={() => {
-                                    handleSelectEvent(ev);
-                                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                                }}
-                                className="min-w-[300px] md:min-w-0 snap-center bg-white rounded-[2.5rem] p-4 shadow-sm hover:shadow-2xl transition-all duration-500 group cursor-pointer border border-[#10595a]/5 hover:border-[#90c69e]/30 hover:-translate-y-3"
+                                className="flip-card min-w-[300px] w-[300px] md:min-w-[340px] md:w-[340px] h-[440px] shrink-0 snap-center cursor-pointer group"
                             >
-                                <div className="h-52 rounded-[2rem] overflow-hidden mb-6 relative z-0">
-                                    <div className="absolute inset-0 bg-[#10595a]/20 group-hover:bg-transparent transition-colors duration-500 z-10 hidden"></div>
-                                    <img
-                                        src={getOptimizedCloudinaryUrl(ev.image || "", 600)}
-                                        decoding="async"
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                        alt={ev.title || 'Evento en Urdinarrain — Glak Apart'}
-                                        onError={(e) => (e.currentTarget.src = "")}
-                                    />
-                                    <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
-                                    <div className="absolute top-4 left-4 bg-white/95 px-4 py-2 rounded-xl shadow-lg z-20">
-                                        <span className="font-bold text-[#10595a] text-xs tracking-widest uppercase">
-                                            {formatDateSafely(ev.startDate, 'dd MMM')}
-                                        </span>
+                                <div className="flip-card-inner">
+                                    {/* FRONT */}
+                                    <div className="flip-card-front p-4 flex flex-col justify-between text-left border border-[#10595a]/5 shadow-sm">
+                                        <div>
+                                            <div className="h-52 rounded-[2rem] overflow-hidden mb-5 relative z-0">
+                                                <img
+                                                    src={getOptimizedCloudinaryUrl(ev.image || "", 600)}
+                                                    decoding="async"
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-750"
+                                                    alt={ev.title || 'Evento en Urdinarrain'}
+                                                    onError={(e) => (e.currentTarget.src = "")}
+                                                />
+                                                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
+                                                <div className="absolute top-4 left-4 bg-white/95 px-4 py-2 rounded-xl shadow-lg z-20">
+                                                    <span className="font-bold text-[#10595a] text-xs tracking-widest uppercase">
+                                                        {formatDateSafely(ev.startDate, 'dd MMM')}
+                                                    </span>
+                                                </div>
+                                                {getEventStatusTag(ev.startDate, ev.endDate) && (
+                                                    <div className={`absolute top-4 right-4 px-3 py-1.5 rounded-xl shadow-lg z-20 text-[10px] uppercase tracking-wider font-extrabold ${getStatusBadgeClass(getEventStatusTag(ev.startDate, ev.endDate) || '')}`}>
+                                                        {getEventStatusTag(ev.startDate, ev.endDate)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="px-3">
+                                                <h4 className="font-ui font-black text-xl text-[#10595a] mb-2 line-clamp-1 group-hover:text-[#90c69e] transition-colors">{ev.title}</h4>
+                                                <p className="text-[#10595a]/60 text-sm line-clamp-2 leading-relaxed">{stripMarkdown(cleanDescription(ev.description, ev.title))}</p>
+                                            </div>
+                                        </div>
+                                        <div className="px-3 pb-3 flex items-center justify-between">
+                                            <div className="h-px flex-grow bg-[#f4f1ea] group-hover:bg-[#90c69e]/30 transition-colors"></div>
+                                            <span className="text-[#90c69e] font-bold text-[10px] tracking-[0.2em] uppercase pl-4 opacity-70 group-hover:opacity-100 transition-opacity">
+                                                VER INFO
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="px-4 pb-4">
-                                    <h4 className="font-ui font-black text-xl text-[#10595a] mb-3 line-clamp-1 group-hover:text-[#90c69e] transition-colors">{ev.title}</h4>
-                                    <p className="text-[#10595a]/60 text-sm line-clamp-2 leading-relaxed">{stripMarkdown(ev.description)}</p>
-                                    <div className="mt-6 flex items-center justify-between">
-                                        <div className="h-px flex-grow bg-[#f4f1ea] group-hover:bg-[#90c69e]/30 transition-colors"></div>
-                                        <Editable
-                                            id="events.upcoming.card.link"
-                                            defaultValue="VER INFO"
-                                            className="text-[#90c69e] font-bold text-[10px] tracking-[0.2em] uppercase pl-4 opacity-70 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0 block"
-                                            label="Texto Ver Info"
-                                        />
+
+                                    {/* BACK */}
+                                    <div 
+                                        onClick={() => handleSelectEventAndScroll(ev)}
+                                        className="flip-card-back p-6 flex flex-col justify-between text-left bg-gradient-to-b from-white to-[#f4f1ea]/30 border border-[#90c69e]/30 shadow-md"
+                                    >
+                                        <div className="flex-grow flex flex-col justify-between min-h-0">
+                                            <div>
+                                                <div className="flex flex-wrap gap-2 mb-3">
+                                                    <span className="bg-[#10595a]/10 text-[#10595a] text-[9px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                                                        {formatDateSafely(ev.startDate, 'EEEE dd/MM')}
+                                                    </span>
+                                                    {getEventStatusTag(ev.startDate, ev.endDate) && (
+                                                        <span className={`text-white text-[9px] px-2 py-1 rounded uppercase tracking-wider font-extrabold ${getStatusBadgeClass(getEventStatusTag(ev.startDate, ev.endDate) || '')}`}>
+                                                            {getEventStatusTag(ev.startDate, ev.endDate)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                
+                                                <h4 className="font-ui font-black text-lg text-[#10595a] mb-3 leading-snug line-clamp-2 border-b border-[#10595a]/10 pb-2">
+                                                    {ev.title}
+                                                </h4>
+
+                                                {ev.location && (
+                                                    <div className="flex items-start gap-1.5 text-xs text-[#10595a]/70 font-semibold mb-4">
+                                                        <span>📍</span>
+                                                        <span className="line-clamp-2">{ev.location}</span>
+                                                    </div>
+                                                )}
+
+                                                <div className="text-[#10595a]/80 text-xs leading-relaxed overflow-y-auto max-h-[140px] pr-1 scrollbar-thin font-medium">
+                                                    {stripMarkdown(cleanDescription(ev.description, ev.title))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            className="w-full bg-[#10595a] text-white py-3 rounded-xl font-bold tracking-widest text-[10px] uppercase shadow-md hover:shadow-lg transition-all duration-300 active:scale-95 mt-4"
+                                        >
+                                            VER DETALLES
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -439,35 +644,112 @@ const EventsPage: React.FC = () => {
                                 />
                             </div>
                             <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-gray-300 via-gray-200 to-transparent"></div>
+
+                            {/* Navigation arrows for past events */}
+                            <div className="flex items-center gap-2 mb-2 relative z-20">
+                                <button
+                                    onClick={() => scrollSlider(pastSliderRef, 'left')}
+                                    className="p-2.5 rounded-full border border-gray-300 text-gray-500 hover:bg-gray-500 hover:text-white transition-all duration-300 active:scale-90 bg-white/80 backdrop-blur-sm shadow-sm"
+                                    aria-label="Anterior"
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                <button
+                                    onClick={() => scrollSlider(pastSliderRef, 'right')}
+                                    className="p-2.5 rounded-full border border-gray-300 text-gray-500 hover:bg-gray-500 hover:text-white transition-all duration-300 active:scale-90 bg-white/80 backdrop-blur-sm shadow-sm"
+                                    aria-label="Siguiente"
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="flex md:grid md:grid-cols-4 gap-6 overflow-x-auto snap-x snap-mandatory pb-12 md:pb-0 px-4 md:px-0 scrollbar-hide grayscale-[30%] hover:grayscale-0 transition-all duration-500">
-                            {pastEvents.slice(0, 4).map((ev, i) => (
+                        <div 
+                            ref={pastSliderRef}
+                            className="flex gap-6 overflow-x-auto snap-x snap-mandatory py-6 px-4 md:px-6 scrollbar-hide scroll-smooth grayscale-[30%] hover:grayscale-0 transition-all duration-500"
+                            onWheel={(e) => {
+                                if (e.deltaY !== 0) {
+                                    e.currentTarget.scrollLeft += e.deltaY;
+                                }
+                            }}
+                        >
+                            {pastEvents.map((ev, i) => (
                                 <div
                                     key={ev.id}
-                                    onClick={() => {
-                                        handleSelectEvent(ev);
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                    }}
-                                    className="min-w-[260px] md:min-w-0 snap-center bg-gray-50 rounded-[2rem] p-3 shadow-sm hover:shadow-lg transition-all duration-500 group cursor-pointer border border-gray-200 hover:border-gray-300 hover:-translate-y-2"
+                                    className="flip-card min-w-[260px] w-[260px] md:min-w-[290px] md:w-[290px] h-[380px] shrink-0 snap-center cursor-pointer group"
                                 >
-                                    <div className="h-40 rounded-[1.5rem] overflow-hidden mb-4 relative z-0">
-                                        <img
-                                            src={getOptimizedCloudinaryUrl(ev.image || "", 400)}
-                                            decoding="async"
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                            alt={ev.title || 'Evento pasado'}
-                                            onError={(e) => (e.currentTarget.src = "")}
-                                        />
-                                        <div className="absolute top-3 left-3 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm z-20">
-                                            <span className="font-bold text-gray-600 text-[10px] tracking-widest uppercase">
-                                                {formatDateSafely(ev.startDate, 'dd MMM yyyy')}
-                                            </span>
+                                    <div className="flip-card-inner">
+                                        {/* FRONT */}
+                                        <div className="flip-card-front p-3 flex flex-col justify-between text-left bg-gray-50 border border-gray-200 shadow-sm">
+                                            <div>
+                                                <div className="h-40 rounded-[1.5rem] overflow-hidden mb-4 relative z-0">
+                                                    <img
+                                                        src={getOptimizedCloudinaryUrl(ev.image || "", 400)}
+                                                        decoding="async"
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-750"
+                                                        alt={ev.title || 'Evento pasado'}
+                                                        onError={(e) => (e.currentTarget.src = "")}
+                                                    />
+                                                    <div className="absolute top-3 left-3 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm z-20">
+                                                        <span className="font-bold text-gray-600 text-[10px] tracking-widest uppercase">
+                                                            {formatDateSafely(ev.startDate, 'dd MMM yyyy')}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="px-2">
+                                                    <h4 className="font-ui font-bold text-base text-gray-700 mb-2 line-clamp-1">{ev.title}</h4>
+                                                    <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed">{stripMarkdown(cleanDescription(ev.description, ev.title))}</p>
+                                                </div>
+                                            </div>
+                                            <div className="px-2 pb-2 flex items-center justify-between">
+                                                <div className="h-px flex-grow bg-gray-200"></div>
+                                                <span className="text-gray-500 font-bold text-[9px] tracking-[0.2em] uppercase pl-4 opacity-75 group-hover:opacity-100 transition-opacity">
+                                                    VER INFO
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="px-3 pb-3">
-                                        <h4 className="font-ui font-bold text-base text-gray-700 mb-2 line-clamp-1">{ev.title}</h4>
-                                        <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed">{stripMarkdown(ev.description)}</p>
+
+                                        {/* BACK */}
+                                        <div 
+                                            onClick={() => handleSelectEventAndScroll(ev)}
+                                            className="flip-card-back p-5 flex flex-col justify-between text-left bg-gradient-to-b from-white to-gray-50 border border-gray-300 shadow-md"
+                                        >
+                                            <div className="flex-grow flex flex-col justify-between min-h-0">
+                                                <div>
+                                                    <div className="flex flex-wrap gap-2 mb-2">
+                                                        <span className="bg-gray-100 text-gray-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                                                            {formatDateSafely(ev.startDate, 'EEEE dd/MM/yyyy')}
+                                                        </span>
+                                                        {getEventStatusTag(ev.startDate, ev.endDate) && (
+                                                            <span className={`text-white text-[9px] px-2 py-0.5 rounded uppercase tracking-wider font-extrabold ${getStatusBadgeClass(getEventStatusTag(ev.startDate, ev.endDate) || '')}`}>
+                                                                {getEventStatusTag(ev.startDate, ev.endDate)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    
+                                                    <h4 className="font-ui font-bold text-base text-gray-800 mb-2 leading-snug line-clamp-2 border-b border-gray-200 pb-1.5">
+                                                        {ev.title}
+                                                    </h4>
+
+                                                    {ev.location && (
+                                                        <div className="flex items-start gap-1 text-[11px] text-gray-600 font-semibold mb-3">
+                                                            <span>📍</span>
+                                                            <span className="line-clamp-2">{ev.location}</span>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="text-gray-600 text-[11px] leading-relaxed overflow-y-auto max-h-[110px] pr-1 scrollbar-thin">
+                                                        {stripMarkdown(cleanDescription(ev.description, ev.title))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                className="w-full bg-gray-500 hover:bg-gray-600 text-white py-2.5 rounded-xl font-bold tracking-widest text-[9px] uppercase shadow-md hover:shadow-lg transition-all duration-300 active:scale-95 mt-3"
+                                            >
+                                                VER DETALLES
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -710,6 +992,75 @@ const EventsPage: React.FC = () => {
                 }
                 .scrollbar-hide::-webkit-scrollbar { display: none; } 
                 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+                /* Card Flip styles */
+                .flip-card {
+                    background-color: transparent;
+                    perspective: 1000px;
+                }
+
+                .flip-card-inner {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                    transform-style: preserve-3d;
+                }
+
+                .flip-card:hover .flip-card-inner {
+                    transform: rotateY(180deg);
+                }
+
+                .flip-card-front, .flip-card-back {
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    -webkit-backface-visibility: hidden;
+                    backface-visibility: hidden;
+                    border-radius: 2.5rem;
+                    overflow: hidden;
+                    box-shadow: 0 12px 36px -10px rgba(16, 89, 90, 0.12), 0 2px 8px rgba(16, 89, 90, 0.04);
+                    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+                }
+
+                .flip-card-front {
+                    z-index: 2;
+                    transform: rotateY(0deg);
+                    border: 1px solid rgba(16, 89, 90, 0.05);
+                }
+
+                .flip-card-back {
+                    z-index: 1;
+                    transform: rotateY(180deg);
+                    border: 1.5px solid rgba(144, 198, 158, 0.25);
+                }
+                
+                .flip-card:hover .flip-card-front,
+                .flip-card:hover .flip-card-back {
+                    box-shadow: 0 24px 48px -12px rgba(16, 89, 90, 0.22), 0 4px 14px rgba(16, 89, 90, 0.08);
+                    border-color: rgba(144, 198, 158, 0.45);
+                }
+                
+                /* Line clamp fix to avoid title overflow */
+                .line-clamp-2 {
+                    display: -webkit-box !important;
+                    -webkit-line-clamp: 2 !important;
+                    -webkit-box-orient: vertical !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                }
+                
+                /* Custom scrollbar for small areas */
+                .scrollbar-thin::-webkit-scrollbar {
+                    width: 4px;
+                }
+                .scrollbar-thin::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .scrollbar-thin::-webkit-scrollbar-thumb {
+                    background-color: rgba(16, 89, 90, 0.2);
+                    border-radius: 10px;
+                }
             `}</style>
         </main >
     );
