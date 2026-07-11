@@ -122,17 +122,8 @@ const GeneralBookingForm: React.FC = () => {
             checkOut: checkOutWA 
         });
 
-        // Mensaje estructurado de consulta usando los datos ingresados
-        const text = `Hola! Me gustaría consultar disponibilidad en Glak Apart.
-
-*Nombre*: ${firstName} ${lastName}
-*Teléfono*: ${phoneCountryCode} ${phone}
-*Email*: ${email}
-*Fechas*: Del ${checkInWA} al ${checkOutWA}
-*Huéspedes*: ${adultsCount} Adultos, ${childrenCount} Niños
-*Consulta*: ${message || 'Quisiera consultar la disponibilidad y tarifas para estas fechas.'}
-
-Espero su respuesta, gracias!`;
+        // Mensaje conversacional para WhatsApp
+        const text = `¡Hola! Estuve viendo la página de Glak Apart. Mi nombre es ${firstName} ${lastName} y quería consultar disponibilidad para las fechas del ${checkInWA} al ${checkOutWA}.${message ? `\n\nMi consulta es: ${message}` : ''}`;
 
         const encodedText = encodeURIComponent(text);
         const whatsappUrl = `https://wa.me/5491169675050?text=${encodedText}`;

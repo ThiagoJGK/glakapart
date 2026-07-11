@@ -12,11 +12,11 @@ type Message = {
     content: string;
 };
 
-// Parse [BOOKING_READY:fechas=...|personas=...] from bot message
-function parseBookingData(text: string): { fechas: string; personas: string } | null {
-    const match = text.match(/\[BOOKING_READY:fechas=([^|]+)\|personas=([^\]]+)\]/);
+// Parse [BOOKING_READY:nombre=...|fechas=...|personas=...] from bot message
+function parseBookingData(text: string): { nombre: string; fechas: string; personas: string } | null {
+    const match = text.match(/\[BOOKING_READY:nombre=([^|]+)\|fechas=([^|]+)\|personas=([^\]]+)\]/);
     if (match) {
-        return { fechas: match[1].trim(), personas: match[2].trim() };
+        return { nombre: match[1].trim(), fechas: match[2].trim(), personas: match[3].trim() };
     }
     return null;
 }
@@ -36,6 +36,8 @@ const ChatWidget: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [interactionId, setInteractionId] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const lastMessageRef = useRef<HTMLDivElement>(null);
     const pathname = usePathname();
     const [isFooterVisible, setIsFooterVisible] = useState(false);
 
@@ -72,15 +74,38 @@ const ChatWidget: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (isOpen) scrollToBottom();
+        if (!isOpen) return;
+
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage?.role === 'assistant' && lastMessageRef.current && scrollContainerRef.current) {
+            const container = scrollContainerRef.current;
+            const element = lastMessageRef.current;
+            
+            setTimeout(() => {
+                container.scrollTo({
+                    top: element.offsetTop - 12,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        } else {
+            scrollToBottom();
+        }
     }, [messages, isOpen]);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (scrollContainerRef.current) {
+            const container = scrollContainerRef.current;
+            setTimeout(() => {
+                container.scrollTo({
+                    top: container.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 50);
+        }
     };
 
-    const handleWhatsAppClick = (fechas: string, personas: string) => {
-        const msg = `¡Hola! Estuve charlando con Glak Bot y me gustaría consultar disponibilidad:\n\n* Fechas: ${fechas}\n* Personas: ${personas}\n\n¿Pueden confirmarme disponibilidad y tarifa? ¡Gracias!`;
+    const handleWhatsAppClick = (nombre: string, fechas: string, personas: string) => {
+        const msg = `¡Hola! Estuve charlando con Glak Bot. Mi nombre es ${nombre} y me gustaría consultar disponibilidad para las fechas del ${fechas} para ${personas}. ¿Me confirman disponibilidad y tarifa? ¡Gracias!`;
         const encoded = encodeURIComponent(msg);
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
     };
@@ -140,9 +165,23 @@ const ChatWidget: React.FC = () => {
     if (!isEnabled || isAdminPage) return null;
 
     return (
-        <div id="chat-widget" className={`fixed bottom-6 right-6 z-50 flex flex-col items-end transition-all duration-500 ${isFooterVisible ? 'translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
-            {/* Chat Window */}
+        <>
+            {/* Mobile backdrop blur overlay - fixed full viewport */}
             {isOpen && (
+                <div 
+                    className="fixed inset-0 z-[48] bg-black/15 backdrop-blur-[4px] md:hidden pointer-events-auto transition-opacity duration-300"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+            
+            <div 
+                id="chat-widget" 
+                className={`fixed bottom-6 right-6 z-[49] flex flex-col items-end transition-all duration-500 ${
+                    isFooterVisible ? 'translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+                }`}
+            >
+                {/* Chat Window */}
+                {isOpen && (
                 <div className="bg-white w-[370px] max-w-[calc(100vw-48px)] h-[520px] max-h-[calc(100vh-120px)] rounded-2xl shadow-2xl border border-gray-100 mb-4 flex flex-col overflow-hidden animate-fade-in-up">
                     {/* Header */}
                     <div className="bg-[#10595a] text-white p-4 flex justify-between items-center shadow-md z-10">
@@ -167,13 +206,17 @@ const ChatWidget: React.FC = () => {
                     </div>
 
                     {/* Messages Area */}
-                    <div className="flex-1 bg-zinc-50 p-4 overflow-y-auto flex flex-col gap-3 scrollbar-thin">
+                    <div 
+                        ref={scrollContainerRef} 
+                        className="flex-1 bg-zinc-50 p-4 overflow-y-auto flex flex-col gap-3 scrollbar-thin"
+                    >
                         {messages.map((msg, idx) => {
                             const bookingData = msg.role === 'assistant' ? parseBookingData(msg.content) : null;
                             const displayContent = msg.role === 'assistant' ? cleanMessage(msg.content) : msg.content;
+                            const isLast = idx === messages.length - 1;
 
                             return (
-                                <div key={idx}>
+                                <div key={idx} ref={isLast ? lastMessageRef : null}>
                                     <div className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in-up`}>
                                         <div
                                             className={`
@@ -190,6 +233,14 @@ const ChatWidget: React.FC = () => {
                                                     <a {...props} target="_blank" rel="noopener noreferrer"
                                                         className={msg.role === 'user' ? 'text-green-300 underline' : 'text-[#10595a] font-bold underline'}
                                                     />
+                                                ),
+                                                img: ({ node, ...props }) => (
+                                                    <img 
+                                                        {...props} 
+                                                        className="rounded-xl max-w-full h-auto mt-2 mb-1 shadow-md border border-gray-200 hover:scale-[1.02] transition-transform duration-200 object-cover" 
+                                                        alt={props.alt || 'Imagen del evento'}
+                                                        loading="lazy"
+                                                    />
                                                 )
                                             }}>
                                                 {displayContent}
@@ -201,7 +252,7 @@ const ChatWidget: React.FC = () => {
                                     {bookingData && (
                                         <div className="flex justify-start mt-3 animate-fade-in-up">
                                             <button
-                                                onClick={() => handleWhatsAppClick(bookingData.fechas, bookingData.personas)}
+                                                onClick={() => handleWhatsAppClick(bookingData.nombre, bookingData.fechas, bookingData.personas)}
                                                 className="flex items-center gap-3 bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-3 rounded-2xl rounded-bl-none shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all group"
                                             >
                                                 <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
@@ -252,11 +303,6 @@ const ChatWidget: React.FC = () => {
                 </div>
             )}
 
-            {/* Mobile Optional Frost Overlay */}
-            {isOpen && (
-                <div className="fixed inset-0 z-[-1] bg-black/10 backdrop-blur-[2px] md:hidden" onClick={() => setIsOpen(false)} />
-            )}
-
             {/* Floating Toggle Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -271,7 +317,8 @@ const ChatWidget: React.FC = () => {
                     <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-rose-500 border-2 border-white rounded-full animate-pulse"></span>
                 )}
             </button>
-        </div>
+            </div>
+        </>
     );
 };
 
