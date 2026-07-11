@@ -258,7 +258,9 @@ export async function GET(req: Request) {
                     });
 
                     try {
-                        const parsed = await parseWPEvent(ev, apiKey);
+                        const parsed = await parseWPEvent(ev, apiKey, (msg) => {
+                            sendEvent('progress', { message: msg, progress: 75 });
+                        });
                         if (parsed) {
                             parsedVisionEvents.push(parsed);
                         } else {

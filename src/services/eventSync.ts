@@ -267,7 +267,7 @@ Si no encuentras una fecha, deja startDate y endDate como null.`;
                 config: {
                     systemInstruction: systemPrompt,
                     temperature: 0.7,
-                    maxOutputTokens: 1000,
+                    maxOutputTokens: 8192,
                     responseMimeType: "application/json",
                     responseSchema: {
                         type: "object",
@@ -291,15 +291,22 @@ Si no encuentras una fecha, deja startDate y endDate como null.`;
             });
 
             const text = response.text?.trim();
-            if (text) {
-                const parsed = JSON.parse(text);
-                return {
-                    description: cleanNewlines(parsed.description || rawDescription),
-                    startDate: parsed.startDate || undefined,
-                    endDate: parsed.endDate || undefined
-                };
+            if (!text) {
+                throw new Error("La respuesta de Gemini está vacía");
             }
-            return { description: cleanNewlines(rawDescription) };
+            
+            const parsed = JSON.parse(text);
+            const finalDesc = cleanNewlines(parsed.description || rawDescription);
+            
+            if (!finalDesc && !rawDescription) {
+                throw new Error("No se pudo extraer ninguna descripción de la imagen");
+            }
+
+            return {
+                description: finalDesc,
+                startDate: parsed.startDate || undefined,
+                endDate: parsed.endDate || undefined
+            };
         } catch (error: any) {
             const isRateLimit = error.status === 429 || 
                                 (error.message && error.message.includes('429')) || 
@@ -318,10 +325,10 @@ Si no encuentras una fecha, deja startDate y endDate como null.`;
                 continue;
             }
             console.error('Error in rewriteDescriptionWithAI:', error);
-            return { description: cleanNewlines(rawDescription) }; // Fallback a la original limpia si falla la IA
+            throw error; // Lanzar el error para que lo gestione parseWPEvent
         }
     }
-    return { description: cleanNewlines(rawDescription) };
+    throw new Error(`Excedido el número máximo de reintentos para reescribir "${title}"`);
 }
 
 // Mapear un evento de la REST API de WP a la estructura de Event
@@ -337,7 +344,25 @@ export async function parseWPEvent(wpEvent: any, apiKey: string, onStatus?: (sta
         }
 
         // 2. Obtener descripción pulida con IA (e intentar extraer fechas desde la descripción/flyer)
-        const aiResult = await rewriteDescriptionWithAI(cleanTitle, rawDescription, apiKey, imageUrl, onStatus);
+        let aiResult;
+        let isFallback = false;
+        try {
+            aiResult = await rewriteDescriptionWithAI(cleanTitle, rawDescription, apiKey, imageUrl, onStatus);
+        } catch (aiError: any) {
+            // Plan de Contingencia: Si es un evento visual y falla Gemini, activamos el generador de respaldo
+            if (!rawDescription && imageUrl) {
+                isFallback = true;
+                onStatus?.(`⚠️ Usando descripción de respaldo para "${cleanTitle}" (Gemini Vision falló)`);
+                console.warn(`[Vision Fallback] Falló Gemini Vision para "${cleanTitle}". Usando generador de respaldo. Motivo:`, aiError.message || aiError);
+                aiResult = {
+                    description: '',
+                    startDate: undefined,
+                    endDate: undefined
+                };
+            } else {
+                throw aiError; // Si es texto, relanzamos para que use la contingencia batch
+            }
+        }
 
         let dates = null;
         if (aiResult.startDate) {
@@ -355,8 +380,6 @@ export async function parseWPEvent(wpEvent: any, apiKey: string, onStatus?: (sta
             return null;
         }
 
-        const aiDescription = aiResult.description;
-        
         // 4. Extraer categoría de wp:term
         let category = undefined;
         if (wpEvent._embedded && wpEvent._embedded['wp:term'] && wpEvent._embedded['wp:term'][1]) {
@@ -377,6 +400,11 @@ export async function parseWPEvent(wpEvent: any, apiKey: string, onStatus?: (sta
                     .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(' ');
             }
+        }
+
+        let aiDescription = aiResult.description;
+        if (isFallback) {
+            aiDescription = generateFallbackDescription(cleanTitle, location, category, dates.startDate);
         }
 
         return {
@@ -674,4 +702,28 @@ Debes responder ÚNICAMENTE con un objeto JSON que tenga una propiedad "events" 
         }
     }
     throw new Error("Superado el número de reintentos en Groq");
+}
+
+// Generar una descripción básica de respaldo atractiva basada en metadatos del evento
+export function generateFallbackDescription(title: string, location: string, category?: string, startDate?: string): string {
+    const categoryText = category ? ` de categoría **${category.toLowerCase()}**` : '';
+    const locationText = location ? ` en **${location}**` : ' en Urdinarrain';
+    
+    let dateText = '';
+    if (startDate) {
+        try {
+            const dateStr = startDate.split('T')[0];
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const year = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1;
+                const day = parseInt(parts[2], 10);
+                const date = new Date(year, month, day);
+                const formatted = date.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+                dateText = ` el próximo **${formatted}**`;
+            }
+        } catch (e) {}
+    }
+    
+    return `¡Te invitamos a disfrutar de **${title}**! Una excelente propuesta local${categoryText} que se llevará a cabo${locationText}${dateText}.\n\nNo te pierdas esta oportunidad de sumarte a las actividades y eventos de Urdinarrain. ¡Te esperamos!`;
 }
