@@ -121,39 +121,72 @@ const Hero: React.FC = () => {
         backgroundPosition: 'center',
     } : { backgroundColor: 'rgba(16, 89, 90, 0.6)' };
 
-    const renderBadges = (isMobile = false) => (
-        <div className={`shadow-2xl rounded-3xl flex flex-col items-center justify-center overflow-hidden border border-[#90c69e]/35 relative ${isMobile ? 'px-8 py-4 mx-auto max-w-[280px]' : 'px-6 py-4 md:px-12 md:py-6'}`}>
-            {/* Blurred background image with grayscale filter (fixed attachment restored) */}
-            <div
-                className="absolute inset-0 z-0"
-                style={{ ...getFrostedStyle(), filter: 'grayscale(100%)' }}
-            />
-            {/* Salvia green overlay on top of the blurred bg with hover transition */}
-            <div className="absolute inset-0 bg-[#90c69e]/75 hover:bg-[#90c69e]/65 z-[1] transition-colors duration-300"></div>
+    const renderBadges = (isMobile = false) => {
+        if (isMobile) {
+            return (
+                <div className="relative z-10 flex flex-col items-center justify-center transform transition-transform duration-300 hover:scale-105 cursor-pointer">
+                    {/* Line 1: cursive (experiencia natural) */}
+                    <div className="flex items-center justify-center gap-2 font-script text-white text-3xl drop-shadow-[0_1.5px_3px_rgba(0,0,0,0.5)] opacity-90">
+                        <Editable
+                            id={`hero.slide${currentSlide}.badgeTitle1`}
+                            defaultValue={slides[currentSlide].badge1}
+                            className="lowercase inline-block"
+                            label="Título 1"
+                        />
+                        <Editable
+                            id={`hero.slide${currentSlide}.badgeTitle2`}
+                            defaultValue={slides[currentSlide].badge2}
+                            className="lowercase inline-block"
+                            label="Título Script"
+                        />
+                    </div>
+                    {/* Line 2: large, bold print font (URDINARRAIN) */}
+                    <div className="mt-1">
+                        <Editable
+                            id={`hero.slide${currentSlide}.badgeTitle3`}
+                            defaultValue={slides[currentSlide].badge3}
+                            className="font-ui text-white text-4xl font-bold tracking-[0.25em] uppercase block text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+                            label="Título 3"
+                        />
+                    </div>
+                </div>
+            );
+        }
 
-            {/* Content in full color above everything (hover scale applied locally) */}
-            <div className="relative z-10 flex flex-col items-center justify-center transform transition-transform duration-300 hover:scale-105 cursor-pointer">
-                <Editable
-                    id={`hero.slide${currentSlide}.badgeTitle1`}
-                    defaultValue={slides[currentSlide].badge1}
-                    className={`font-ui text-[#082f30] font-semibold tracking-[0.25em] block text-center drop-shadow-[0_1px_2px_rgba(8,47,48,0.25)] ${isMobile ? 'text-[11px]' : 'text-xs md:text-sm lg:text-base'}`}
-                    label="Título 1"
+        return (
+            <div className="shadow-2xl rounded-3xl flex flex-col items-center justify-center overflow-hidden border border-[#90c69e]/35 relative px-6 py-4 md:px-12 md:py-6">
+                {/* Blurred background image with grayscale filter (fixed attachment restored) */}
+                <div
+                    className="absolute inset-0 z-0"
+                    style={{ ...getFrostedStyle(), filter: 'grayscale(100%)' }}
                 />
-                <Editable
-                    id={`hero.slide${currentSlide}.badgeTitle2`}
-                    defaultValue={slides[currentSlide].badge2}
-                    className={`font-script text-[#082f30] block text-center leading-[0.85] -my-1.5 drop-shadow-[0_2px_4px_rgba(8,47,48,0.3)] ${isMobile ? 'text-[42px] pt-1 pb-1' : 'text-6xl md:text-8xl lg:text-9xl -my-3 md:-my-5 lg:-my-6'}`}
-                    label="Título Script"
-                />
-                <Editable
-                    id={`hero.slide${currentSlide}.badgeTitle3`}
-                    defaultValue={slides[currentSlide].badge3}
-                    className={`font-ui text-[#082f30] font-semibold tracking-[0.25em] block text-center drop-shadow-[0_1px_2px_rgba(8,47,48,0.25)] ${isMobile ? 'text-[11px]' : 'text-xs md:text-sm lg:text-base'}`}
-                    label="Título 3"
-                />
+                {/* Salvia green overlay on top of the blurred bg with hover transition */}
+                <div className="absolute inset-0 bg-[#90c69e]/75 hover:bg-[#90c69e]/65 z-[1] transition-colors duration-300"></div>
+
+                {/* Content in full color above everything (hover scale applied locally) */}
+                <div className="relative z-10 flex flex-col items-center justify-center transform transition-transform duration-300 hover:scale-105 cursor-pointer">
+                    <Editable
+                        id={`hero.slide${currentSlide}.badgeTitle1`}
+                        defaultValue={slides[currentSlide].badge1}
+                        className="font-ui text-[#082f30] font-semibold tracking-[0.25em] block text-center drop-shadow-[0_1px_2px_rgba(8,47,48,0.25)] text-xs md:text-sm lg:text-base"
+                        label="Título 1"
+                    />
+                    <Editable
+                        id={`hero.slide${currentSlide}.badgeTitle2`}
+                        defaultValue={slides[currentSlide].badge2}
+                        className="font-script text-[#082f30] block text-center leading-[0.85] -my-1.5 drop-shadow-[0_2px_4px_rgba(8,47,48,0.3)] text-6xl md:text-8xl lg:text-9xl -my-3 md:-my-5 lg:-my-6"
+                        label="Título Script"
+                    />
+                    <Editable
+                        id={`hero.slide${currentSlide}.badgeTitle3`}
+                        defaultValue={slides[currentSlide].badge3}
+                        className="font-ui text-[#082f30] font-semibold tracking-[0.25em] block text-center drop-shadow-[0_1px_2px_rgba(8,47,48,0.25)] text-xs md:text-sm lg:text-base"
+                        label="Título 3"
+                    />
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     const renderTextContent = (isMobile = false) => (
         <div className={`space-y-6 ${isMobile ? 'text-center px-4 pb-8' : 'mt-8 inline-block'} `}>
@@ -202,8 +235,8 @@ const Hero: React.FC = () => {
             <h1 className="sr-only">Glak Apart — Apartamentos turísticos en Urdinarrain, Entre Ríos</h1>
 
             {/* --- MOBILE LAYOUT (VERTICAL FLOW) --- */}
-            {/* Added pt-44 (was pt-36) to push content below logo as requested */}
-            <div className="lg:hidden relative z-10 min-h-screen flex flex-col pt-44">
+            {/* Added pt-52 (was pt-44) to push content below logo as requested */}
+            <div className="lg:hidden relative z-10 min-h-screen flex flex-col pt-52">
                 {/* 1. Badges Section (Upper-Mid) */}
                 <div className="relative z-20 w-full flex justify-center pb-8">
                     <AnimatePresence mode="wait">
@@ -231,8 +264,8 @@ const Hero: React.FC = () => {
                             className="flex flex-col h-full"
                         >
                             {/* Image Part of Card */}
-                            {/* Changed aspect-video to a fixed taller height to prevent cutting off */}
-                            <div className="w-full h-[40vh] min-h-[300px] max-h-[380px] relative overflow-hidden">
+                            {/* Reduced height to lower the card on mobile */}
+                            <div className="w-full h-[32vh] min-h-[240px] max-h-[320px] relative overflow-hidden">
                                 <div className="absolute inset-0 bg-gray-200 animate-pulse"></div> {/* Placeholder */}
                                 <Editable
                                     id={`home.heroImage.${currentSlide}`}
