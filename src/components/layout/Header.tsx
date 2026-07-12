@@ -20,10 +20,10 @@ const Header: React.FC = () => {
         headerBgBlurredUrl: ""
     });
 
-    // Dynamic Hero Slide State
     const [heroSlideBg, setHeroSlideBg] = useState<string>("");
     const [heroSlideBlur, setHeroSlideBlur] = useState<string>("");
     const [isSticky, setIsSticky] = useState(false);
+    const [screenWidth, setScreenWidth] = useState(390);
 
     useEffect(() => {
         // Load settings and listen for updates
@@ -72,6 +72,11 @@ const Header: React.FC = () => {
                 setIsSticky(false);
             }
         };
+        const handleResize = () => {
+            setScreenWidth(window.innerWidth);
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
         window.addEventListener('scroll', handleScroll);
         handleScroll();
 
@@ -79,6 +84,7 @@ const Header: React.FC = () => {
             window.removeEventListener('GLAK_CONTENT_UPDATE', updateHandler);
             window.removeEventListener('HERO_SLIDE_CHANGE', slideHandler);
             window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('resize', handleResize);
         };
     }, []);
 
@@ -242,6 +248,10 @@ const Header: React.FC = () => {
         paddingBottom: '1rem'
     };
 
+    const leftWidth = screenWidth / 2 - 80;
+    const rightWidth = screenWidth / 2 + 80;
+    const pathString = `M 32 64 L ${leftWidth} 64 C ${leftWidth + 25} 64, ${leftWidth + 45.3} 66.7, ${leftWidth + 55.3} 74 A 42 42 0 0 0 ${leftWidth + 104.7} 74 C ${leftWidth + 114.7} 66.7, ${leftWidth + 135} 64, ${rightWidth} 64 L ${screenWidth - 32} 64 A 32 32 0 0 0 ${screenWidth} 32 L ${screenWidth} 0 L 0 0 L 0 32 A 32 32 0 0 0 32 64 Z`;
+
     return (
         <header className={headerClasses}>
             {currentBgUrl && (
@@ -382,15 +392,33 @@ const Header: React.FC = () => {
                 
                 {/* Mobile Background */}
                 <div className="lg:hidden absolute inset-0 -z-10 pointer-events-none">
-                    {/* Header Main Bar (Single element with single blur) */}
-                    <div className="absolute top-0 left-0 w-full h-16 bg-white/70 backdrop-blur-xl border-b border-white/20 rounded-b-[2rem] shadow-lg shadow-black/5" />
-                    {/* Center Notch (Flat SVG matching color and opacity) */}
-                    <svg 
-                        viewBox="0 0 160 16" 
-                        className="absolute left-1/2 -translate-x-1/2 top-[64px] w-[160px] h-[16px] text-white/70 fill-current"
-                    >
-                        <path d="M 0 0 C 25 0, 45.3 2.7, 55.3 10 A 42 42 0 0 0 104.7 10 C 114.7 2.7, 135 0, 160 0 Z" />
-                    </svg>
+                    {/* Header Main Bar + Notch (Single element with single blur to prevent desynchronization) */}
+                    <div 
+                        className="absolute top-0 left-0 w-full h-[84px] bg-white/70 backdrop-blur-xl"
+                        style={{
+                            clipPath: `path("${pathString}")`,
+                            WebkitClipPath: `path("${pathString}")`
+                        }}
+                    />
+                    
+                    {/* Masked Border (Hidden in the center 160px notch region) */}
+                    <div 
+                        className="absolute inset-0 border-b border-white/20 rounded-b-[2rem]"
+                        style={{
+                            maskImage: 'linear-gradient(to right, white 0%, white calc(50% - 80px), transparent calc(50% - 80px), transparent calc(50% + 80px), white calc(50% + 80px), white 100%)',
+                            WebkitMaskImage: 'linear-gradient(to right, white 0%, white calc(50% - 80px), transparent calc(50% - 80px), transparent calc(50% + 80px), white calc(50% + 80px), white 100%)'
+                        }}
+                    />
+
+                    {/* Masked Shadow (Hidden in the center 160px notch region) */}
+                    <div 
+                        className="absolute inset-0 shadow-lg shadow-black/5 rounded-b-[2rem] -z-20"
+                        style={{
+                            maskImage: 'linear-gradient(to right, white 0%, white calc(50% - 80px), transparent calc(50% - 80px), transparent calc(50% + 80px), white calc(50% + 80px), white 100%)',
+                            WebkitMaskImage: 'linear-gradient(to right, white 0%, white calc(50% - 80px), transparent calc(50% - 80px), transparent calc(50% + 80px), white calc(50% + 80px), white 100%)'
+                        }}
+                    />
+
                     {/* Center Notch Shadow (Circular behind logo) */}
                     <div className="absolute left-1/2 -translate-x-1/2 top-0 w-[84px] h-[82px] bg-black/[0.04] rounded-full filter blur-[4px] -z-20" />
                 </div>
