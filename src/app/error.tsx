@@ -12,6 +12,13 @@ export default function ErrorBoundary({
 }) {
     useEffect(() => {
         console.error('Application Error Boundary caught:', error);
+
+        // Auto-refresh on chunk load errors to recover from redeployments automatically
+        const errorMsg = (error?.message || '').toLowerCase();
+        if (errorMsg.includes('chunk') || errorMsg.includes('failed to load') || errorMsg.includes('loading chunk')) {
+            console.warn('ChunkLoadError detected. Attempting automatic hard reload to fetch fresh build...');
+            window.location.reload();
+        }
     }, [error]);
 
     return (
