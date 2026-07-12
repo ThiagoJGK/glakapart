@@ -382,20 +382,17 @@ const Header: React.FC = () => {
                 
                 {/* Mobile Background */}
                 <div className="lg:hidden absolute inset-0 -z-10 pointer-events-none">
-                    {/* Left Bar */}
-                    <div className="absolute top-0 left-0 w-[calc(50%-79px)] h-16 bg-white/70 backdrop-blur-xl border-b border-white/20 rounded-bl-[2rem] shadow-lg shadow-black/5" />
-                    {/* Center Notch Backdrop Blur & Background */}
-                    <div 
-                        className="absolute left-1/2 -translate-x-1/2 top-0 w-[160px] h-[82px] bg-white/70 backdrop-blur-xl pointer-events-none"
-                        style={{
-                            clipPath: 'path("M 0 64 L 0 0 L 160 0 L 160 64 C 135 64, 114.7 66.7, 104.7 74 A 42 42 0 0 1 55.3 74 C 45.3 66.7, 25 64, 0 64 Z")',
-                            WebkitClipPath: 'path("M 0 64 L 0 0 L 160 0 L 160 64 C 135 64, 114.7 66.7, 104.7 74 A 42 42 0 0 1 55.3 74 C 45.3 66.7, 25 64, 0 64 Z")'
-                        }}
-                    />
+                    {/* Header Main Bar (Single element with single blur) */}
+                    <div className="absolute top-0 left-0 w-full h-16 bg-white/70 backdrop-blur-xl border-b border-white/20 rounded-b-[2rem] shadow-lg shadow-black/5" />
+                    {/* Center Notch (Flat SVG matching color and opacity) */}
+                    <svg 
+                        viewBox="0 0 160 16" 
+                        className="absolute left-1/2 -translate-x-1/2 top-[64px] w-[160px] h-[16px] text-white/70 fill-current"
+                    >
+                        <path d="M 0 0 C 25 0, 45.3 2.7, 55.3 10 A 42 42 0 0 0 104.7 10 C 114.7 2.7, 135 0, 160 0 Z" />
+                    </svg>
                     {/* Center Notch Shadow (Circular behind logo) */}
                     <div className="absolute left-1/2 -translate-x-1/2 top-0 w-[84px] h-[82px] bg-black/[0.04] rounded-full filter blur-[4px] -z-20" />
-                    {/* Right Bar */}
-                    <div className="absolute top-0 right-0 w-[calc(50%-79px)] h-16 bg-white/70 backdrop-blur-xl border-b border-white/20 rounded-br-[2rem] shadow-lg shadow-black/5" />
                 </div>
 
                 {/* Mobile/Tablet Sticky Header Layout */}
