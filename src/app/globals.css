@@ -203,3 +203,10 @@ body.maintenance-mode #chat-widget {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Hide floating booking button when chat is open */
+body.chat-open #floating-booking-button {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(80px) !important;
+}

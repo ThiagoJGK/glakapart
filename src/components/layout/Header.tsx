@@ -256,6 +256,9 @@ const Header: React.FC = () => {
                     <clipPath id="curve-lugares" clipPathUnits="objectBoundingBox">
                         <path d="M 0 0 H 1 V 0.85 Q 0.5 1 0 0.85 Z" />
                     </clipPath>
+                    <clipPath id="header-notch-clip" clipPathUnits="userSpaceOnUse">
+                        <path d="M 0 64 L 0 0 L 160 0 L 160 64 C 135 64, 114.7 66.7, 104.7 74 A 42 42 0 0 1 55.3 74 C 45.3 66.7, 25 64, 0 64 Z" />
+                    </clipPath>
                 </defs>
             </svg>
 
@@ -369,17 +372,39 @@ const Header: React.FC = () => {
 
             {/* Curved Sticky Header */}
             <motion.div
-                initial={{ y: '-100%' }}
-                animate={{ y: isSticky ? 0 : '-100%' }}
+                initial={{ top: '-80px' }}
+                animate={{ top: isSticky ? '0px' : '-80px' }}
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className={`fixed top-0 left-0 w-full z-[70] bg-white/90 backdrop-blur-xl border-b border-white/20 rounded-b-[2rem] shadow-lg shadow-black/5 h-16 md:h-20 flex items-center transition-all ${isSticky ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
+                className={`fixed left-0 w-full z-[70] h-16 md:h-20 flex items-center transition-all ${isSticky ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
             >
+                {/* Desktop Background */}
+                <div className="hidden lg:block absolute inset-0 bg-white/70 backdrop-blur-xl border-b border-white/20 rounded-b-[2rem] shadow-lg shadow-black/5 -z-10" />
+                
+                {/* Mobile Background */}
+                <div className="lg:hidden absolute inset-0 -z-10 pointer-events-none">
+                    {/* Left Bar */}
+                    <div className="absolute top-0 left-0 w-[calc(50%-79px)] h-16 bg-white/70 backdrop-blur-xl border-b border-white/20 rounded-bl-[2rem] shadow-lg shadow-black/5" />
+                    {/* Center Notch Backdrop Blur & Background */}
+                    <div 
+                        className="absolute left-1/2 -translate-x-1/2 top-0 w-[160px] h-[82px] bg-white/70 backdrop-blur-xl pointer-events-none"
+                        style={{
+                            clipPath: 'path("M 0 64 L 0 0 L 160 0 L 160 64 C 135 64, 114.7 66.7, 104.7 74 A 42 42 0 0 1 55.3 74 C 45.3 66.7, 25 64, 0 64 Z")',
+                            WebkitClipPath: 'path("M 0 64 L 0 0 L 160 0 L 160 64 C 135 64, 114.7 66.7, 104.7 74 A 42 42 0 0 1 55.3 74 C 45.3 66.7, 25 64, 0 64 Z")'
+                        }}
+                    />
+                    {/* Center Notch Shadow (Circular behind logo) */}
+                    <div className="absolute left-1/2 -translate-x-1/2 top-0 w-[84px] h-[82px] bg-black/[0.04] rounded-full filter blur-[4px] -z-20" />
+                    {/* Right Bar */}
+                    <div className="absolute top-0 right-0 w-[calc(50%-79px)] h-16 bg-white/70 backdrop-blur-xl border-b border-white/20 rounded-br-[2rem] shadow-lg shadow-black/5" />
+                </div>
+
                 {/* Mobile/Tablet Sticky Header Layout */}
                 <div className="lg:hidden flex items-center justify-between w-full px-6">
                     <div className="w-8"></div>
-                    <Link href="/" aria-label="Ir al inicio" className="flex items-center cursor-pointer">
-                        <div className="rounded-full bg-[#165959] p-1 flex items-center justify-center shadow-md">
-                            <Logo className="w-12 h-auto" />
+                    <Link href="/" aria-label="Ir al inicio" className="flex items-center cursor-pointer translate-y-2 relative">
+                        {/* Logo Container */}
+                        <div className="rounded-full bg-[#165959] p-1 flex items-center justify-center relative z-20">
+                            <Logo className="w-16 h-auto" />
                         </div>
                     </Link>
                     <button

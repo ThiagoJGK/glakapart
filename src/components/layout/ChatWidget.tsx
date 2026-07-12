@@ -42,6 +42,17 @@ const ChatWidget: React.FC = () => {
     const [isFooterVisible, setIsFooterVisible] = useState(false);
 
     useEffect(() => {
+        if (isOpen) {
+            document.body.classList.add('chat-open');
+        } else {
+            document.body.classList.remove('chat-open');
+        }
+        return () => {
+            document.body.classList.remove('chat-open');
+        };
+    }, [isOpen]);
+
+    useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => {
                 setIsFooterVisible(entry.isIntersecting);
@@ -308,7 +319,10 @@ const ChatWidget: React.FC = () => {
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
                     w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-105
-                    ${isOpen ? 'bg-white text-gray-800 border border-gray-100 rotate-90 scale-90' : 'bg-[#10595a] text-white hover:bg-[#0c4445]'}
+                    ${isOpen 
+                        ? 'bg-white text-gray-800 border border-gray-100 rotate-90 scale-90' 
+                        : 'bg-[#10595a]/80 backdrop-blur-md border border-white/20 md:bg-[#10595a] md:backdrop-blur-none md:border-0 text-white md:hover:bg-[#0c4445]'
+                    }
                 `}
                 aria-label="Abrir chat"
             >
