@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { getContent } from '@/services/content';
 import { MessageCircle, X, Send, Bot, Phone } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { trackEvent } from '@/services/analytics';
 
 const WHATSAPP_NUMBER = '5491169675050';
 
@@ -116,6 +117,8 @@ const ChatWidget: React.FC = () => {
     };
 
     const handleWhatsAppClick = (nombre: string, fechas: string, personas: string) => {
+        // Track final whatsapp click from chatbot context
+        trackEvent('chatbot_whatsapp_click');
         const msg = `¡Hola! Estuve charlando con Glak Bot. Mi nombre es ${nombre} y me gustaría consultar disponibilidad para las fechas del ${fechas} para ${personas}. ¿Me confirman disponibilidad y tarifa? ¡Gracias!`;
         const encoded = encodeURIComponent(msg);
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
@@ -125,7 +128,8 @@ const ChatWidget: React.FC = () => {
         e?.preventDefault();
         if (!inputValue.trim() || isLoading) return;
 
-        const userMsg: Message = { role: 'user', content: inputValue.trim() };
+        const userMsgContent = inputValue.trim();
+        const userMsg: Message = { role: 'user', content: userMsgContent };
         setMessages(prev => [...prev, userMsg]);
         setInputValue('');
         setIsLoading(true);
@@ -155,6 +159,33 @@ const ChatWidget: React.FC = () => {
             }
 
             const data = await response.json();
+            
+            // 1. Track chatbot response metadata (success, provider, model)
+            trackEvent('chatbot_response', {
+                provider: data.provider || 'unknown',
+                model: data.model || 'unknown',
+                success: data.provider !== 'static-fallback'
+            });
+
+            // 2. Track event inquiries based on keywords or response content
+            const textLower = data.response.toLowerCase();
+            const userTextLower = userMsgContent.toLowerCase();
+            const askedForEvents = userTextLower.includes("evento") || 
+                                   userTextLower.includes("actividad") || 
+                                   userTextLower.includes("hacer") || 
+                                   userTextLower.includes("agenda") || 
+                                   userTextLower.includes("fiesta") || 
+                                   textLower.includes("evento vigentes") || 
+                                   textLower.includes("evento en urdinarrain");
+            if (askedForEvents) {
+                trackEvent('chatbot_event_inquiry');
+            }
+
+            // 3. Track if reservation was completed (booking ready)
+            if (data.response.includes('[BOOKING_READY:')) {
+                trackEvent('chatbot_booking_ready');
+            }
+
             setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
             if (data.interactionId) {
                 setInteractionId(data.interactionId);
@@ -163,8 +194,10 @@ const ChatWidget: React.FC = () => {
         } catch (error: any) {
             console.error('Chat error:', error);
             if (error.message === 'RATE_LIMIT') {
+                trackEvent('chatbot_response', { provider: 'rate-limit', model: 'none', success: false });
                 setMessages(prev => [...prev, { role: 'assistant', content: '⏳ ¡Uy! Me están escribiendo muchas personas a la vez. Por favor, dame 1 minuto y volvé a preguntarme, o escribinos directo por WhatsApp. 📲' }]);
             } else {
+                trackEvent('chatbot_response', { provider: 'network-error', model: 'none', success: false });
                 setMessages(prev => [...prev, { role: 'assistant', content: 'Ups, parece que tuve un problema de conexión. Intentá de nuevo o escribinos directo por WhatsApp. 📲' }]);
             }
         } finally {

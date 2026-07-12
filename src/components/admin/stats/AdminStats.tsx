@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, orderBy, getDocs, Timestamp, limit } from 'firebase/firestore';
 import { db } from '@/services/firebase';
-import { BarChart3, TrendingUp, Users, MessageCircle, Eye, ArrowDown, Smartphone, Monitor } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, MessageCircle, Eye, ArrowDown, Smartphone, Monitor, Bot } from 'lucide-react';
 
 // ─── Types ───
 
@@ -217,6 +217,23 @@ const AdminStats: React.FC = () => {
         });
         const topFaqs = Object.entries(faqCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
+        // ─── Chatbot Stats ───
+        const chatbotResponses = events.filter(e => e.event === 'chatbot_response');
+        const chatbotSuccesses = chatbotResponses.filter(e => e.params?.success === true);
+        const chatbotErrors = chatbotResponses.filter(e => e.params?.success === false);
+        const chatbotEventInquiries = events.filter(e => e.event === 'chatbot_event_inquiry');
+        const chatbotBookingReady = events.filter(e => e.event === 'chatbot_booking_ready');
+        const chatbotWhatsAppClicks = events.filter(e => e.event === 'chatbot_whatsapp_click');
+
+        // Provider distribution
+        const providerCounts: Record<string, number> = {};
+        chatbotResponses.forEach(e => {
+            const p = e.params?.provider || 'Desconocido';
+            providerCounts[p] = (providerCounts[p] || 0) + 1;
+        });
+        const providerStats = Object.entries(providerCounts).sort((a, b) => b[1] - a[1]);
+        const chatSessions = new Set(chatbotResponses.map(e => e.sessionId)).size;
+ 
         return {
             pageViews: pageViews.length,
             todayViews: todayViews.length,
@@ -239,6 +256,15 @@ const AdminStats: React.FC = () => {
             mobileCount,
             desktopCount,
             topFaqs,
+            // Chatbot entries
+            chatbotTotal: chatbotResponses.length,
+            chatbotSuccess: chatbotSuccesses.length,
+            chatbotError: chatbotErrors.length,
+            chatbotEvents: chatbotEventInquiries.length,
+            chatbotReady: chatbotBookingReady.length,
+            chatbotWAClicks: chatbotWhatsAppClicks.length,
+            chatbotSessions: chatSessions,
+            providerStats,
         };
     }, [events, rangeDays, viewType]);
 
@@ -391,6 +417,141 @@ const AdminStats: React.FC = () => {
                             severity="neutral"
                             icon={<div className="flex gap-2 text-gray-400"><Smartphone size={14} /><Monitor size={14} /></div>}
                         />
+                    </div>
+                </div>
+            </div>
+
+            {/* 🤖 Glak Bot Statistics Section */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
+                    <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                        <Bot className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="font-ui text-sm font-bold tracking-widest text-gray-700">🤖 GLAK BOT - ASISTENTE IA</h3>
+                        <p className="text-xs text-gray-400">Rendimiento técnico, embudo de conversión y consultas sobre Urdinarrain</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Rendimiento Técnico */}
+                    <div className="space-y-4">
+                        <h4 className="font-ui text-[10px] font-bold tracking-wider text-gray-400 uppercase">Rendimiento Técnico e Inteligencias</h4>
+                        <div className="grid grid-cols-3 gap-2">
+                            <div className="bg-gray-50 rounded-xl p-3 text-center">
+                                <p className="text-xl font-bold text-gray-800">{stats.chatbotTotal}</p>
+                                <p className="text-[9px] text-gray-400 font-ui uppercase">Mensajes Totales</p>
+                            </div>
+                            <div className="bg-green-50/50 rounded-xl p-3 text-center">
+                                <p className="text-xl font-bold text-green-700">{stats.chatbotSuccess}</p>
+                                <p className="text-[9px] text-green-600 font-ui uppercase">Aciertos IA</p>
+                            </div>
+                            <div className="bg-red-50/50 rounded-xl p-3 text-center">
+                                <p className="text-xl font-bold text-red-700">{stats.chatbotError}</p>
+                                <p className="text-[9px] text-red-600 font-ui uppercase">Fallbacks / Saturación</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <p className="text-xs font-bold text-gray-500">Distribución de Respuestas por IA:</p>
+                            <div className="space-y-2">
+                                {stats.providerStats.map(([provider, count]) => {
+                                    const pct = stats.chatbotTotal > 0 ? Math.round((count / stats.chatbotTotal) * 100) : 0;
+                                    let color = "bg-teal-500";
+                                    let displayName = provider;
+                                    
+                                    if (provider.startsWith("gemini")) {
+                                        color = "bg-blue-500";
+                                        displayName = `Google Gemini (${provider.replace("gemini-key-", "Clave ")}`;
+                                    } else if (provider === "nvidia") {
+                                        color = "bg-green-600";
+                                        displayName = "NVIDIA Llama 3.1 8B";
+                                    } else if (provider === "groq") {
+                                        color = "bg-orange-500";
+                                        displayName = "Groq Llama 3.1 8B";
+                                    } else if (provider === "openrouter") {
+                                        color = "bg-purple-500";
+                                        displayName = "OpenRouter Llama 3.3 70B";
+                                    } else if (provider === "static-fallback") {
+                                        color = "bg-gray-400";
+                                        displayName = "Mensaje Estático (Contingencia)";
+                                    } else if (provider === "network-error" || provider === "rate-limit") {
+                                        color = "bg-red-400";
+                                        displayName = provider === "rate-limit" ? "Límite de IP Superado" : "Error de Conexión";
+                                    }
+
+                                    return (
+                                        <div key={provider} className="text-xs">
+                                            <div className="flex justify-between text-[10px] mb-0.5">
+                                                <span className="text-gray-600 font-medium">{displayName}</span>
+                                                <span className="text-gray-500 font-mono font-bold">{count} ({pct}%)</span>
+                                            </div>
+                                            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                <div className={`h-full ${color} rounded-full`} style={{ width: `${pct}%` }} />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                {stats.providerStats.length === 0 && (
+                                    <p className="text-xs text-gray-400 italic py-4 text-center">Sin actividad en el chat registrada en este rango</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Rendimiento Conversacional (Funnel) */}
+                    <div className="space-y-4">
+                        <h4 className="font-ui text-[10px] font-bold tracking-wider text-gray-400 uppercase">Embudo de Conversión del Bot</h4>
+                        
+                        <div className="space-y-2.5">
+                            <div className="flex items-center justify-between bg-gray-50 rounded-xl p-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">💬</span>
+                                    <div>
+                                        <p className="text-xs font-bold text-gray-700">Conversaciones Iniciadas</p>
+                                        <p className="text-[10px] text-gray-400">Sesiones únicas de usuarios en el chat</p>
+                                    </div>
+                                </div>
+                                <p className="text-base font-bold text-gray-800 font-mono">{stats.chatbotSessions}</p>
+                            </div>
+
+                            <div className="flex items-center justify-between bg-teal-50/30 rounded-xl p-3 border border-teal-100/50">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">📝</span>
+                                    <div>
+                                        <p className="text-xs font-bold text-teal-800">Reservas Completadas</p>
+                                        <p className="text-[10px] text-teal-600">Usuarios que aportaron todos sus datos</p>
+                                    </div>
+                                </div>
+                                <p className="text-base font-bold text-teal-700 font-mono">
+                                    {stats.chatbotReady} <span className="text-[10px] font-normal text-teal-500">({percentage(stats.chatbotReady, stats.chatbotSessions)})</span>
+                                </p>
+                            </div>
+
+                            <div className="flex items-center justify-between bg-green-50/30 rounded-xl p-3 border border-green-100/50">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">📲</span>
+                                    <div>
+                                        <p className="text-xs font-bold text-green-800">WhatsApp Enviados</p>
+                                        <p className="text-[10px] text-green-600">Clics finales al botón "Enviar Consulta"</p>
+                                    </div>
+                                </div>
+                                <p className="text-base font-bold text-green-700 font-mono">
+                                    {stats.chatbotWAClicks} <span className="text-[10px] font-normal text-green-500">({percentage(stats.chatbotWAClicks, stats.chatbotSessions)})</span>
+                                </p>
+                            </div>
+
+                            <div className="flex items-center justify-between bg-violet-50/30 rounded-xl p-3 border border-violet-100/50">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">🎉</span>
+                                    <div>
+                                        <p className="text-xs font-bold text-violet-800">Consultas sobre Eventos Locales</p>
+                                        <p className="text-[10px] text-violet-600">Preguntas sobre qué hacer o la agenda de Urdinarrain</p>
+                                    </div>
+                                </div>
+                                <p className="text-base font-bold text-violet-700 font-mono">{stats.chatbotEvents}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

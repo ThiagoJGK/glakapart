@@ -61,6 +61,14 @@ function isRateLimited(ip: string): boolean {
     return entry.count > LIMIT_PER_HOUR;
 }
 
+// Utility function to enforce a timeout on promises
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage = "Request timeout"): Promise<T> {
+    return Promise.race([
+        promise,
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error(errorMessage)), timeoutMs))
+    ]);
+}
+
 export async function POST(req: Request) {
     try {
         const { messages, previousInteractionId } = await req.json();
@@ -124,105 +132,251 @@ export async function POST(req: Request) {
             (userContext ? `\n\n**Información del Establecimiento (proporcionada por el dueño):**\n${userContext}` : '') +
             eventsPrompt;
 
-        // Convert messages to Gemini SDK contents format
-        const contents = messages.map((m: any) => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.content }]
-        }));
+        let responseText = "";
+        let success = false;
+        let activeProvider = "none";
+        let activeModel = "none";
 
-        // Retrieve list of Gemini API Keys for rotation
+        // Limit conversation history to the last 10 messages (5 user-assistant turns)
+        // to reduce latency, context cost, and avoid model confusion.
+        const trimmedMessages = messages.slice(-10);
+
+        // Enhance instructions specifically for Llama models (NVIDIA, Groq, OpenRouter)
+        // as 8B open-source models require stricter instructions for state detection.
+        // We inject Few-Shot examples to guarantee format adherence and prevent redundancy.
+        const llamaSystemInstruction = systemInstruction + `
+\n**INSTRUCCIÓN CRÍTICA DE FORMATO PARA LLAMA:**
+- Si en el historial de chat el usuario ya mencionó su NOMBRE, las FECHAS del viaje y la CANTIDAD de huéspedes, debés resumirlos amigablemente y escribir EXACTAMENTE la etiqueta: [BOOKING_READY:nombre=NOMBRE|fechas=FECHAS|personas=PERSONAS].
+- Si falta alguno de estos datos, NO inventes la etiqueta ni uses marcadores de posición, simplemente seguí charlando de forma simpática e insistí amablemente por el dato que falta.
+- Sé conciso, natural y usá siempre el español de Argentina ("vos"). No repitas preguntas que ya fueron respondidas.
+
+**EJEMPLOS DE COMPORTAMIENTO ESPERADO:**
+- *Caso A (Faltan datos):*
+  Usuario: "Hola, soy Juan. Quisiera reservar para el fin de semana."
+  Asistente: "¡Hola Juan! Qué alegría. 🧉 ¿Para qué fechas exactas te gustaría reservar y para cuántas personas serías, che? Así te confirmo disponibilidad." (NO agregues ninguna etiqueta BOOKING_READY aquí)
+
+- *Caso B (Datos completos):*
+  Usuario: "Sería del 12 al 15 de diciembre, y venimos 2 adultos." (Conociendo ya que su nombre es Marcos)
+  Asistente: "¡Buenísimo, Marcos! Anotado: del 12 al 15 de diciembre para 2 personas. Ya agendé tus datos para pasárselos a Gladys y Adrián. ¡Te esperamos! 😊 [BOOKING_READY:nombre=Marcos|fechas=12 al 15 de diciembre|personas=2 adultos]"
+`;
+
+        // ==========================================
+        // LEVEL 1: Gemini API with Key Rotation
+        // ==========================================
         const geminiKeys = [
             process.env.GEMINI_API_KEY,
             process.env.GEMINI_API_KEY_2,
             process.env.GEMINI_API_KEY_3
         ].filter(Boolean) as string[];
 
-        let responseText = "";
-        let success = false;
-        let lastError: any = null;
+        const geminiContents = trimmedMessages.map((m: any) => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: m.content }]
+        }));
 
-        // Attempt Gemini API call with rotation
-        for (const apiKey of geminiKeys) {
+        for (let i = 0; i < geminiKeys.length; i++) {
+            const apiKey = geminiKeys[i];
             try {
                 const ai = new GoogleGenAI({ apiKey });
-                const response = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash',
-                    contents: contents,
-                    config: {
-                        systemInstruction: systemInstruction,
-                        temperature: 0.9,
-                        maxOutputTokens: 1200,
-                    }
-                });
+                
+                // Enforce an agile 3.5-second timeout for the Gemini request.
+                // If it lags, we want to jump quickly to the next key or fallback to keep UI snappy.
+                const response = await withTimeout(
+                    ai.models.generateContent({
+                        model: 'gemini-2.5-flash',
+                        contents: geminiContents,
+                        config: {
+                            systemInstruction: systemInstruction,
+                            temperature: 0.9,
+                            maxOutputTokens: 1200,
+                        }
+                    }),
+                    3500,
+                    "Gemini API request timed out"
+                );
 
                 if (response.text) {
                     responseText = response.text;
+                    activeProvider = `gemini-key-${i + 1}`;
+                    activeModel = 'gemini-2.5-flash';
                     success = true;
                     break;
                 }
             } catch (err: any) {
-                console.warn("Gemini key failed, attempting next key in rotation. Error:", err?.message || err);
-                lastError = err;
+                console.warn(`Gemini key ${i + 1} failed, trying next key. Error:`, err?.message || err);
             }
         }
 
-        // Fallback to Groq API if Gemini keys are exhausted/fail
-        if (!success) {
-            const groqApiKey = process.env.GROQ_API_KEY;
-            if (groqApiKey) {
-                console.log("Gemini failed/exhausted. Attempting fallback to Groq...");
-                try {
-                    const groqMessages = [
-                        { role: 'system', content: systemInstruction },
-                        ...messages.map((m: any) => ({
-                            role: m.role === 'assistant' ? 'assistant' : 'user',
-                            content: m.content
-                        }))
-                    ];
+        // ==========================================
+        // LEVEL 2: NVIDIA NIM API (OpenAI Compatible)
+        // ==========================================
+        if (!success && process.env.NVIDIA_API_KEY) {
+            console.log("Gemini keys failed/timed out. Attempting NVIDIA fallback...");
+            try {
+                const nvidiaMessages = [
+                    { role: 'system', content: llamaSystemInstruction },
+                    ...trimmedMessages.map((m: any) => ({
+                        role: m.role === 'assistant' ? 'assistant' : 'user',
+                        content: m.content
+                    }))
+                ];
 
-                    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                // 4-second timeout for NVIDIA NIM API
+                const nvidiaRes = await withTimeout(
+                    fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
                         method: "POST",
                         headers: {
-                            "Authorization": `Bearer ${groqApiKey}`,
+                            "Authorization": `Bearer ${process.env.NVIDIA_API_KEY}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: "meta/llama-3.1-8b-instruct",
+                            messages: nvidiaMessages,
+                            temperature: 0.2, // Lower temperature to 0.2 for Llama to maximize format precision
+                            max_tokens: 1000
+                        })
+                    }),
+                    4000,
+                    "NVIDIA API request timed out"
+                );
+
+                if (nvidiaRes.ok) {
+                    const nvidiaData = await nvidiaRes.json();
+                    const choice = nvidiaData.choices?.[0];
+                    if (choice?.message?.content) {
+                        responseText = choice.message.content;
+                        activeProvider = "nvidia";
+                        activeModel = "meta/llama-3.1-8b-instruct";
+                        success = true;
+                    }
+                } else {
+                    console.error("NVIDIA API failed with status:", nvidiaRes.status);
+                }
+            } catch (err: any) {
+                console.error("Error invoking NVIDIA fallback:", err?.message || err);
+            }
+        }
+
+        // ==========================================
+        // LEVEL 3: Groq API
+        // ==========================================
+        if (!success && process.env.GROQ_API_KEY) {
+            console.log("Gemini and NVIDIA failed/timed out. Attempting Groq fallback...");
+            try {
+                const groqMessages = [
+                    { role: 'system', content: llamaSystemInstruction },
+                    ...trimmedMessages.map((m: any) => ({
+                        role: m.role === 'assistant' ? 'assistant' : 'user',
+                        content: m.content
+                    }))
+                ];
+
+                // 4-second timeout for Groq API
+                const groqRes = await withTimeout(
+                    fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
                             "Content-Type": "application/json"
                         },
                         body: JSON.stringify({
                             model: "llama-3.1-8b-instant",
                             messages: groqMessages,
-                            temperature: 0.8,
+                            temperature: 0.7,
                             max_completion_tokens: 1000
                         })
-                    });
+                    }),
+                    4000,
+                    "Groq API request timed out"
+                );
 
-                    if (groqRes.ok) {
-                        const groqData = await groqRes.json();
-                        const choice = groqData.choices?.[0];
-                        if (choice?.message?.content) {
-                            responseText = choice.message.content;
-                            success = true;
-                            console.log("Successfully resolved response using Groq fallback.");
-                        }
-                    } else {
-                        console.error("Groq fallback failed with status:", groqRes.status);
+                if (groqRes.ok) {
+                    const groqData = await groqRes.json();
+                    const choice = groqData.choices?.[0];
+                    if (choice?.message?.content) {
+                        responseText = choice.message.content;
+                        activeProvider = "groq";
+                        activeModel = "llama-3.1-8b-instant";
+                        success = true;
                     }
-                } catch (groqErr) {
-                    console.error("Error invoking Groq fallback:", groqErr);
+                } else {
+                    console.error("Groq fallback failed with status:", groqRes.status);
                 }
+            } catch (groqErr: any) {
+                console.error("Error invoking Groq fallback:", groqErr?.message || groqErr);
             }
         }
 
-        // If both failed, return a friendly receptionist response instead of throwing a 500 error
+        // ==========================================
+        // LEVEL 4: OpenRouter Free API (OpenAI Compatible)
+        // ==========================================
+        if (!success && process.env.OPENROUTER_API_KEY) {
+            console.log("Gemini, NVIDIA, and Groq failed. Attempting OpenRouter free fallback...");
+            try {
+                const openRouterMessages = [
+                    { role: 'system', content: llamaSystemInstruction },
+                    ...trimmedMessages.map((m: any) => ({
+                        role: m.role === 'assistant' ? 'assistant' : 'user',
+                        content: m.content
+                    }))
+                ];
+
+                // 4-second timeout for OpenRouter
+                const openRouterRes = await withTimeout(
+                    fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                            "Content-Type": "application/json",
+                            "HTTP-Referer": "https://glakapart.com",
+                            "X-Title": "Glak Bot Resilient Chat"
+                        },
+                        body: JSON.stringify({
+                            model: "meta-llama/llama-3.3-70b-instruct:free",
+                            messages: openRouterMessages,
+                            temperature: 0.7,
+                            max_tokens: 1000
+                        })
+                    }),
+                    4000,
+                    "OpenRouter API request timed out"
+                );
+
+                if (openRouterRes.ok) {
+                    const openRouterData = await openRouterRes.json();
+                    const choice = openRouterData.choices?.[0];
+                    if (choice?.message?.content) {
+                        responseText = choice.message.content;
+                        activeProvider = "openrouter";
+                        activeModel = "meta-llama/llama-3.3-70b-instruct:free";
+                        success = true;
+                    }
+                } else {
+                    console.error("OpenRouter API failed with status:", openRouterRes.status);
+                }
+            } catch (err: any) {
+                console.error("Error invoking OpenRouter fallback:", err?.message || err);
+            }
+        }
+
+        // ==========================================
+        // LEVEL 5: Static Contingency Fallback
+        // ==========================================
         if (!success) {
-            console.error("Both Gemini and Groq calls failed. Returning friendly error message directly.");
+            console.error("All AI providers failed. Returning friendly error message directly.");
             return NextResponse.json({
                 response: "⏳ ¡Uy! Parece que mis sistemas están un poco saturados en este momento. Por favor, intentá de nuevo en unos instantes o escribinos directo por WhatsApp para que Gladys y Adrián te ayuden de inmediato. 📲",
-                interactionId: previousInteractionId || "interaction-id"
+                interactionId: previousInteractionId || "interaction-id",
+                provider: "static-fallback",
+                model: "none"
             });
         }
 
         return NextResponse.json({
             response: responseText,
-            interactionId: previousInteractionId || "interaction-id"
+            interactionId: previousInteractionId || "interaction-id",
+            provider: activeProvider,
+            model: activeModel
         });
 
     } catch (error: any) {
