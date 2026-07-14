@@ -41,6 +41,20 @@ const ChatWidget: React.FC = () => {
     const lastMessageRef = useRef<HTMLDivElement>(null);
     const pathname = usePathname();
     const [isFooterVisible, setIsFooterVisible] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const handleMenuToggle = (e: Event) => {
+            const detail = (e as CustomEvent).detail;
+            if (detail) {
+                setIsMobileMenuOpen(!!detail.open);
+            }
+        };
+        window.addEventListener('GLAK_MOBILE_MENU_TOGGLE', handleMenuToggle);
+        return () => {
+            window.removeEventListener('GLAK_MOBILE_MENU_TOGGLE', handleMenuToggle);
+        };
+    }, []);
 
     useEffect(() => {
         if (isOpen) {
@@ -206,7 +220,7 @@ const ChatWidget: React.FC = () => {
     };
 
     const isAdminPage = pathname?.startsWith('/admin');
-    if (!isEnabled || isAdminPage) return null;
+    if (!isEnabled || isAdminPage || isMobileMenuOpen) return null;
 
     return (
         <>
@@ -351,7 +365,7 @@ const ChatWidget: React.FC = () => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-105
+                    w-14 h-14 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.28)] flex items-center justify-center transition-all duration-300 hover:scale-105 will-change-transform
                     ${isOpen 
                         ? 'bg-white text-gray-800 border border-gray-100 rotate-90 scale-90' 
                         : 'bg-[#10595a]/80 backdrop-blur-md border border-white/20 md:bg-[#10595a] md:backdrop-blur-none md:border-0 text-white md:hover:bg-[#0c4445]'

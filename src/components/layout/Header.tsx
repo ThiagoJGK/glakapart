@@ -88,6 +88,19 @@ const Header: React.FC = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        window.dispatchEvent(new CustomEvent('GLAK_MOBILE_MENU_TOGGLE', { detail: { open: isMobileMenuOpen } }));
+
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isMobileMenuOpen]);
+
     // Helper to determine current section
     const getCurrentSection = () => {
         if (currentPath.includes('gastronomia')) return 'gastronomia';
@@ -223,8 +236,8 @@ const Header: React.FC = () => {
             <Link
                 href={to!}
                 onClick={onClick}
-                className={`relative px-4 py-2 text-xs tracking-[0.15em] uppercase rounded-full transition-all duration-300 text-[#10595a] font-medium hover:bg-[#10595a]/10 flex items-center justify-center ${
-                    isActive ? 'bg-[#10595a]/10 font-bold' : ''
+                className={`relative px-4 py-2 text-xs tracking-[0.15em] uppercase rounded-full transition-all duration-300 text-white font-medium hover:bg-white/10 flex items-center justify-center ${
+                    isActive ? 'bg-white/20 font-bold' : ''
                 }`}
             >
                 {label}
@@ -273,7 +286,7 @@ const Header: React.FC = () => {
             </svg>
 
             <div
-                className={`absolute top-0 left-0 w-full overflow-hidden pointer-events-none header-curved-bg transition-all duration-[1500ms] ease-in-out ${isHome ? 'z-0 extended' : 'z-20'}`}
+                className={`absolute top-0 left-0 w-full overflow-hidden pointer-events-none header-curved-bg transition-all duration-[1500ms] ease-in-out ${isHome ? 'z-0 extended' : 'z-20'} ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`}
                 style={useCustomHeader ? {
                     backgroundImage: `url('${getOptimizedCloudinaryUrl(currentBgUrl, 1600)}')`,
                     backgroundSize: 'cover',
@@ -312,8 +325,7 @@ const Header: React.FC = () => {
             </div>
 
             {/* Navbar Layer (Content) */}
-            {/* Navbar Layer (Content) */}
-            <div className="container mx-auto px-6 md:px-10 pt-12 pb-4 md:py-6 flex items-center justify-between relative z-[45] pointer-events-none">
+            <div className={`container mx-auto px-6 md:px-10 pt-12 pb-4 md:py-6 flex items-center justify-between relative z-[45] pointer-events-none transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`}>
 
                 {/* Mobile Gradient Overlay for Status Bar/Menu Integration */}
                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/60 via-black/30 to-transparent lg:hidden -z-10 pointer-events-none"></div>
@@ -361,7 +373,7 @@ const Header: React.FC = () => {
             </div>
 
             {/* Mobile Menu Overlay - Glassmorphism */}
-            <div className={`fixed inset-0 bg-white/30 backdrop-blur-md z-[60] transition-all duration-500 ease-in-out lg:hidden flex flex-col justify-center items-center ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+            <div className={`fixed inset-0 bg-white/30 backdrop-blur-md z-[90] transition-all duration-500 ease-in-out lg:hidden flex flex-col justify-center items-center ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
                 {/* Gradient Orb for Depth */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#90c69e]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#10595a]/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
@@ -385,16 +397,18 @@ const Header: React.FC = () => {
                 initial={{ top: '-80px' }}
                 animate={{ top: isSticky ? '0px' : '-80px' }}
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className={`fixed left-0 w-full z-[70] h-16 md:h-20 flex items-center transition-all ${isSticky ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
+                className={`fixed left-0 w-full z-[95] h-16 md:h-20 flex items-center transition-all will-change-transform ${isSticky ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
             >
                 {/* Desktop Background */}
-                <div className="hidden lg:block absolute inset-0 bg-white/70 backdrop-blur-xl border-b border-white/20 rounded-b-[2rem] shadow-lg shadow-black/5 -z-10" />
+                <div className={`hidden lg:block absolute inset-0 bg-[#10595a]/80 backdrop-blur-xl border-b border-white/20 rounded-b-[2rem] -z-10 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`} />
+                {/* Desktop Shadow (separate unclipped element) */}
+                <div className={`hidden lg:block absolute inset-0 rounded-b-[2rem] -z-20 pointer-events-none transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} style={{ boxShadow: '0 20px 50px rgba(0,0,0,0.35)' }} />
                 
                 {/* Mobile Background */}
-                <div className="lg:hidden absolute inset-0 -z-10 pointer-events-none">
+                <div className={`lg:hidden absolute inset-0 -z-10 pointer-events-none transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}>
                     {/* Header Main Bar + Notch (Single element with single blur to prevent desynchronization) */}
                     <div 
-                        className="absolute top-0 left-0 w-full h-[84px] bg-white/70 backdrop-blur-xl"
+                        className="absolute top-0 left-0 w-full h-[84px] bg-[#10595a]/80 backdrop-blur-xl"
                         style={{
                             clipPath: `path("${pathString}")`,
                             WebkitClipPath: `path("${pathString}")`
@@ -410,13 +424,10 @@ const Header: React.FC = () => {
                         }}
                     />
 
-                    {/* Masked Shadow (Hidden in the center 160px notch region) */}
+                    {/* Shadow caster — NOT masked or clipped so shadow renders visibly */}
                     <div 
-                        className="absolute inset-0 shadow-lg shadow-black/5 rounded-b-[2rem] -z-20"
-                        style={{
-                            maskImage: 'linear-gradient(to right, white 0%, white calc(50% - 80px), transparent calc(50% - 80px), transparent calc(50% + 80px), white calc(50% + 80px), white 100%)',
-                            WebkitMaskImage: 'linear-gradient(to right, white 0%, white calc(50% - 80px), transparent calc(50% - 80px), transparent calc(50% + 80px), white calc(50% + 80px), white 100%)'
-                        }}
+                        className="absolute top-0 left-0 w-full h-16 rounded-b-[2rem] -z-30 pointer-events-none"
+                        style={{ boxShadow: '0 20px 50px rgba(0,0,0,0.35)' }}
                     />
 
                     {/* Center Notch Shadow (Circular behind logo) */}
@@ -426,31 +437,26 @@ const Header: React.FC = () => {
                 {/* Mobile/Tablet Sticky Header Layout */}
                 <div className="lg:hidden flex items-center justify-between w-full px-6">
                     <div className="w-8"></div>
-                    <Link href="/" aria-label="Ir al inicio" className="flex items-center cursor-pointer translate-y-2 relative">
-                        {/* Logo Container */}
-                        <div className="rounded-full bg-[#165959] p-1 flex items-center justify-center relative z-20">
-                            <Logo className="w-16 h-auto" />
-                        </div>
+                    <Link href="/" aria-label="Ir al inicio" className={`flex items-center cursor-pointer translate-y-2 relative transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`}>
+                        <Logo className="w-[72px] h-auto relative z-20" />
                     </Link>
                     <button
-                        className="text-[#10595a] relative focus:outline-none pointer-events-auto z-[80]"
+                        className="text-white relative focus:outline-none pointer-events-auto z-[100]"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         aria-label="Toggle Menu"
                     >
                         <div className="w-8 h-8 flex flex-col justify-center items-center gap-[6px]">
-                            <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 rotate-45 translate-y-[9px]' : 'w-8'} bg-[#10595a]`}></span>
-                            <span className={`block h-[3px] rounded-full transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'w-0 opacity-0' : 'w-6'} bg-[#10595a]`}></span>
-                            <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 -rotate-45 -translate-y-[9px]' : 'w-5'} bg-[#10595a]`}></span>
+                            <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 rotate-45 translate-y-[9px] bg-[#10595a]' : 'w-8 bg-white'}`}></span>
+                            <span className={`block h-[3px] rounded-full transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'w-0 opacity-0' : 'w-6 bg-white'}`}></span>
+                            <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 -rotate-45 -translate-y-[9px] bg-[#10595a]' : 'w-5 bg-white'}`}></span>
                         </div>
                     </button>
                 </div>
 
                 {/* Desktop Sticky Header Layout */}
-                <div className="hidden lg:flex items-center justify-between w-full px-10">
+                <div className={`hidden lg:flex items-center justify-between w-full px-10 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`}>
                     <Link href="/" aria-label="Ir al inicio" className="flex items-center cursor-pointer">
-                        <div className="rounded-full bg-[#165959] p-1.5 flex items-center justify-center shadow-md">
-                            <Logo className="w-14 h-auto" />
-                        </div>
+                        <Logo className="w-[68px] h-auto" />
                     </Link>
 
                     <nav className="flex items-center gap-6">
@@ -463,7 +469,7 @@ const Header: React.FC = () => {
                     <div>
                         <button
                             onClick={scrollToReservas}
-                            className="px-6 py-2.5 bg-[#10595a] hover:bg-[#093334] text-white text-xs font-semibold tracking-[0.15em] uppercase rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                            className="px-6 py-2.5 bg-white hover:bg-white/90 text-[#10595a] text-xs font-semibold tracking-[0.15em] uppercase rounded-full shadow-[0_8px_25px_rgba(0,0,0,0.12)] hover:shadow-[0_15px_35px_rgba(0,0,0,0.22)] transition-all duration-300 hover:scale-105 will-change-transform"
                         >
                             Reservar
                         </button>

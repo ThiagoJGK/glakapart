@@ -566,7 +566,7 @@ const GeneralBookingForm: React.FC = () => {
                 <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className={`w-full bg-[#10595a] text-white rounded-xl shadow-[0_10px_20px_-5px_rgba(16,89,90,0.4)] hover:shadow-xl hover:bg-[#0d4a4b] hover:-translate-y-0.5 transition-all duration-300 group flex items-center justify-center gap-3 overflow-hidden relative ${
+                    className={`w-full bg-[#10595a] text-white rounded-xl shadow-[0_12px_28px_rgba(16,89,90,0.35)] hover:shadow-[0_18px_35px_rgba(16,89,90,0.5)] hover:bg-[#0d4a4b] hover:-translate-y-0.5 transition-all duration-300 will-change-transform group flex items-center justify-center gap-3 overflow-hidden relative ${
                         isMobile ? 'py-2.5 mt-1.5' : 'py-2.5 mt-2.5'
                     } ${loading ? 'opacity-85 cursor-not-allowed' : ''}`}
                 >

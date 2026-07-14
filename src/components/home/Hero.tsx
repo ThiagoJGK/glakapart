@@ -210,7 +210,7 @@ const Hero: React.FC = () => {
             <div className="pt-2 flex flex-col md:flex-row items-center gap-4">
                 <button
                     onClick={scrollToReservas}
-                    className={`${isMobile ? 'bg-[#10595a] text-white hover:bg-[#0a3839] rounded-full' : 'btn-black'} w-full md:w-auto text-xs py-4 px-12 transition-transform hover:-translate-y-1 font-ui tracking-widest uppercase shadow-md`}
+                    className={`${isMobile ? 'bg-[#10595a] text-white hover:bg-[#0a3839] rounded-full' : 'btn-black'} w-full md:w-auto text-xs py-4 px-12 transition-transform hover:-translate-y-1 font-ui tracking-widest uppercase shadow-[0_15px_35px_rgba(0,0,0,0.22)] will-change-transform`}
                 >
                     CONSULTAR DISPONIBILIDAD
                 </button>
