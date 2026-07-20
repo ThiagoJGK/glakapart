@@ -123,7 +123,8 @@ const GeneralBookingForm: React.FC = () => {
         });
 
         // Mensaje conversacional para WhatsApp
-        const text = `¡Hola! Estuve viendo la página de Glak Apart. Mi nombre es ${firstName} ${lastName} y quería consultar disponibilidad para las fechas del ${checkInWA} al ${checkOutWA}.${message ? `\n\nMi consulta es: ${message}` : ''}`;
+        const guestsText = `Somos ${adultsCount} ${adultsCount === 1 ? 'adulto' : 'adultos'}${childrenCount > 0 ? ` y ${childrenCount} ${childrenCount === 1 ? 'niño' : 'niños'}` : ''}.`;
+        const text = `¡Hola! Estuve viendo la página de Glak Apart. Mi nombre es ${firstName} ${lastName} y quería consultar disponibilidad para las fechas del ${checkInWA} al ${checkOutWA}. ${guestsText}${message ? `\n\nMi consulta es: ${message}` : ''}`;
 
         const encodedText = encodeURIComponent(text);
         const whatsappUrl = `https://wa.me/5491169675050?text=${encodedText}`;

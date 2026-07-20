@@ -255,12 +255,25 @@ const ChatWidget: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="text-white/80 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors"
-                        >
-                            <X size={20} />
-                        </button>
+                        <div className="flex items-center gap-1">
+                            <a
+                                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('¡Hola! Quisiera hacer una consulta directa por WhatsApp.')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Contacto directo por WhatsApp"
+                                onClick={() => trackEvent('chatbot_direct_whatsapp_click')}
+                                className="text-white/90 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors flex items-center gap-1 text-xs"
+                            >
+                                <Phone size={16} className="fill-current text-green-300" />
+                            </a>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="text-white/80 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors"
+                                aria-label="Cerrar chat"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Messages Area */}
@@ -268,6 +281,43 @@ const ChatWidget: React.FC = () => {
                         ref={scrollContainerRef} 
                         className="flex-1 bg-zinc-50 p-4 overflow-y-auto flex flex-col gap-3 scrollbar-thin"
                     >
+                        {/* Bot Purpose Explanation & Direct WhatsApp Action Card */}
+                        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/80 rounded-2xl p-3.5 shadow-sm text-xs space-y-2.5">
+                            <div className="flex items-center gap-2 text-[#10595a] font-semibold">
+                                <Bot size={16} className="text-[#10595a] shrink-0" />
+                                <span>¿Para qué sirve Glak Bot?</span>
+                            </div>
+                            <p className="text-gray-600 text-[11px] leading-relaxed">
+                                Puedo ayudarte con:
+                            </p>
+                            <ul className="text-[11px] text-gray-700 space-y-1 pl-1 font-medium">
+                                <li className="flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#10595a]"></span>
+                                    Información turística y eventos en Urdinarrain
+                                </li>
+                                <li className="flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#10595a]"></span>
+                                    Tomar reservas y consultar disponibilidad
+                                </li>
+                                <li className="flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#10595a]"></span>
+                                    Reglas y servicios del establecimiento
+                                </li>
+                            </ul>
+                            <div className="pt-2 border-t border-emerald-200/60">
+                                <p className="text-[10px] text-gray-500 mb-1.5 font-medium">¿Preferís no chatear con el bot?</p>
+                                <a
+                                    href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('¡Hola! Quisiera hacer una consulta directa por WhatsApp.')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={() => trackEvent('chatbot_direct_whatsapp_click')}
+                                    className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold py-2 px-3 rounded-xl shadow-sm hover:shadow transition-all group"
+                                >
+                                    <Phone size={14} className="fill-current" />
+                                    <span>Contacto directo por WhatsApp</span>
+                                </a>
+                            </div>
+                        </div>
                         {messages.map((msg, idx) => {
                             const bookingData = msg.role === 'assistant' ? parseBookingData(msg.content) : null;
                             const displayContent = msg.role === 'assistant' ? cleanMessage(msg.content) : msg.content;
