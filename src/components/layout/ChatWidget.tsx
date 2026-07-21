@@ -2,11 +2,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { getContent } from '@/services/content';
-import { MessageCircle, X, Send, Bot, Phone } from 'lucide-react';
+import { MessageCircle, X, Send } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { trackEvent } from '@/services/analytics';
+import GlakBotAvatar from './GlakBotAvatar';
 
 const WHATSAPP_NUMBER = '5491169675050';
+
+const WhatsAppIcon: React.FC<{ size?: number; className?: string }> = ({ size = 18, className = '' }) => (
+    <svg 
+        width={size} 
+        height={size} 
+        viewBox="0 0 24 24" 
+        fill="currentColor" 
+        className={className}
+    >
+        <path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.978-.276-.1-.477-.15-.678.15-.2.3-.775.978-.952 1.179-.176.2-.351.225-.651.075-.3-.15-1.266-.467-2.41-1.487-.893-.796-1.496-1.78-1.672-2.08-.176-.3-.019-.462.13-.61.136-.135.301-.351.451-.526.15-.175.201-.3.301-.5.1-.2.05-.376-.025-.526-.075-.15-.678-1.632-.929-2.234-.244-.585-.494-.505-.678-.515-.176-.008-.376-.01-.576-.01-.2 0-.526.075-.802.376-.276.3-1.053 1.028-1.053 2.508 0 1.48 1.078 2.908 1.228 3.109.15.2 2.122 3.24 5.141 4.542.717.31 1.277.495 1.713.633.72.228 1.375.201 1.892.12.576-.09 1.78-.727 2.03-1.43.25-.702.25-1.303.175-1.43-.075-.128-.276-.201-.577-.351z"/>
+        <path d="M12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.66 1.434 5.174L2 22l4.954-1.39A9.956 9.956 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.634 0-3.144-.45-4.437-1.231l-.318-.192-2.94.825.84-2.868-.21-.334A7.95 7.95 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+    </svg>
+);
 
 type Message = {
     role: 'user' | 'assistant';
@@ -242,29 +256,32 @@ const ChatWidget: React.FC = () => {
                 {isOpen && (
                 <div className="bg-white w-[370px] max-w-[calc(100vw-48px)] h-[520px] max-h-[calc(100vh-120px)] rounded-2xl shadow-2xl border border-gray-100 mb-4 flex flex-col overflow-hidden animate-fade-in-up">
                     {/* Header */}
-                    <div className="bg-[#10595a] text-white p-4 flex justify-between items-center shadow-md z-10">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                <Bot size={20} />
+                    <div className="bg-[#10595a] text-white p-3.5 flex justify-between items-center shadow-md z-10">
+                        <div className="flex items-center gap-2.5">
+                            <div className="relative flex items-center justify-center">
+                                {/* Performance-optimized GPU blurry glow aura */}
+                                <div className="absolute -inset-2 rounded-full bg-[#9dd1a6]/25 blur-md pointer-events-none transform-gpu will-change-transform animate-pulse"></div>
+                                <GlakBotAvatar size={48} isThinking={isLoading} />
                             </div>
                             <div>
                                 <h3 className="font-bold text-sm tracking-wider">Glak Bot</h3>
-                                <div className="flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
-                                    <p className="text-[10px] text-white/80 uppercase tracking-wider">En línea</p>
+                                <div className="flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                                    <p className="text-[10px] text-white/80 uppercase tracking-wider font-medium">En línea</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                             <a
-                                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('¡Hola! Quisiera hacer una consulta directa por WhatsApp.')}`}
+                                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('¡Hola! Estuve viendo la página de Glak Apart y quisiera hacer una consulta.')}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                title="Contacto directo por WhatsApp"
+                                title="Contacto directo"
                                 onClick={() => trackEvent('chatbot_direct_whatsapp_click')}
-                                className="text-white/90 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors flex items-center gap-1 text-xs"
+                                className="bg-[#25D366] hover:bg-[#20bd5a] text-white p-2 rounded-xl transition-all shadow-sm flex items-center gap-1 text-xs font-semibold hover:scale-105"
                             >
-                                <Phone size={16} className="fill-current text-green-300" />
+                                <WhatsAppIcon size={16} />
+                                <span className="hidden sm:inline text-[11px]">Contacto directo</span>
                             </a>
                             <button
                                 onClick={() => setIsOpen(false)}
@@ -284,7 +301,7 @@ const ChatWidget: React.FC = () => {
                         {/* Bot Purpose Explanation & Direct WhatsApp Action Card */}
                         <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/80 rounded-2xl p-3.5 shadow-sm text-xs space-y-2.5">
                             <div className="flex items-center gap-2 text-[#10595a] font-semibold">
-                                <Bot size={16} className="text-[#10595a] shrink-0" />
+                                <GlakBotAvatar size={32} isThinking={isLoading} />
                                 <span>¿Para qué sirve Glak Bot?</span>
                             </div>
                             <p className="text-gray-600 text-[11px] leading-relaxed">
@@ -301,20 +318,20 @@ const ChatWidget: React.FC = () => {
                                 </li>
                                 <li className="flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 rounded-full bg-[#10595a]"></span>
-                                    Reglas y servicios del establecimiento
+                                    Normas y servicios del establecimiento
                                 </li>
                             </ul>
                             <div className="pt-2 border-t border-emerald-200/60">
                                 <p className="text-[10px] text-gray-500 mb-1.5 font-medium">¿Preferís no chatear con el bot?</p>
                                 <a
-                                    href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('¡Hola! Quisiera hacer una consulta directa por WhatsApp.')}`}
+                                    href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('¡Hola! Estuve viendo la página de Glak Apart y quisiera hacer una consulta.')}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={() => trackEvent('chatbot_direct_whatsapp_click')}
-                                    className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold py-2 px-3 rounded-xl shadow-sm hover:shadow transition-all group"
+                                    className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold py-2.5 px-3 rounded-xl shadow-sm hover:shadow transition-all group"
                                 >
-                                    <Phone size={14} className="fill-current" />
-                                    <span>Contacto directo por WhatsApp</span>
+                                    <WhatsAppIcon size={16} />
+                                    <span>Contacto directo</span>
                                 </a>
                             </div>
                         </div>
@@ -364,7 +381,7 @@ const ChatWidget: React.FC = () => {
                                                 className="flex items-center gap-3 bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-3 rounded-2xl rounded-bl-none shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all group"
                                             >
                                                 <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                                    <Phone size={16} className="fill-current" />
+                                                    <WhatsAppIcon size={18} />
                                                 </div>
                                                 <div className="text-left">
                                                     <span className="block text-xs font-bold tracking-wider">SOLICITAR RESERVA</span>
