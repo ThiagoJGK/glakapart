@@ -139,7 +139,7 @@ const Header: React.FC = () => {
 
     // Header styling
     const headerClasses = 'absolute top-0 left-0 w-full';
-    const mainPaths = ['/', '/gastronomia', '/lugares', '/eventos', '/apartamentos', '/lugares/arenas-blancas'];
+    const mainPaths = ['/', '/gastronomia', '/lugares', '/eventos', '/apartamentos', '/lugares/arenas-blancas', '/links'];
     const useCustomHeader = mainPaths.includes(currentPath) || currentPath.startsWith('/apartamentos/');
 
     const scrollToReservas = () => {
@@ -246,6 +246,7 @@ const Header: React.FC = () => {
     };
 
     const isHome = currentPath === '/';
+    const isLinksPath = currentPath === '/links';
 
     const headerContainerStyle = useCustomHeader ? {
         backgroundColor: 'transparent',
@@ -285,92 +286,96 @@ const Header: React.FC = () => {
                 </defs>
             </svg>
 
-            <div
-                className={`absolute top-0 left-0 w-full overflow-hidden pointer-events-none header-curved-bg transition-all duration-[1500ms] ease-in-out ${isHome ? 'z-0 extended' : 'z-20'} ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`}
-                style={useCustomHeader ? {
-                    backgroundImage: `url('${getOptimizedCloudinaryUrl(currentBgUrl, 1600)}')`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundAttachment: 'fixed',
-                } : { backgroundColor: 'transparent' }}
-            >
-                {useCustomHeader && (
-                    <>
-                        {/* Overlay for readability if needed, or gradient */}
-                        <div className="absolute inset-0 bg-black/10"></div>
-
-                        {/* Title Badges */}
-                        {currentPath.includes('gastronomia') && (
-                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
-                                <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">SABORES DE NUESTRA TIERRA</span>
-                            </div>
-                        )}
-                        {currentPath.includes('lugares') && (
-                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
-                                <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">DESCUBRÍ LA REGIÓN</span>
-                            </div>
-                        )}
-                        {currentPath.includes('eventos') && (
-                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
-                                <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">PRÓXIMOS EVENTOS</span>
-                            </div>
-                        )}
-                        {currentPath.includes('apartamentos') && (
-                            <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
-                                <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">NUESTROS APARTAMENTOS</span>
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
-
-            {/* Navbar Layer (Content) */}
-            <div className={`container mx-auto px-6 md:px-10 pt-12 pb-4 md:py-6 flex items-center justify-between relative z-[45] pointer-events-none transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`}>
-
-                {/* Mobile Gradient Overlay for Status Bar/Menu Integration */}
-                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/60 via-black/30 to-transparent lg:hidden -z-10 pointer-events-none"></div>
-
-                {/* Mobile Empty Div for Spacing (to push Logo center) */}
-                <div className="lg:hidden w-8"></div>
-
-                {/* Logo Section - Uses Blurred BG Image for Frost Effect */}
-                <Link href="/" aria-label="Ir al inicio" className={`flex flex-col items-center cursor-pointer group hover:opacity-90 transition-opacity duration-300 relative pointer-events-auto z-[46] ${isMobileMenuOpen ? 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto' : 'opacity-100'}`}>
+            {!isLinksPath && (
+                <>
                     <div
-                        className="rounded-full p-1 md:p-2 shadow-2xl flex items-center justify-center overflow-hidden border border-white/10 relative"
+                        className={`absolute top-0 left-0 w-full overflow-hidden pointer-events-none header-curved-bg transition-all duration-[1500ms] ease-in-out ${isHome ? 'z-0 extended' : 'z-20'} ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`}
+                        style={useCustomHeader ? {
+                            backgroundImage: `url('${getOptimizedCloudinaryUrl(currentBgUrl, 1600)}')`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundAttachment: 'fixed',
+                        } : { backgroundColor: 'transparent' }}
                     >
-                        {/* Blurred background image - desaturated separately from the logo */}
-                        <div
-                            className="absolute inset-0 z-0"
-                            style={{ ...getFrostedStyle(), filter: 'grayscale(100%)' }}
-                        />
-                        {/* Green overlay on top of the desaturated bg */}
-                        <div className="absolute inset-0 bg-[#10595a]/60 z-[1]"></div>
-                        {/* Logo in full color above everything */}
-                        <Logo className="w-32 md:w-52 h-auto text-white relative z-10" />
-                    </div>
-                </Link>
+                        {useCustomHeader && (
+                            <>
+                                {/* Overlay for readability if needed, or gradient */}
+                                <div className="absolute inset-0 bg-black/10"></div>
 
-                {/* Desktop Menu */}
-                <nav className="flex-1 hidden lg:flex items-center justify-around ml-12 pointer-events-auto">
-                    <NavLink to="/" label="Inicio" />
-                    <NavLink to="/gastronomia" label="Gastronomía" />
-                    <NavLink to="/lugares" label="Lugares" />
-                    <NavLink to="/eventos" label="Eventos" />
-                </nav>
-
-                {/* Mobile Hamburger Button */}
-                <button
-                    className="lg:hidden text-white relative focus:outline-none pointer-events-auto z-[80]"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    aria-label="Toggle Menu"
-                >
-                    <div className="w-8 h-8 flex flex-col justify-center items-center gap-[6px]">
-                        <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 rotate-45 translate-y-[9px] bg-[#10595a]' : 'w-8 bg-white'}`}></span>
-                        <span className={`block h-[3px] rounded-full transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'w-0 opacity-0' : 'w-6 bg-white'}`}></span>
-                        <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 -rotate-45 -translate-y-[9px] bg-[#10595a]' : 'w-5 bg-white'}`}></span>
+                                {/* Title Badges */}
+                                {currentPath.includes('gastronomia') && (
+                                    <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
+                                        <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">SABORES DE NUESTRA TIERRA</span>
+                                    </div>
+                                )}
+                                {currentPath.includes('lugares') && (
+                                    <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
+                                        <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">DESCUBRÍ LA REGIÓN</span>
+                                    </div>
+                                )}
+                                {currentPath.includes('eventos') && (
+                                    <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
+                                        <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">PRÓXIMOS EVENTOS</span>
+                                    </div>
+                                )}
+                                {currentPath.includes('apartamentos') && (
+                                    <div className="absolute bottom-28 md:bottom-32 left-0 w-full text-center z-30 hidden md:block">
+                                        <span className="font-ui tracking-[0.4em] text-[10px] md:text-xs text-white drop-shadow-md">NUESTROS APARTAMENTOS</span>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
-                </button>
-            </div>
+
+                    {/* Navbar Layer (Content) */}
+                    <div className={`container mx-auto px-6 md:px-10 pt-12 pb-4 md:py-6 flex items-center justify-between relative z-[45] pointer-events-none transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`}>
+
+                        {/* Mobile Gradient Overlay for Status Bar/Menu Integration */}
+                        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/60 via-black/30 to-transparent lg:hidden -z-10 pointer-events-none"></div>
+
+                        {/* Mobile Empty Div for Spacing (to push Logo center) */}
+                        <div className="lg:hidden w-8"></div>
+
+                        {/* Logo Section - Uses Blurred BG Image for Frost Effect */}
+                        <Link href="/" aria-label="Ir al inicio" className={`flex flex-col items-center cursor-pointer group hover:opacity-90 transition-opacity duration-300 relative pointer-events-auto z-[46] ${isMobileMenuOpen ? 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto' : 'opacity-100'}`}>
+                            <div
+                                className="rounded-full p-1 md:p-2 shadow-2xl flex items-center justify-center overflow-hidden border border-white/10 relative"
+                            >
+                                {/* Blurred background image - desaturated separately from the logo */}
+                                <div
+                                    className="absolute inset-0 z-0"
+                                    style={{ ...getFrostedStyle(), filter: 'grayscale(100%)' }}
+                                />
+                                {/* Green overlay on top of the desaturated bg */}
+                                <div className="absolute inset-0 bg-[#10595a]/60 z-[1]"></div>
+                                {/* Logo in full color above everything */}
+                                <Logo className="w-32 md:w-52 h-auto text-white relative z-10" />
+                            </div>
+                        </Link>
+
+                        {/* Desktop Menu */}
+                        <nav className="flex-1 hidden lg:flex items-center justify-around ml-12 pointer-events-auto">
+                            <NavLink to="/" label="Inicio" />
+                            <NavLink to="/gastronomia" label="Gastronomía" />
+                            <NavLink to="/lugares" label="Lugares" />
+                            <NavLink to="/eventos" label="Eventos" />
+                        </nav>
+
+                        {/* Mobile Hamburger Button */}
+                        <button
+                            className="lg:hidden text-white relative focus:outline-none pointer-events-auto z-[80]"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            aria-label="Toggle Menu"
+                        >
+                            <div className="w-8 h-8 flex flex-col justify-center items-center gap-[6px]">
+                                <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 rotate-45 translate-y-[9px] bg-[#10595a]' : 'w-8 bg-white'}`}></span>
+                                <span className={`block h-[3px] rounded-full transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'w-0 opacity-0' : 'w-6 bg-white'}`}></span>
+                                <span className={`block h-[3px] rounded-full transition-all duration-400 ease-in-out origin-center ${isMobileMenuOpen ? 'w-7 -rotate-45 -translate-y-[9px] bg-[#10595a]' : 'w-5 bg-white'}`}></span>
+                            </div>
+                        </button>
+                    </div>
+                </>
+            )}
 
             {/* Mobile Menu Overlay - Glassmorphism */}
             <div className={`fixed inset-0 bg-white/30 backdrop-blur-md z-[90] transition-all duration-500 ease-in-out lg:hidden flex flex-col justify-center items-center ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>

@@ -251,6 +251,7 @@ export const AdminImages: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {[
                             { id: 'home', label: 'Página de Inicio' },
+                            { id: 'links', label: 'Banner Enlaces (/links)' },
                             { id: 'gastronomia', label: 'Gastronomía' },
                             { id: 'lugares', label: 'Lugares' },
                             { id: 'eventos', label: 'Eventos' },

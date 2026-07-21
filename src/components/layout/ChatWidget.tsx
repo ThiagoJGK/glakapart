@@ -233,8 +233,8 @@ const ChatWidget: React.FC = () => {
         }
     };
 
-    const isAdminPage = pathname?.startsWith('/admin');
-    if (!isEnabled || isAdminPage || isMobileMenuOpen) return null;
+    const isAdminOrLinksPage = pathname?.startsWith('/admin') || pathname === '/links';
+    if (!isEnabled || isAdminOrLinksPage || isMobileMenuOpen) return null;
 
     return (
         <>

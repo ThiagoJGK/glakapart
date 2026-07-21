@@ -601,7 +601,7 @@ const GeneralBookingForm: React.FC = () => {
     };
 
     return (
-        <div className="bg-white rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] w-full max-w-5xl mx-auto overflow-hidden flex flex-col md:flex-row border border-white/20">
+        <div className="bg-white rounded-[2.5rem] shadow-xl shadow-[#10595a]/15 w-full max-w-5xl mx-auto overflow-hidden flex flex-col md:flex-row border border-[#10595a]/15">
             <style>{calendarStyles}</style>
 
             {/* Left Panel: Calendar (Green Experience) */}

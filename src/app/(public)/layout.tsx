@@ -70,8 +70,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <Header />
             <AdminDraftControls />
             {children}
-            <GeneralBookingSection id="reservas" />
-            <FloatingBookingButton />
+            {pathname !== '/links' && <GeneralBookingSection id="reservas" />}
+            {pathname !== '/links' && <FloatingBookingButton />}
             <Footer />
             <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

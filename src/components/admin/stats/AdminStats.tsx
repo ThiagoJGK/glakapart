@@ -39,6 +39,7 @@ function percentage(part: number, total: number): string {
 
 const PAGE_LABELS: Record<string, string> = {
     '/': 'Inicio',
+    '/links': 'Enlaces CTA (/links)',
     '/gastronomia': 'Gastronomía',
     '/lugares': 'Lugares',
     '/eventos': 'Eventos',
@@ -233,6 +234,12 @@ const AdminStats: React.FC = () => {
         });
         const providerStats = Object.entries(providerCounts).sort((a, b) => b[1] - a[1]);
         const chatSessions = new Set(chatbotResponses.map(e => e.sessionId)).size;
+
+        // /links specific analytics
+        const linksPageViews = pageViews.filter(e => e.page === '/links').length;
+        const linksWhatsappClicks = events.filter(e => e.event === 'links_whatsapp_click').length;
+        const linksSiteClicks = events.filter(e => e.event === 'links_site_click').length;
+        const linksCalendarToggles = events.filter(e => e.event === 'links_calendar_toggle').length;
  
         return {
             pageViews: pageViews.length,
@@ -255,7 +262,10 @@ const AdminStats: React.FC = () => {
             avgPagesBeforeBooking,
             mobileCount,
             desktopCount,
-            topFaqs,
+            linksPageViews,
+            linksWhatsappClicks,
+            linksSiteClicks,
+            linksCalendarToggles,
             // Chatbot entries
             chatbotTotal: chatbotResponses.length,
             chatbotSuccess: chatbotSuccesses.length,
@@ -552,6 +562,44 @@ const AdminStats: React.FC = () => {
                                 <p className="text-base font-bold text-violet-700 font-mono">{stats.chatbotEvents}</p>
                             </div>
                         </div>
+                    </div>
+            {/* Rendimiento Sección Enlaces (/links) */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-100">
+                    <div>
+                        <h3 className="font-ui text-xs tracking-widest text-[#10595a] uppercase font-bold flex items-center gap-2">
+                            <span>🔗 MÉTRICAS SECCIÓN ENLACES (/links)</span>
+                        </h3>
+                        <p className="text-xs text-gray-400 mt-0.5">Rendimiento de los botones CTA e interacción desde redes sociales y QR</p>
+                    </div>
+                    <span className="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-full self-start sm:self-auto">
+                        {stats.linksPageViews} vistas a /links
+                    </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl flex items-center justify-between">
+                        <div>
+                            <p className="text-xs font-bold text-emerald-900">Contacto WhatsApp</p>
+                            <p className="text-[10px] text-emerald-600">Clics en botón verde WhatsApp</p>
+                        </div>
+                        <p className="text-xl font-bold text-emerald-700 font-mono">{stats.linksWhatsappClicks}</p>
+                    </div>
+
+                    <div className="bg-teal-50/50 border border-teal-100 p-4 rounded-xl flex items-center justify-between">
+                        <div>
+                            <p className="text-xs font-bold text-teal-900">Visitá Nuestra Página</p>
+                            <p className="text-[10px] text-teal-600">Redirecciones al sitio principal (/)</p>
+                        </div>
+                        <p className="text-xl font-bold text-teal-700 font-mono">{stats.linksSiteClicks}</p>
+                    </div>
+
+                    <div className="bg-amber-50/50 border border-amber-100 p-4 rounded-xl flex items-center justify-between">
+                        <div>
+                            <p className="text-xs font-bold text-amber-900">Consultar Disponibilidad</p>
+                            <p className="text-[10px] text-amber-600">Aperturas del calendario interactivo</p>
+                        </div>
+                        <p className="text-xl font-bold text-amber-700 font-mono">{stats.linksCalendarToggles}</p>
                     </div>
                 </div>
             </div>
