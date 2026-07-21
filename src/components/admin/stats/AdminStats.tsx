@@ -563,6 +563,9 @@ const AdminStats: React.FC = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
             {/* Rendimiento Sección Enlaces (/links) */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-100">
