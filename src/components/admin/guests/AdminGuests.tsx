@@ -5,6 +5,8 @@ import {
     updateInquiryStatus, 
     updateInquiryNotes, 
     seedSampleInquiries,
+    deleteInquiry,
+    deleteGuest,
     Inquiry 
 } from '@/services/inquiries';
 import { 
@@ -28,7 +30,8 @@ import {
     Check,
     Save,
     ExternalLink,
-    X
+    X,
+    Trash2
 } from 'lucide-react';
 import { Toast } from '../../ui/Toast';
 
@@ -137,6 +140,33 @@ export const AdminGuests: React.FC = () => {
         }
     };
 
+    const handleDeleteInquiry = async (id: string, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        if (!window.confirm('¿Estás seguro de que deseas eliminar esta solicitud?')) return;
+        try {
+            await deleteInquiry(id);
+            if (selectedInquiryId === id) setSelectedInquiryId(null);
+            setToast({ message: 'Solicitud eliminada correctamente', type: 'success' });
+        } catch (error) {
+            console.error(error);
+            setToast({ message: 'Error al eliminar la solicitud', type: 'error' });
+        }
+    };
+
+    const handleDeleteGuest = async (guest: Guest, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        const inquiryIds = (guest.inquiries || []).map(i => i.id);
+        if (!window.confirm(`¿Estás seguro de eliminar a ${guest.fullName} de la agenda? Se borrarán sus ${inquiryIds.length} consulta(s).`)) return;
+        try {
+            const guestId = guest.inquiries?.[0]?.guestId;
+            await deleteGuest(inquiryIds, guestId);
+            setToast({ message: 'Cliente eliminado de la agenda', type: 'success' });
+        } catch (error) {
+            console.error(error);
+            setToast({ message: 'Error al eliminar cliente de la agenda', type: 'error' });
+        }
+    };
+
     const handleSeedData = async () => {
         setLoading(true);
         const seeded = await seedSampleInquiries();
@@ -152,24 +182,18 @@ export const AdminGuests: React.FC = () => {
     const formatWhatsAppLink = (inq: Omit<Inquiry, 'id' | 'createdAt'>) => {
         const cleanPhone = inq.phone.replace(/\D/g, '');
         
-        // Ensure Argentine format: if it starts with 15 (local mobile prefix), or doesn't have 54, handle it.
-        // Let's assume the user enters country code. If not, we can default prepending 54.
         let phoneWithCountry = cleanPhone;
         if (cleanPhone.length > 0 && !cleanPhone.startsWith('54')) {
             if (cleanPhone.startsWith('9')) {
                 phoneWithCountry = '54' + cleanPhone;
             } else if (cleanPhone.startsWith('15')) {
-                // local mobile prefix in Argentina: strip 15, prepend 54 9 and area code (e.g. 11 for Buenos Aires, 3446 for Gualeguaychú/Urdinarrain)
-                // Since Glak Apart is in Urdinarrain (area code 3446), local mobile might be 3446 15XXXXXX.
-                // Let's just strip 15 and use 5493446 + rest or keep it simple.
-                // Standard default: just prepend 54 if length is local
                 phoneWithCountry = '54' + cleanPhone;
             } else {
                 phoneWithCountry = '54' + cleanPhone;
             }
         }
 
-        const greeting = `Hola ${inq.firstName}, me pongo en contacto desde Glak Apart respecto a tu consulta de disponibilidad del ${inq.checkIn} al ${inq.checkOut} para ${inq.adults} adulto${inq.adults > 1 ? 's' : ''}${inq.children > 0 ? ` y ${inq.children} niño${inq.children > 1 ? 's' : ''}` : ''}.`;
+        const greeting = `Hola ${inq.firstName}, me pongo en contacto desde Glak Apart respecto a tu consulta de disponibilidad del ${inq.checkIn} al ${inq.checkOut} para ${inq.adults} adulto${inq.adults > 1 ? 's' : ''}${inq.children > 0 ? ` y ${inq.children} menor${inq.children > 1 ? 'es' : ''}` : ''}.`;
         const encodedText = encodeURIComponent(greeting);
         return `https://wa.me/${phoneWithCountry}?text=${encodedText}`;
     };
@@ -391,12 +415,20 @@ export const AdminGuests: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-3 self-end md:self-auto border-t md:border-t-0 pt-3 md:pt-0 border-gray-50">
+                                        <div className="flex items-center gap-2 self-end md:self-auto border-t md:border-t-0 pt-3 md:pt-0 border-gray-50">
                                             {inq.adminNotes && (
                                                 <div className="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center text-gray-400" title="Tiene notas administrativas">
                                                     <FileText size={14} />
                                                 </div>
                                             )}
+                                            <button
+                                                type="button"
+                                                onClick={(e) => handleDeleteInquiry(inq.id, e)}
+                                                className="w-7 h-7 rounded-lg text-gray-300 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors"
+                                                title="Eliminar solicitud"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
                                             <ChevronRight className={`text-gray-400 transition-transform ${isSelected ? 'translate-x-1 text-[#10595a]' : ''}`} size={16} />
                                         </div>
                                     </div>
@@ -488,7 +520,7 @@ export const AdminGuests: React.FC = () => {
                                                 Huéspedes
                                             </h5>
                                             <div className="bg-gray-50 px-3 py-2.5 rounded-xl text-sm text-gray-800 font-semibold border border-gray-100">
-                                                {selectedInquiry.adults} Adultos {selectedInquiry.children > 0 && `· ${selectedInquiry.children} Niños`}
+                                                {selectedInquiry.adults} Adultos {selectedInquiry.children > 0 && `· ${selectedInquiry.children} Menores`}
                                             </div>
                                         </div>
                                     </div>
@@ -549,22 +581,32 @@ export const AdminGuests: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* WhatsApp Direct contact button */}
-                                    <a
-                                        href={formatWhatsAppLink(selectedInquiry)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={() => {
-                                            // Auto transition status to 'contacted' if it was new/read
-                                            if (selectedInquiry.status === 'new' || selectedInquiry.status === 'read') {
-                                                handleStatusChange(selectedInquiry.id, 'contacted');
-                                            }
-                                        }}
-                                        className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 px-4 rounded-xl text-sm font-bold tracking-widest hover:bg-[#20ba5a] transition-all shadow-md hover:shadow-lg uppercase text-center"
-                                    >
-                                        <MessageCircle size={16} />
-                                        Contactar por WhatsApp
-                                    </a>
+                                    {/* Actions: WhatsApp Direct contact & Delete */}
+                                    <div className="flex gap-2 pt-2">
+                                        <a
+                                            href={formatWhatsAppLink(selectedInquiry)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={() => {
+                                                if (selectedInquiry.status === 'new' || selectedInquiry.status === 'read') {
+                                                    handleStatusChange(selectedInquiry.id, 'contacted');
+                                                }
+                                            }}
+                                            className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 px-3 rounded-xl text-xs font-bold tracking-wider hover:bg-[#20ba5a] transition-all shadow-md hover:shadow-lg uppercase text-center"
+                                        >
+                                            <MessageCircle size={15} />
+                                            WhatsApp
+                                        </a>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleDeleteInquiry(selectedInquiry.id, e)}
+                                            className="px-3.5 py-3 bg-red-50 text-red-600 border border-red-200/80 rounded-xl font-bold text-xs hover:bg-red-100 transition-colors flex items-center gap-1.5 shrink-0 uppercase tracking-wider"
+                                            title="Eliminar esta solicitud"
+                                        >
+                                            <Trash2 size={15} />
+                                            Eliminar
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ) : (
@@ -597,11 +639,12 @@ export const AdminGuests: React.FC = () => {
 
                     {/* Guests Directory Accordion List */}
                     <div className="space-y-3">
-                        {filteredGuests.map((guest) => {
+                        {(filteredGuests || []).map((guest) => {
                             const isExpanded = expandedGuestPhone === guest.phone;
-                            const totalInquiries = guest.inquiries.length;
-                            const latestInquiry = guest.inquiries[0];
-                            const cleanPhone = guest.phone.replace(/\D/g, '');
+                            const inquiriesList = guest.inquiries || [];
+                            const totalInquiries = inquiriesList.length;
+                            const latestInquiry = inquiriesList[0];
+                            const cleanPhone = (guest.phone || '').replace(/\D/g, '');
 
                             return (
                                 <div key={guest.phone || guest.email} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden transition-all">
@@ -612,10 +655,10 @@ export const AdminGuests: React.FC = () => {
                                     >
                                         <div className="flex items-center gap-3.5">
                                             <div className="w-10 h-10 rounded-full bg-[#10595a]/10 text-[#10595a] flex items-center justify-center font-bold text-sm shrink-0">
-                                                {guest.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                                {(guest.fullName || '').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'G'}
                                             </div>
                                             <div>
-                                                <h4 className="font-bold text-gray-800 text-base leading-tight">{guest.fullName}</h4>
+                                                <h4 className="font-bold text-gray-800 text-base leading-tight">{guest.fullName || 'Huésped'}</h4>
                                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400 mt-1">
                                                     <span className="flex items-center gap-1"><Phone size={11} /> {guest.phone || 'Sin Teléfono'}</span>
                                                     <span className="flex items-center gap-1"><Mail size={11} /> {guest.email || 'Sin Email'}</span>
@@ -623,11 +666,11 @@ export const AdminGuests: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-4 self-end sm:self-auto shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-50">
+                                        <div className="flex items-center gap-3 self-end sm:self-auto shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-50">
                                             <span className="bg-gray-100 text-gray-500 font-bold text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-lg">
                                                 {totalInquiries} {totalInquiries === 1 ? 'Consulta' : 'Consultas'}
                                             </span>
-                                            {cleanPhone && (
+                                            {cleanPhone && latestInquiry && (
                                                 <a 
                                                     href={formatWhatsAppLink(latestInquiry)}
                                                     target="_blank" 
@@ -639,6 +682,14 @@ export const AdminGuests: React.FC = () => {
                                                     <MessageCircle size={15} />
                                                 </a>
                                             )}
+                                            <button
+                                                type="button"
+                                                onClick={(e) => handleDeleteGuest(guest, e)}
+                                                className="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-all shadow-xs"
+                                                title="Eliminar cliente de la agenda"
+                                            >
+                                                <Trash2 size={15} />
+                                            </button>
                                             {isExpanded ? (
                                                 <ChevronDown className="text-gray-400" size={16} />
                                             ) : (
@@ -653,7 +704,7 @@ export const AdminGuests: React.FC = () => {
                                             <h5 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-4 pt-4">Historial de Consultas</h5>
                                             
                                             <div className="space-y-4">
-                                                {guest.inquiries.map((inq, idx) => {
+                                                {inquiriesList.map((inq, idx) => {
                                                     const colors = STATUS_COLORS[inq.status];
                                                     const dateStr = inq.createdAt?.toDate 
                                                         ? inq.createdAt.toDate().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -676,7 +727,7 @@ export const AdminGuests: React.FC = () => {
 
                                                             {/* Guest count details */}
                                                             <div className="flex gap-4 text-xs text-gray-500 font-medium">
-                                                                <span>Huéspedes: {inq.adults} Adultos {inq.children > 0 && `y ${inq.children} Niños`}</span>
+                                                                <span>Huéspedes: {inq.adults} Adultos {inq.children > 0 && `y ${inq.children} Menores`}</span>
                                                             </div>
 
                                                             {/* Message */}
@@ -699,7 +750,7 @@ export const AdminGuests: React.FC = () => {
                                                                     )}
                                                                 </div>
                                                                 
-                                                                {/* Fast status update dropdown in history */}
+                                                                {/* Fast status update dropdown in history & delete */}
                                                                 <div className="flex items-center gap-2 self-end sm:self-auto">
                                                                     <span className="text-[9px] font-bold text-gray-400 uppercase">Estado:</span>
                                                                     <select
@@ -711,6 +762,14 @@ export const AdminGuests: React.FC = () => {
                                                                             <option key={st} value={st}>{STATUS_LABELS[st]}</option>
                                                                         ))}
                                                                     </select>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(e) => handleDeleteInquiry(inq.id, e)}
+                                                                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                        title="Eliminar esta consulta"
+                                                                    >
+                                                                        <Trash2 size={14} />
+                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         </div>

@@ -48,7 +48,13 @@ const AdminBranding: React.FC = () => {
                 setPrimaryColor(settingsData.primaryColor || '#10595a');
                 setSecondaryColor(settingsData.secondaryColor || '#819488');
                 setMaintenanceEnabled(settingsData.maintenanceEnabled || false);
-                setNotificationEmails(settingsData.notificationEmails || []);
+                setNotificationEmails(
+                    Array.isArray(settingsData.notificationEmails)
+                        ? settingsData.notificationEmails
+                        : typeof settingsData.notificationEmails === 'string'
+                        ? settingsData.notificationEmails.split(',').map((e: string) => e.trim()).filter(Boolean)
+                        : []
+                );
             }
             
             if (chatbotData) {
@@ -237,7 +243,7 @@ const AdminBranding: React.FC = () => {
                         </p>
 
                         <div className="space-y-3">
-                            {notificationEmails.map((email, idx) => (
+                            {(Array.isArray(notificationEmails) ? notificationEmails : []).map((email, idx) => (
                                 <div key={idx} className="flex gap-2 items-center">
                                     <input
                                         type="email"

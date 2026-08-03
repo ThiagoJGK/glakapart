@@ -453,8 +453,8 @@ const AdminEvents: React.FC = () => {
                             
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                                 <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-lg">
-                                    <span className="font-bold text-emerald-800 block mb-1">ACTUALIZADOS ({syncSummary.updated.length})</span>
-                                    {syncSummary.updated.length > 0 ? (
+                                    <span className="font-bold text-emerald-800 block mb-1">ACTUALIZADOS ({syncSummary.updated?.length || 0})</span>
+                                    {syncSummary.updated && syncSummary.updated.length > 0 ? (
                                         <ul className="list-disc pl-4 space-y-1 text-emerald-700 max-h-32 overflow-y-auto">
                                             {syncSummary.updated.map((t, idx) => <li key={idx}>{t}</li>)}
                                         </ul>
@@ -462,8 +462,8 @@ const AdminEvents: React.FC = () => {
                                 </div>
 
                                 <div className="bg-gray-50 border border-gray-100 p-3 rounded-lg">
-                                    <span className="font-bold text-gray-700 block mb-1">OMITIDOS ({syncSummary.skipped.length})</span>
-                                    {syncSummary.skipped.length > 0 ? (
+                                    <span className="font-bold text-gray-700 block mb-1">OMITIDOS ({syncSummary.skipped?.length || 0})</span>
+                                    {syncSummary.skipped && syncSummary.skipped.length > 0 ? (
                                         <ul className="list-disc pl-4 space-y-1 text-gray-600 max-h-32 overflow-y-auto">
                                             {syncSummary.skipped.map((t, idx) => <li key={idx}>{t}</li>)}
                                         </ul>
@@ -471,8 +471,8 @@ const AdminEvents: React.FC = () => {
                                 </div>
 
                                 <div className="bg-rose-50 border border-rose-100 p-3 rounded-lg">
-                                    <span className="font-bold text-rose-800 block mb-1">FALLIDOS ({syncSummary.failed.length})</span>
-                                    {syncSummary.failed.length > 0 ? (
+                                    <span className="font-bold text-rose-800 block mb-1">FALLIDOS ({syncSummary.failed?.length || 0})</span>
+                                    {syncSummary.failed && syncSummary.failed.length > 0 ? (
                                         <ul className="list-disc pl-4 space-y-1 text-rose-700 max-h-32 overflow-y-auto">
                                             {syncSummary.failed.map((f, idx) => (
                                                 <li key={idx}>

@@ -123,7 +123,7 @@ const GeneralBookingForm: React.FC = () => {
         });
 
         // Mensaje conversacional para WhatsApp
-        const guestsText = `Somos ${adultsCount} ${adultsCount === 1 ? 'adulto' : 'adultos'}${childrenCount > 0 ? ` y ${childrenCount} ${childrenCount === 1 ? 'niño' : 'niños'}` : ''}.`;
+        const guestsText = `Somos ${adultsCount} ${adultsCount === 1 ? 'adulto' : 'adultos'}${childrenCount > 0 ? ` y ${childrenCount} ${childrenCount === 1 ? 'menor' : 'menores'}` : ''}.`;
         const text = `¡Hola! Estuve viendo la página de Glak Apart. Mi nombre es ${firstName} ${lastName} y quería consultar disponibilidad para las fechas del ${checkInWA} al ${checkOutWA}. ${guestsText}${message ? `\n\nMi consulta es: ${message}` : ''}`;
 
         const encodedText = encodeURIComponent(text);
@@ -536,7 +536,7 @@ const GeneralBookingForm: React.FC = () => {
                         )}
                     </div>
                     <div className="group">
-                        <label className={labelClass}>NIÑOS</label>
+                        <label className={labelClass}>MENORES</label>
                         <input
                             type="number"
                             min="0"
@@ -589,10 +589,10 @@ const GeneralBookingForm: React.FC = () => {
                     )}
                 </button>
 
-                {/* AVISO DE PRIVACIDAD INLINE */}
-                <div className="p-2 px-3 bg-[#f3f9f5] border border-[#d6ebd9] rounded-xl text-xs text-gray-600 leading-relaxed flex items-start gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#10595a] shrink-0 mt-0.5" />
-                    <span>Al enviar tu consulta, guardaremos tus datos para poder comunicarnos contigo. Si no envías el mensaje por WhatsApp, igualmente nos pondremos en contacto.</span>
+                {/* AVISO DE RESPUESTA A LA BREVEDAD */}
+                <div className="p-3 px-4 bg-[#f3f9f5] border border-[#c5e4cb] rounded-xl text-xs sm:text-sm font-semibold text-[#10595a] leading-snug flex items-center gap-2.5 shadow-xs">
+                    <ShieldCheck className="w-5 h-5 text-[#10595a] shrink-0" />
+                    <span>Luego de enviar tu consulta nos pondremos en contacto contigo a la brevedad.</span>
                 </div>
 
                 <p className="text-[9px] text-gray-300 text-center tracking-wide mt-1">Redirige a WhatsApp</p>

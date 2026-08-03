@@ -90,19 +90,20 @@ const AdminStats: React.FC = () => {
         const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
         const weekStart = daysAgo(7);
 
-        const pageViews = events.filter(e => e.event === 'page_view');
-        const todayViews = pageViews.filter(e => e.timestamp.toDate() >= todayStart);
-        const weekViews = pageViews.filter(e => e.timestamp.toDate() >= weekStart);
+        const safeEvents = Array.isArray(events) ? events : [];
+        const pageViews = safeEvents.filter(e => e?.event === 'page_view');
+        const todayViews = pageViews.filter(e => e?.timestamp?.toDate && e.timestamp.toDate() >= todayStart);
+        const weekViews = pageViews.filter(e => e?.timestamp?.toDate && e.timestamp.toDate() >= weekStart);
 
         // Unique sessions & visitors
-        const uniqueSessions = new Set(events.map(e => e.sessionId));
-        const uniqueVisitors = new Set(events.map(e => e.visitorId));
+        const uniqueSessions = new Set(safeEvents.filter(e => e?.sessionId).map(e => e.sessionId));
+        const uniqueVisitors = new Set(safeEvents.filter(e => e?.visitorId).map(e => e.visitorId));
 
         // Conversions
-        const bookingInquiries = events.filter(e => e.event === 'booking_inquiry');
-        const whatsappClicks = events.filter(e => e.event === 'whatsapp_click');
-        const emailClicks = events.filter(e => e.event === 'email_click');
-        const formOpens = events.filter(e => e.event === 'booking_form_open');
+        const bookingInquiries = safeEvents.filter(e => e?.event === 'booking_inquiry');
+        const whatsappClicks = safeEvents.filter(e => e?.event === 'whatsapp_click');
+        const emailClicks = safeEvents.filter(e => e?.event === 'email_click');
+        const formOpens = safeEvents.filter(e => e?.event === 'booking_form_open');
 
         // Conversion rate
         const convRate = uniqueSessions.size > 0
@@ -111,20 +112,20 @@ const AdminStats: React.FC = () => {
 
         // ─── Top Pages ───
         const pageCounts: Record<string, number> = {};
-        pageViews.forEach(e => { pageCounts[e.page] = (pageCounts[e.page] || 0) + 1; });
+        pageViews.forEach(e => { if (e?.page) pageCounts[e.page] = (pageCounts[e.page] || 0) + 1; });
         const topPages = Object.entries(pageCounts)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 6);
 
         // ─── Top Apartments ───
         const aptViews: Record<string, number> = {};
-        events.filter(e => e.event === 'apartment_view').forEach(e => {
+        safeEvents.filter(e => e?.event === 'apartment_view').forEach(e => {
             const apt = e.params?.apartment;
             if (apt) aptViews[apt] = (aptViews[apt] || 0) + 1;
         });
         const aptInquirySessions = new Set(bookingInquiries.map(e => e.sessionId));
         const aptBooked: Record<string, number> = {};
-        events.filter(e => e.event === 'apartment_view' && aptInquirySessions.has(e.sessionId)).forEach(e => {
+        safeEvents.filter(e => e?.event === 'apartment_view' && aptInquirySessions.has(e.sessionId)).forEach(e => {
             const apt = e.params?.apartment;
             if (apt) aptBooked[apt] = (aptBooked[apt] || 0) + 1;
         });
@@ -132,7 +133,7 @@ const AdminStats: React.FC = () => {
         // ─── Funnel ───
         const funnelSessions = {
             visited: uniqueSessions.size,
-            viewedApt: new Set(events.filter(e => e.event === 'apartment_view').map(e => e.sessionId)).size,
+            viewedApt: new Set(safeEvents.filter(e => e?.event === 'apartment_view').map(e => e.sessionId)).size,
             openedForm: new Set(formOpens.map(e => e.sessionId)).size,
             inquired: new Set(bookingInquiries.map(e => e.sessionId)).size,
         };
@@ -151,6 +152,7 @@ const AdminStats: React.FC = () => {
                     labelLine1: weekday,
                     labelLine2: day,
                     count: pageViews.filter(e => {
+                        if (!e?.timestamp?.toDate) return false;
                         const d = e.timestamp.toDate();
                         return d >= dayStart && d < dayEnd;
                     }).length,
@@ -171,6 +173,7 @@ const AdminStats: React.FC = () => {
                     labelLine1: monthName,
                     labelLine2: `'${yearStr}`,
                     count: pageViews.filter(e => {
+                        if (!e?.timestamp?.toDate) return false;
                         const d = e.timestamp.toDate();
                         return d.getMonth() === month && d.getFullYear() === year;
                     }).length,
@@ -191,7 +194,7 @@ const AdminStats: React.FC = () => {
         // Cross-interest: sessions that viewed apt X but booked from apt Y context
         // Simplified: which apts did converting sessions view?
         const convertingAptViews: Record<string, number> = {};
-        events.filter(e => e.event === 'apartment_view' && inquirySessions.has(e.sessionId)).forEach(e => {
+        safeEvents.filter(e => e?.event === 'apartment_view' && inquirySessions.has(e.sessionId)).forEach(e => {
             const apt = e.params?.apartment;
             if (apt) convertingAptViews[apt] = (convertingAptViews[apt] || 0) + 1;
         });
@@ -199,7 +202,7 @@ const AdminStats: React.FC = () => {
         // Average pages before booking
         const pagesBeforeBooking: number[] = [];
         inquirySessions.forEach(sid => {
-            const sessionEvents = events.filter(e => e.sessionId === sid && e.event === 'page_view');
+            const sessionEvents = safeEvents.filter(e => e?.sessionId === sid && e?.event === 'page_view');
             pagesBeforeBooking.push(sessionEvents.length);
         });
         const avgPagesBeforeBooking = pagesBeforeBooking.length > 0
@@ -207,24 +210,24 @@ const AdminStats: React.FC = () => {
             : '0';
 
         // Mobile vs Desktop
-        const mobileCount = events.filter(e => e.event === 'page_view' && e.isMobile).length;
-        const desktopCount = events.filter(e => e.event === 'page_view' && !e.isMobile).length;
+        const mobileCount = safeEvents.filter(e => e?.event === 'page_view' && e?.isMobile).length;
+        const desktopCount = safeEvents.filter(e => e?.event === 'page_view' && !e?.isMobile).length;
 
         // Top FAQs
         const faqCounts: Record<string, number> = {};
-        events.filter(e => e.event === 'faq_open').forEach(e => {
+        safeEvents.filter(e => e?.event === 'faq_open').forEach(e => {
             const q = e.params?.question || 'Desconocida';
             faqCounts[q] = (faqCounts[q] || 0) + 1;
         });
         const topFaqs = Object.entries(faqCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
         // ─── Chatbot Stats ───
-        const chatbotResponses = events.filter(e => e.event === 'chatbot_response');
+        const chatbotResponses = safeEvents.filter(e => e?.event === 'chatbot_response');
         const chatbotSuccesses = chatbotResponses.filter(e => e.params?.success === true);
         const chatbotErrors = chatbotResponses.filter(e => e.params?.success === false);
-        const chatbotEventInquiries = events.filter(e => e.event === 'chatbot_event_inquiry');
-        const chatbotBookingReady = events.filter(e => e.event === 'chatbot_booking_ready');
-        const chatbotWhatsAppClicks = events.filter(e => e.event === 'chatbot_whatsapp_click');
+        const chatbotEventInquiries = safeEvents.filter(e => e?.event === 'chatbot_event_inquiry');
+        const chatbotBookingReady = safeEvents.filter(e => e?.event === 'chatbot_booking_ready');
+        const chatbotWhatsAppClicks = safeEvents.filter(e => e?.event === 'chatbot_whatsapp_click');
 
         // Provider distribution
         const providerCounts: Record<string, number> = {};
@@ -237,9 +240,9 @@ const AdminStats: React.FC = () => {
 
         // /links specific analytics
         const linksPageViews = pageViews.filter(e => e.page === '/links').length;
-        const linksWhatsappClicks = events.filter(e => e.event === 'links_whatsapp_click').length;
-        const linksSiteClicks = events.filter(e => e.event === 'links_site_click').length;
-        const linksCalendarToggles = events.filter(e => e.event === 'links_calendar_toggle').length;
+        const linksWhatsappClicks = safeEvents.filter(e => e?.event === 'links_whatsapp_click').length;
+        const linksSiteClicks = safeEvents.filter(e => e?.event === 'links_site_click').length;
+        const linksCalendarToggles = safeEvents.filter(e => e?.event === 'links_calendar_toggle').length;
  
         return {
             pageViews: pageViews.length,
@@ -340,7 +343,7 @@ const AdminStats: React.FC = () => {
                         <BarChart3 size={14} /> VISITAS {viewType === 'daily' ? 'POR DÍA' : 'POR MES'}
                     </h3>
                     <div className="flex items-end gap-2 h-48 pb-8 px-1 mt-2">
-                        {stats.chartData.map((d, i) => (
+                        {(stats.chartData || []).map((d, i) => (
                             <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group">
                                 <span className="text-[10px] text-gray-400 font-mono mb-1 opacity-0 group-hover:opacity-100 transition-opacity">{d.count || ''}</span>
                                 <div className="w-full flex-1 relative">
@@ -465,7 +468,7 @@ const AdminStats: React.FC = () => {
                         <div className="space-y-2">
                             <p className="text-xs font-bold text-gray-500">Distribución de Respuestas por IA:</p>
                             <div className="space-y-2">
-                                {stats.providerStats.map(([provider, count]) => {
+                                {(stats.providerStats || []).map(([provider, count]) => {
                                     const pct = stats.chatbotTotal > 0 ? Math.round((count / stats.chatbotTotal) * 100) : 0;
                                     let color = "bg-teal-500";
                                     let displayName = provider;
@@ -613,7 +616,7 @@ const AdminStats: React.FC = () => {
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 className="font-ui text-xs tracking-widest text-gray-400 mb-4">📊 PÁGINAS MÁS VISITADAS</h3>
                     <div className="space-y-2">
-                        {stats.topPages.map(([page, count], i) => (
+                        {(stats.topPages || []).map(([page, count], i) => (
                             <div key={page} className="flex items-center gap-3">
                                 <span className="text-xs text-gray-300 w-4">{i + 1}</span>
                                 <div className="flex-1 bg-gray-50 rounded-lg px-3 py-2 flex justify-between">
@@ -622,7 +625,7 @@ const AdminStats: React.FC = () => {
                                 </div>
                             </div>
                         ))}
-                        {stats.topPages.length === 0 && <p className="text-sm text-gray-400 italic">Sin datos aún</p>}
+                        {(!stats.topPages || stats.topPages.length === 0) && <p className="text-sm text-gray-400 italic">Sin datos aún</p>}
                     </div>
                 </div>
 
@@ -630,7 +633,7 @@ const AdminStats: React.FC = () => {
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 className="font-ui text-xs tracking-widest text-gray-400 mb-4">❓ PREGUNTAS MÁS ABIERTAS</h3>
                     <div className="space-y-2">
-                        {stats.topFaqs.map(([q, count], i) => (
+                        {(stats.topFaqs || []).map(([q, count], i) => (
                             <div key={q} className="flex items-center gap-3">
                                 <span className="text-xs text-gray-300 w-4">{i + 1}</span>
                                 <div className="flex-1 bg-gray-50 rounded-lg px-3 py-2 flex justify-between gap-2">
@@ -639,7 +642,7 @@ const AdminStats: React.FC = () => {
                                 </div>
                             </div>
                         ))}
-                        {stats.topFaqs.length === 0 && <p className="text-sm text-gray-400 italic">Sin datos aún</p>}
+                        {(!stats.topFaqs || stats.topFaqs.length === 0) && <p className="text-sm text-gray-400 italic">Sin datos aún</p>}
                     </div>
                 </div>
             </div>

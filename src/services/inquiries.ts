@@ -4,6 +4,7 @@ import {
     query, 
     orderBy, 
     updateDoc, 
+    deleteDoc,
     onSnapshot, 
     addDoc, 
     Timestamp, 
@@ -358,3 +359,33 @@ export const seedSampleInquiries = async () => {
         return false;
     }
 };
+
+/**
+ * Delete a single inquiry by ID.
+ */
+export const deleteInquiry = async (id: string): Promise<void> => {
+    try {
+        const docRef = doc(db, INQUIRIES_COLLECTION, id);
+        await deleteDoc(docRef);
+    } catch (error) {
+        console.error("Error deleting inquiry: ", error);
+        throw error;
+    }
+};
+
+/**
+ * Delete a guest and all associated inquiry documents.
+ */
+export const deleteGuest = async (inquiryIds: string[], guestId?: string): Promise<void> => {
+    try {
+        const promises: Promise<void>[] = inquiryIds.map(id => deleteDoc(doc(db, INQUIRIES_COLLECTION, id)));
+        if (guestId) {
+            promises.push(deleteDoc(doc(db, GUESTS_COLLECTION, guestId)));
+        }
+        await Promise.all(promises);
+    } catch (error) {
+        console.error("Error deleting guest: ", error);
+        throw error;
+    }
+};
+
